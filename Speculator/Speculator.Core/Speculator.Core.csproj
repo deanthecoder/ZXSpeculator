@@ -9,6 +9,19 @@
 
     <ItemGroup>
       <PackageReference Include="Avalonia" Version="11.0.2" />
+      <PackageReference Include="libsoundio-sharp-net" Version="1.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="runtimes\osx\native\libsoundio.dylib">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="runtimes\osx\native\libsoundio.2.dylib">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="runtimes\osx\native\libsoundio.2.0.0.dylib">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

@@ -183,8 +183,8 @@ public static class ZXFileFormats
         }
     }
 
-    private static string m_lastSaveFolder;
     /*
+    private static string m_lastSaveFolder;
     public static void SaveFile(CPU cpu)
     {
         SaveFileDialog dlg = new SaveFileDialog

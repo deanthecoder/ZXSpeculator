@@ -85,11 +85,19 @@ public class Registers
     public StorageRegisters Main
     {
         get { return m_storageRegisters[m_mainRegIndex]; }
+        set
+        {
+            m_storageRegisters[m_mainRegIndex] = value;
+        }
     }
 
     public StorageRegisters Alt
     {
         get { return m_storageRegisters[(m_mainRegIndex + 1) % 2]; }
+        set
+        {
+            m_storageRegisters[(m_mainRegIndex + 1) % 2] = value;
+        }
     }
 
     // Hardware control.

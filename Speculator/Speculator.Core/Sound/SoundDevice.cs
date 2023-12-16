@@ -1,0 +1,154 @@
+﻿using SoundIOSharp;
+
+namespace Speculator.Core.Sound;
+
+/// <summary>
+/// A sound device to interface with the host machine's sound card.
+/// </summary>
+public class SoundDevice
+{
+    private readonly int m_sampleHz;
+    private Action<IntPtr, double> m_writeSampleFunc;
+    private readonly List<double> m_soundBuffer = new List<double>(4096);
+    
+    public SoundDevice(int sampleHz)
+    {
+        m_sampleHz = sampleHz;
+    }
+
+    public void SoundLoop(Func<bool> isCancelled)
+    {
+        using var api = new SoundIO();
+        api.Connect();
+        api.FlushEvents();
+
+        var device = api.GetOutputDevice(api.DefaultOutputDeviceIndex);
+        if (device == null)
+        {
+            Console.Error.WriteLine("Output sound device not found.");
+            return;
+        }
+
+        if (device.ProbeError != 0)
+        {
+            Console.Error.WriteLine("Cannot probe sound device.");
+            return;
+        }
+
+        var outStream = device.CreateOutStream();
+
+        outStream.WriteCallback = (min, max) => WriteCallback(outStream, min, max);
+        outStream.SampleRate = m_sampleHz;
+        outStream.ErrorCallback += () => Console.WriteLine("Sound error.");
+        outStream.UnderflowCallback += () => Console.WriteLine("Sound underflow.");
+
+        if (device.SupportsFormat(SoundIODevice.Float32NE))
+        {
+            outStream.Format = SoundIODevice.Float32NE;
+            m_writeSampleFunc = write_sample_float32ne;
+        }
+        else if (device.SupportsFormat(SoundIODevice.Float64NE))
+        {
+            outStream.Format = SoundIODevice.Float64NE;
+            m_writeSampleFunc = write_sample_float64ne;
+        }
+        else if (device.SupportsFormat(SoundIODevice.S32NE))
+        {
+            outStream.Format = SoundIODevice.S32NE;
+            m_writeSampleFunc = write_sample_s32ne;
+        }
+        else if (device.SupportsFormat(SoundIODevice.S16NE))
+        {
+            outStream.Format = SoundIODevice.S16NE;
+            m_writeSampleFunc = write_sample_s16ne;
+        }
+        else
+        {
+            Console.Error.WriteLine("No suitable sound format available.");
+            return;
+        }
+
+        outStream.Open();
+            
+        if (outStream.LayoutErrorMessage != null)
+            Console.Error.WriteLine("Unable to set sound channel layout: " + outStream.LayoutErrorMessage);
+
+        outStream.Start();
+
+        while (!isCancelled())
+            api.FlushEvents();
+
+        outStream.Dispose();
+        device.RemoveReference();
+    }
+
+    /// <summary>
+    /// Called periodically by the sound library to send more data to the sound card.
+    /// </summary>
+    private void WriteCallback(SoundIOOutStream outStream, int frameCountMin, int frameCountMax)
+    {
+        lock (m_soundBuffer)
+        {
+            if (m_soundBuffer.Count < frameCountMin)
+                return; // No (or not enough) data, yet.
+
+            // Stream the buffer samples.
+            var sampleCount = Math.Min(m_soundBuffer.Count, frameCountMax);
+            var results = outStream.BeginWrite(ref sampleCount);
+            var layout = outStream.Layout;
+
+            for (var i = 0; i < sampleCount; i++)
+            {
+                // Write sample to both device channels.
+                for (var channel = 0; channel < layout.ChannelCount; channel++)
+                {
+                    var area = results.GetArea(channel);
+                    m_writeSampleFunc(area.Pointer, m_soundBuffer[i]);
+                    area.Pointer += area.Step;
+                }
+            }
+
+            outStream.EndWrite();
+
+            // Remove the 'sent' samples from the front of the sound buffer.
+            m_soundBuffer.RemoveRange(0, sampleCount);
+        }
+    }
+
+    private unsafe static void write_sample_s16ne(IntPtr ptr, double sample)
+    {
+        var buf = (short*)ptr;
+        var range = short.MaxValue - (double)short.MinValue;
+        var val = sample * range / 2.0;
+        *buf = (short)val;
+    }
+
+    private unsafe static void write_sample_s32ne(IntPtr ptr, double sample)
+    {
+        var buf = (int*)ptr;
+        var range = int.MaxValue - (double)int.MinValue;
+        var val = sample * range / 2.0;
+        *buf = (int)val;
+    }
+
+    private unsafe static void write_sample_float32ne(IntPtr ptr, double sample)
+    {
+        var buf = (float*)ptr;
+        *buf = (float)sample;
+    }
+
+    private unsafe static void write_sample_float64ne(IntPtr ptr, double sample)
+    {
+        var buf = (double*)ptr;
+        *buf = sample;
+    }
+    
+    /// <summary>
+    /// Append a sample (0.0 - 1.0) to the buffer.
+    /// </summary>
+    public void AddSample(double sampleValue)
+    {
+        lock (m_soundBuffer)
+            m_soundBuffer.Add(sampleValue);
+    }
+}

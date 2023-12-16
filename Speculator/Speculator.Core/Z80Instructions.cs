@@ -1156,7 +1156,7 @@ public partial class Z80Instructions
                     case 0xBE: // CP (IX+d)
                         return Instructions[169];
                     case 0xCB: // DDCB prefix
-                        return InstructionSubSetDDCB.FirstOrDefault(o => o.startsWithOpcodeBytes(mainMemory, addr));
+                        return InstructionSubSetDDCB.FirstOrDefault(o => o.StartsWithOpcodeBytes(mainMemory, addr));
                     case 0xE1: // POP IX
                         return Instructions[478];
                     case 0xE3: // EX (SP),IX
@@ -1514,7 +1514,7 @@ public partial class Z80Instructions
                     case 0xBE: // CP (IY+d)
                         return Instructions[170];
                     case 0xCB: // FDCB prefix
-                        return InstructionSubSetFDCB.FirstOrDefault(o => o.startsWithOpcodeBytes(mainMemory, addr));
+                        return InstructionSubSetFDCB.FirstOrDefault(o => o.StartsWithOpcodeBytes(mainMemory, addr));
                     case 0xE1: // POP IY
                         return Instructions[479];
                     case 0xE3: // EX (SP),IY
@@ -1539,14 +1539,11 @@ public partial class Z80Instructions
 
     #region Auto-generated code.
     private List<Instruction> m_instructionSubSetDDCB;
-    private IEnumerable<Instruction> InstructionSubSetDDCB
-    {
-        get { return m_instructionSubSetDDCB ??= Instructions.Where(o => o.HexTemplate.Replace(" ", string.Empty).StartsWith("DDCB")).ToList(); }
-    }
+    private IEnumerable<Instruction> InstructionSubSetDDCB =>
+        m_instructionSubSetDDCB ??= Instructions.Where(o => o.HexTemplate.Replace(" ", string.Empty).StartsWith("DDCB")).ToList();
     private List<Instruction> m_instructionSubSetFDCB;
-    private IEnumerable<Instruction> InstructionSubSetFDCB
-    {
-        get { return m_instructionSubSetFDCB ??= Instructions.Where(o => o.HexTemplate.Replace(" ", string.Empty).StartsWith("FDCB")).ToList(); }
-    }
+    private IEnumerable<Instruction> InstructionSubSetFDCB =>
+        m_instructionSubSetFDCB ??= Instructions.Where(o => o.HexTemplate.Replace(" ", string.Empty).StartsWith("FDCB")).ToList();
+
     #endregion
 }

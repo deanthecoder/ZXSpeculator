@@ -18,17 +18,17 @@ namespace Speculator.Core;
 
 public partial class CPU
 {
-    private readonly SoundChip m_soundChip;
-    protected internal Z80Instructions InstructionSet { get; }
+    private readonly SoundHandler m_soundHandler;
+    private Z80Instructions InstructionSet { get; }
     public Registers TheRegisters { get; }
     public Memory MainMemory { get; }
     private ALU TheAlu { get; }
     private IPortHandler ThePortHandler { get; }
     private Thread m_cpuThread;
 
-    public CPU(Memory mainMemory, IPortHandler portHandler = null, SoundChip soundChip = null)
+    public CPU(Memory mainMemory, IPortHandler portHandler = null, SoundHandler soundHandler = null)
     {
-        m_soundChip = soundChip;
+        m_soundHandler = soundHandler;
         MainMemory = mainMemory;
         InstructionSet = new Z80Instructions();
         TheRegisters = new Registers();
@@ -37,7 +37,7 @@ public partial class CPU
         m_clockSync = new ClockSync(TStatesPerSecond);
     }
 
-    public bool FullThrottle { get; set; }
+    public bool FullThrottle { get; }
 
     public void PowerOnAsync()
     {
@@ -94,11 +94,13 @@ public partial class CPU
 
             // Execute instruction.
             if (!FullThrottle)
-                m_clockSync.SyncWithRealTime();
+                m_clockSync.SyncWithRealTime(TStatesSinceCpuStart);
 
             var TStates = ExecuteAtPC();
             TStatesSinceCpuStart += TStates;
-            m_clockSync.IncrementEmulationTicks(TStates);
+            
+            // Record speaker state.
+            m_soundHandler.SampleSpeakerState(TStatesSinceCpuStart);
 
             // Handle interrupts.
             m_TStatesSinceInterrupt += TStates;
@@ -118,11 +120,9 @@ public partial class CPU
                     TheRegisters.PC++;
                 }
 
-                m_soundChip.OnCpuInterrupt();
-
                 // Screen refresh.
                 m_TStatesSinceInterrupt -= TStatesPerInterrupt;
-                RenderCallbackEvent?.Invoke(this, new RenderCallbackArgs());
+                RenderCallbackEvent?.Invoke(this);
 
                 // Handle MI interrupts.
                 if (TheRegisters.IFF1)
@@ -162,17 +162,10 @@ public partial class CPU
 
     private long TStatesSinceCpuStart { get; set; }
 
-    private static double TStatesPerSecond
-    {
-        get { return 3494400; }
-    }
+    public const double TStatesPerSecond = 3494400;
 
     public int TStatesPerInterrupt { private get; set; }
-    public delegate void RenderCallbackEventHandler(CPU sender, RenderCallbackArgs args);
-
-    public class RenderCallbackArgs
-    {
-    }
+    public delegate void RenderCallbackEventHandler(CPU sender);
 
     public event RenderCallbackEventHandler RenderCallbackEvent;
 

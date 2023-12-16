@@ -25,10 +25,7 @@ public class Instruction
 
     internal string FlagModifiers
     {
-        get
-        {
-            return m_flagModifiers;
-        }
+        get => m_flagModifiers;
         set
         {
             Debug.Assert(string.IsNullOrEmpty(m_flagModifiers), "FlagModifiers already set.");
@@ -37,7 +34,7 @@ public class Instruction
         }
     }
 
-    protected internal string ResultRegName { get; set; }
+    private string ResultRegName { get; set; }
 
     public Instruction(Z80Instructions.InstructionID id, string mnemonicTemplate, string hexTemplate, int TStateCount = 0)
     {
@@ -51,27 +48,15 @@ public class Instruction
         m_TStateCount = TStateCount;
     }
 
-    public string MnemonicTemplate
-    {
-        get { return m_mnemonicTemplate; }
-    }
+    public string MnemonicTemplate => m_mnemonicTemplate;
 
-    public string HexTemplate
-    {
-        get { return m_hexTemplate; }
-    }
+    public string HexTemplate => m_hexTemplate;
 
-    public int TStateCount
-    {
-        get { return m_TStateCount; }
-    }
+    public int TStateCount => m_TStateCount;
 
-    public Z80Instructions.InstructionID ID
-    {
-        get { return m_id; }
-    }
+    public Z80Instructions.InstructionID ID => m_id;
 
-    public int ByteCount { get; set; }
+    public int ByteCount { get; }
 
     private int m_valueByteOffset = -1;
     public int ValueByteOffset
@@ -97,7 +82,8 @@ public class Instruction
     }
 
     private byte?[] m_opcodeBytes;
-    public bool startsWithOpcodeBytes(Memory mainMemory, int addr)
+    
+    public bool StartsWithOpcodeBytes(Memory mainMemory, int addr)
     {
         if (m_opcodeBytes == null)
         {
@@ -135,7 +121,7 @@ public class Instruction
         return new[] { 'S', 'Z', 'H', 'P', 'N', 'C' }[n];
     }
 
-    readonly int[] RegisterFlagBits = new[] { 7, 6, 4, 2, 1, 0 };
+    readonly int[] RegisterFlagBits = { 7, 6, 4, 2, 1, 0 };
 
     public bool CheckFlagChanges(byte oldFlags, CPU cpu)
     {

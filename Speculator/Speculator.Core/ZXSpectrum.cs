@@ -18,10 +18,12 @@ public class ZxSpectrum : IDisposable
     // ReSharper disable once InconsistentNaming
     private const int TStatesPerRenderFrame = 69888;
 
+    private SoundHandler m_soundHandler;
+
     public ZxSpectrum(ZXDisplay display)
     {
         TheDisplay = display;
-        TheCpu = new CPU(new Memory(64 * 1024), PortHandler, SoundChip)
+        TheCpu = new CPU(new Memory(64 * 1024), PortHandler, SoundHandler)
         {
             TStatesPerInterrupt = TStatesPerRenderFrame
         };
@@ -29,17 +31,13 @@ public class ZxSpectrum : IDisposable
         TheCpu.RenderCallbackEvent += TheCPU_RenderCallbackEvent;
     }
 
-    private SoundChip m_soundChip;
-    private SoundChip SoundChip => m_soundChip ??= new SoundChip();
+    private SoundHandler SoundHandler => m_soundHandler ??= new SoundHandler();
 
     public CPU TheCpu { get; }
     private ZXDisplay TheDisplay { get; }
 
     private ZXPortHandler m_portHandler;
-    public ZXPortHandler PortHandler
-    {
-        get { return m_portHandler ??= new ZXPortHandler(SoundChip); }
-    }
+    public ZXPortHandler PortHandler => m_portHandler ??= new ZXPortHandler(SoundHandler);
 
     public ZxSpectrum LoadBasicRom()
     {
@@ -48,15 +46,11 @@ public class ZxSpectrum : IDisposable
         return this;
     }
 
-    private void TheCPU_RenderCallbackEvent(CPU sender, CPU.RenderCallbackArgs args)
-    {
-        // todo - Invoke on UI thread.
-        TheDisplay.UpdateScreen(sender);
-    }
+    private void TheCPU_RenderCallbackEvent(CPU sender) => TheDisplay.UpdateScreen(sender);
 
     public void Dispose()
     {
-        m_soundChip?.Dispose();
+        m_soundHandler?.Dispose();
         TheCpu?.PowerOffAsync();
     }
     

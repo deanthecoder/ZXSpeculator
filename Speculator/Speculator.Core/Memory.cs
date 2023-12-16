@@ -20,10 +20,7 @@ public class Memory
     private int m_romSize;
     public int ROMSize
     {
-        get
-        {
-            return m_romSize;
-        }
+        get => m_romSize;
         set
         {
             Debug.Assert(value <= m_maxAddress);
@@ -42,15 +39,9 @@ public class Memory
         m_data = new byte[m_maxAddress];
     }
 
-    public byte[] Data
-    {
-        get { return m_data; }
-    }
+    public byte[] Data => m_data;
 
-    public int MaxAddress
-    {
-        get { return m_maxAddress; }
-    }
+    public int MaxAddress => m_maxAddress;
 
     public void ClearAll()
     {

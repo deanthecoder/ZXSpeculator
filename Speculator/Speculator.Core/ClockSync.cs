@@ -16,7 +16,6 @@ namespace Speculator.Core;
 public class ClockSync
 {
     private readonly Stopwatch m_realTime;
-    private long m_emulatedTicks;
     private readonly double m_emulatedTicksPerSecond;
 
     public ClockSync(double emulatedCpuMHz)
@@ -25,20 +24,15 @@ public class ClockSync
         m_emulatedTicksPerSecond = emulatedCpuMHz;
     }
 
-    public void SyncWithRealTime()
+    public void SyncWithRealTime(long ticksSinceCpuStart)
     {
-        var emulatedUptimeSecs = m_emulatedTicks / m_emulatedTicksPerSecond;
-        var targetRealUptimeTicks = Stopwatch.Frequency * emulatedUptimeSecs;
+        var emulatedUptimeSecs = ticksSinceCpuStart / m_emulatedTicksPerSecond;
+        var targetRealElapsedTicks = Stopwatch.Frequency * emulatedUptimeSecs;
 
-        while (m_realTime.ElapsedTicks < targetRealUptimeTicks)
+        while (m_realTime.ElapsedTicks < targetRealElapsedTicks)
         {
             // Absolutely nothing.
-            Thread.Sleep(1);
+            Thread.Sleep(0);
         }
-    }
-
-    public void IncrementEmulationTicks(long ticks)
-    {
-        m_emulatedTicks += ticks;
     }
 }

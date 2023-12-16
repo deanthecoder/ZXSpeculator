@@ -21,11 +21,11 @@ public interface IPortHandler
 
 public class ZXPortHandler : IPortHandler
 {
-    private readonly SoundChip m_soundChip;
+    private readonly SoundHandler m_soundHandler;
 
-    public ZXPortHandler(SoundChip soundChip)
+    public ZXPortHandler(SoundHandler soundHandler)
     {
-        m_soundChip = soundChip;
+        m_soundHandler = soundHandler;
         m_PCToSpectrumKeyMap[Key.Back] = new List<Key> { Key.LeftShift, Key.D0 };
         m_PCToSpectrumKeyMap[Key.OemComma] = new List<Key> { Key.RightShift, Key.N };
         m_PCToSpectrumKeyMap[Key.OemPeriod] = new List<Key> { Key.RightShift, Key.M };
@@ -124,7 +124,7 @@ public class ZXPortHandler : IPortHandler
             return;
 
         var bit4 = (b & (1 << 4)) != 0;
-        m_soundChip.SetSpeakerState(bit4, false);
+        m_soundHandler.SetSpeakerState(bit4);
     }
 
     private bool IsKeyPressed(Key key)
