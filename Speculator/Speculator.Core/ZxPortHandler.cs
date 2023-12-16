@@ -13,25 +13,65 @@ using Avalonia.Input;
 
 namespace Speculator.Core;
 
-public interface IPortHandler
+public class KeyId
 {
-    byte In(int portAddress);
-    void Out(byte port, byte b);
+    public Key Key { get; }
+    public KeyModifiers KeyModifiers { get; }
+
+    public static implicit operator KeyId(Key key) => new KeyId(key);
+
+    public KeyId(Key key, KeyModifiers keyModifiers = KeyModifiers.None)
+    {
+        Key = key;
+        KeyModifiers = keyModifiers;
+    }
+
+    private bool Equals(KeyId other) =>
+        Key == other.Key && KeyModifiers == other.KeyModifiers;
+    
+    public override bool Equals(object obj)
+    {
+        if (ReferenceEquals(null, obj))
+            return false;
+        if (ReferenceEquals(this, obj))
+            return true;
+        return obj.GetType() == GetType() && Equals((KeyId)obj);
+    }
+    
+    public override int GetHashCode()
+    {
+        unchecked
+        {
+            return ((int)Key * 397) ^ (int)KeyModifiers;
+        }
+    }
 }
 
 public class ZxPortHandler : IPortHandler
 {
     private readonly SoundHandler m_soundHandler;
+    private readonly Dictionary<Key, bool> m_pressedKeys = new Dictionary<Key, bool>();
+    private readonly Dictionary<KeyId, List<Key>> m_pcToSpectrumKeyMap;
 
     public ZxPortHandler(SoundHandler soundHandler)
     {
         m_soundHandler = soundHandler;
-        m_PCToSpectrumKeyMap[Key.Back] = new List<Key> { Key.LeftShift, Key.D0 };
-        m_PCToSpectrumKeyMap[Key.OemComma] = new List<Key> { Key.RightShift, Key.N };
-        m_PCToSpectrumKeyMap[Key.OemPeriod] = new List<Key> { Key.RightShift, Key.M };
-        m_PCToSpectrumKeyMap[Key.OemPlus] = new List<Key> { Key.RightShift, Key.K };
-        m_PCToSpectrumKeyMap[Key.OemMinus] = new List<Key> { Key.RightShift, Key.J };
-        m_PCToSpectrumKeyMap[Key.OemQuestion] = new List<Key> { Key.RightShift, Key.C };
+
+        m_pcToSpectrumKeyMap = new Dictionary<KeyId, List<Key>>
+        {
+            // Map PC key to a sequence of emulated Speccy keys.
+            [Key.Back] = new List<Key> { Key.LeftShift, Key.D0 },
+            [Key.OemComma] = new List<Key> { Key.RightShift, Key.N },
+            [Key.OemPeriod] = new List<Key> { Key.RightShift, Key.M },
+            [Key.OemPlus] = new List<Key> { Key.RightShift, Key.L },
+            [new KeyId(Key.OemPlus, KeyModifiers.Shift)] = new List<Key> { Key.RightShift, Key.K },
+            [Key.OemMinus] = new List<Key> { Key.RightShift, Key.J },
+            [Key.OemQuestion] = new List<Key> { Key.RightShift, Key.C },
+            [Key.OemQuotes] = new List<Key> { Key.RightShift, Key.D7 },
+            [new KeyId(Key.OemQuotes, KeyModifiers.Shift)] = new List<Key> { Key.RightShift, Key.P },
+            [Key.OemSemicolon] = new List<Key> { Key.RightShift, Key.O },
+            [new KeyId(Key.OemSemicolon, KeyModifiers.Shift)] = new List<Key> { Key.RightShift, Key.Z },
+        };
     }
 
     public byte In(int portAddress)
@@ -115,7 +155,7 @@ public class ZxPortHandler : IPortHandler
             if (IsKeyPressed(Key.V)) result |= 1 << 4;
         }
 
-        return (byte)(~result);
+        return (byte)~result;
     }
 
     public void Out(byte port, byte b)
@@ -127,37 +167,29 @@ public class ZxPortHandler : IPortHandler
         m_soundHandler.SetSpeakerState(bit4);
     }
 
-    private bool IsKeyPressed(Key key)
-    {
-        return m_pressedKeys.Contains(key);
-    }
+    private bool IsKeyPressed(Key key) => m_pressedKeys.ContainsKey(key);
 
-    private readonly List<Key> m_pressedKeys = new List<Key>();
-    private readonly Dictionary<Key, List<Key>> m_PCToSpectrumKeyMap = new Dictionary<Key, List<Key>>();
-
-    public void SetKeyDown(Key key)
+    public void SetKeyDown(Key key, KeyModifiers modifiers)
     {
-        if (m_PCToSpectrumKeyMap.ContainsKey(key))
+        var keyId = new KeyId(key, modifiers);
+        if (m_pcToSpectrumKeyMap.TryGetValue(keyId, out var speccyKeys))
         {
-            foreach (Key altKey in m_PCToSpectrumKeyMap[key])
-                SetKeyDown(altKey);
-            return;
+            foreach (var speccyKey in speccyKeys)
+                m_pressedKeys[speccyKey] = true;
         }
-
-        if (! m_pressedKeys.Contains(key))
-            m_pressedKeys.Add(key);
+        
+        m_pressedKeys[key] = true;
     }
 
     public void SetKeyUp(Key key)
     {
-        if (m_PCToSpectrumKeyMap.ContainsKey(key))
-        {
-            foreach (Key altKey in m_PCToSpectrumKeyMap[key])
-                SetKeyUp(altKey);
-            return;
-        }
-
         m_pressedKeys.Remove(key);
+
+        foreach (var keyId in m_pcToSpectrumKeyMap.Keys.Where(o => o.Key == key))
+        {
+            foreach (var speccyKey in m_pcToSpectrumKeyMap[keyId])
+                m_pressedKeys.Remove(speccyKey);
+        }
     }
 
     public void ClearKeys()

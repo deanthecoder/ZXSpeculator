@@ -11,6 +11,7 @@
 
 using System;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Speculator.ViewModels;
@@ -19,6 +20,8 @@ namespace Speculator.Views;
 
 public partial class MainWindow : Window
 {
+    private MainWindowViewModel ViewModel => (MainWindowViewModel)DataContext;
+    
     public MainWindow()
     {
         InitializeComponent();
@@ -26,13 +29,22 @@ public partial class MainWindow : Window
         Closed += (_, _) => (DataContext as IDisposable)?.Dispose();
     }
     
-    private void OnScreenBitmapLoaded(object? sender, RoutedEventArgs e)
+    private void OnScreenBitmapLoaded(object sender, RoutedEventArgs e)
     {
         if (DataContext == null)
             return;
         
         // Kick the UI to update the screen when the emulator updates it.
         var action = new Action(() => (sender as Image)?.InvalidateVisual());
-        ((MainWindowViewModel)DataContext).Display.Refreshed += (_, _) => Dispatcher.UIThread.InvokeAsync(action);
+        ViewModel.Display.Refreshed += (_, _) => Dispatcher.UIThread.InvokeAsync(action);
+    }
+    private void OnKeyDown(object sender, KeyEventArgs e)
+    {
+        ViewModel.Speccy.PortHandler.SetKeyDown(e.Key, e.KeyModifiers);
+    }
+    
+    private void OnKeyUp(object sender, KeyEventArgs e)
+    {
+        ViewModel.Speccy.PortHandler.SetKeyUp(e.Key);
     }
 }

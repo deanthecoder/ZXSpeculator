@@ -224,7 +224,7 @@ public partial class CPU
     private static byte doResetBit(byte b, int i)
     {
         Debug.Assert(i >= 0 && i <= 7, "Index out of range.");
-        var mask = (byte)(~(1 << i));
+        var mask = (byte)~(1 << i);
         return (byte) (b & mask);
     }
 
@@ -307,7 +307,7 @@ public partial class CPU
             : base(string.Format("An invalid/unsupported emulated instruction was encountered: ({0:X4}: {1}...)", cpu.TheRegisters.PC, cpu.MainMemory.readAsHexString(cpu.TheRegisters.PC, 4)))
         {
             var message = base.Message;
-            message = cpu.m_recentInstructionList.Aggregate(message, (current, s) => current + ("\n  " + s));
+            message = cpu.m_recentInstructionList.Aggregate(message, (current, s) => current + "\n  " + s);
             Debug.WriteLine(message);
         }
     }

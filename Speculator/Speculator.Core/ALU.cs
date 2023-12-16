@@ -136,7 +136,7 @@ public class ALU
         var result1 = (byte) (v & 0xff);
         TheRegisters.HalfCarryFlag = isHalfCarry8(b, 0x01, false, false);
         TheRegisters.SignFlag = !isBytePositive(result1);
-        TheRegisters.ZeroFlag = (byte)(v) == 0;
+        TheRegisters.ZeroFlag = (byte)v == 0;
         TheRegisters.SubtractFlag = true;
         var result = (byte)v;
         TheRegisters.ParityFlag = b == 0x80;
@@ -149,7 +149,7 @@ public class ALU
         v += 0x01;
         TheRegisters.HalfCarryFlag = isHalfCarry8(b, 0x01, false, true);
         TheRegisters.SignFlag = !isBytePositive((byte)v);
-        TheRegisters.ZeroFlag = ((byte)v) == 0;
+        TheRegisters.ZeroFlag = (byte)v == 0;
         TheRegisters.SubtractFlag = false;
         TheRegisters.ParityFlag = b == 0x7F;
         return (byte)v;
@@ -606,17 +606,17 @@ public class ALU
 
     private static bool isOverflow16(ushort a, ushort b, ushort result, bool isAddition)
     {
-        var signA = (a >> 15) != 0;
-        var signB = (b >> 15) != 0;
-        var signResult = (result >> 15) != 0;
+        var signA = a >> 15 != 0;
+        var signB = b >> 15 != 0;
+        var signResult = result >> 15 != 0;
         return isOverflow(signA, signB, signResult, isAddition);
     }
 
     private static bool isOverflow8(byte a, byte b, byte result, bool isAddition)
     {
-        var signA = (a >> 7) != 0;
-        var signB = (b >> 7) != 0;
-        var signResult = (result >> 7) != 0;
+        var signA = a >> 7 != 0;
+        var signB = b >> 7 != 0;
+        var signResult = result >> 7 != 0;
         return isOverflow(signA, signB, signResult, isAddition);
     }
 

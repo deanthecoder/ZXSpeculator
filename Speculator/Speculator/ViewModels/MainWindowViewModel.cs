@@ -10,23 +10,25 @@
 // or modifying this code.
 
 using System;
+using System.IO;
 using Speculator.Core;
 
 namespace Speculator.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase, IDisposable
 {
-    private readonly ZxSpectrum m_speccy;
+    public ZxSpectrum Speccy { get; }
     public ZxDisplay Display { get; } = new ZxDisplay();
 
     public MainWindowViewModel()
     {
-        m_speccy =
+        Speccy =
             new ZxSpectrum(Display)
             .LoadBasicRom()
             .PowerOnAsync()
+            //.LoadRom(new FileInfo("ROMs/ManicMiner.sna")) // todo - remove
             ;
     }
     
-    public void Dispose() => m_speccy.Dispose();
+    public void Dispose() => Speccy.Dispose();
 }

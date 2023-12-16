@@ -8,7 +8,9 @@
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/app.ico"
         Title="Speculator"
-        Width="512" Height="384">
+        Width="1000" Height="750"
+        KeyDown="OnKeyDown"
+        KeyUp="OnKeyUp">
 
     <Design.DataContext>
         <!-- This only sets the DataContext for the previewer in an IDE,

@@ -883,40 +883,40 @@ public partial class CPU
                     TheRegisters.IY = TheAlu.addAndSetFlags(TheRegisters.IY, TheRegisters.SP, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.DEC_BC:
-                    TheRegisters.Main.BC = ((ushort)TheRegisters.Main.BC) - 1;
+                    TheRegisters.Main.BC = (ushort)TheRegisters.Main.BC - 1;
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.DEC_DE:
-                    TheRegisters.Main.DE = ((ushort)TheRegisters.Main.DE) - 1;
+                    TheRegisters.Main.DE = (ushort)TheRegisters.Main.DE - 1;
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.DEC_HL:
-                    TheRegisters.Main.HL = ((ushort)TheRegisters.Main.HL) - 1;
+                    TheRegisters.Main.HL = (ushort)TheRegisters.Main.HL - 1;
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.DEC_SP:
-                    TheRegisters.SP = ((ushort)TheRegisters.SP) - 1;
+                    TheRegisters.SP = (ushort)TheRegisters.SP - 1;
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.DEC_IX:
-                    TheRegisters.IX = ((ushort)TheRegisters.IX) - 1;
+                    TheRegisters.IX = (ushort)TheRegisters.IX - 1;
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.DEC_IY:
-                    TheRegisters.IY = ((ushort)TheRegisters.IY) - 1;
+                    TheRegisters.IY = (ushort)TheRegisters.IY - 1;
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.INC_BC:
-                    TheRegisters.Main.BC = ((ushort)TheRegisters.Main.BC) + 1;
+                    TheRegisters.Main.BC = (ushort)TheRegisters.Main.BC + 1;
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.INC_DE:
-                    TheRegisters.Main.DE = ((ushort)TheRegisters.Main.DE) + 1;
+                    TheRegisters.Main.DE = (ushort)TheRegisters.Main.DE + 1;
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.INC_HL:
-                    TheRegisters.Main.HL = ((ushort)TheRegisters.Main.HL) + 1;
+                    TheRegisters.Main.HL = (ushort)TheRegisters.Main.HL + 1;
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.INC_SP:
-                    TheRegisters.SP = ((ushort)TheRegisters.SP) + 1;
+                    TheRegisters.SP = (ushort)TheRegisters.SP + 1;
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.INC_IX:
-                    TheRegisters.IX = ((ushort)TheRegisters.IX) + 1;
+                    TheRegisters.IX = (ushort)TheRegisters.IX + 1;
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.INC_IY:
-                    TheRegisters.IY = ((ushort)TheRegisters.IY) + 1;
+                    TheRegisters.IY = (ushort)TheRegisters.IY + 1;
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.AND_n:
                     TheAlu.and(MainMemory.Peek(valueAddress));
@@ -1058,7 +1058,7 @@ public partial class CPU
                 case Z80Instructions.InstructionID.CPL:
                     TheRegisters.HalfCarryFlag = true;
                     TheRegisters.SubtractFlag = true;
-                    TheRegisters.Main.A = (byte)(~TheRegisters.Main.A);
+                    TheRegisters.Main.A = (byte)~TheRegisters.Main.A;
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.DAA:
                     TheAlu.adjustAccumulatorToBCD();
