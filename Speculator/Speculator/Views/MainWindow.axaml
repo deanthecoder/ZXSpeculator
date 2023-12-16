@@ -16,6 +16,6 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-        <Image Source="{Binding Display.Bitmap}" Loaded="OnScreenBitmapLoaded"/>
+    <Image Source="{Binding Display.Bitmap}" Loaded="OnScreenBitmapLoaded"/>
 
 </Window>

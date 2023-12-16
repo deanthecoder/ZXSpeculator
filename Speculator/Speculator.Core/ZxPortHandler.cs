@@ -19,11 +19,11 @@ public interface IPortHandler
     void Out(byte port, byte b);
 }
 
-public class ZXPortHandler : IPortHandler
+public class ZxPortHandler : IPortHandler
 {
     private readonly SoundHandler m_soundHandler;
 
-    public ZXPortHandler(SoundHandler soundHandler)
+    public ZxPortHandler(SoundHandler soundHandler)
     {
         m_soundHandler = soundHandler;
         m_PCToSpectrumKeyMap[Key.Back] = new List<Key> { Key.LeftShift, Key.D0 };

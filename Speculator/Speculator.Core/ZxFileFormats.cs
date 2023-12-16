@@ -13,7 +13,7 @@ using System.Diagnostics;
 
 namespace Speculator.Core;
 
-public static class ZXFileFormats
+public static class ZxFileFormats
 {
     private const string FileFilters = "Z80 Files|*.z80|SNA Files|*.sna|BIN Files|*.bin|Screen Files|*.scr|All Supported Files|*.bin;*.sna;*.scr;*.z80";
     private const int DefaultFilterIndex = 5;
@@ -152,7 +152,7 @@ public static class ZXFileFormats
 
     private static void LoadSCR(string fullName, CPU cpu)
     {
-        File.ReadAllBytes(fullName).CopyTo(cpu.MainMemory.Data, ZXDisplay.ScreenBase);
+        File.ReadAllBytes(fullName).CopyTo(cpu.MainMemory.Data, ZxDisplay.ScreenBase);
     }
 
     public static void SaveFile(CPU cpu, string fileName)

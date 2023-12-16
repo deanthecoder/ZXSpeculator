@@ -17,7 +17,7 @@ namespace Speculator.ViewModels;
 public class MainWindowViewModel : ViewModelBase, IDisposable
 {
     private readonly ZxSpectrum m_speccy;
-    public ZXDisplay Display { get; } = new ZXDisplay();
+    public ZxDisplay Display { get; } = new ZxDisplay();
 
     public MainWindowViewModel()
     {

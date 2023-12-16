@@ -13,6 +13,9 @@ using System.Reflection;
 
 namespace Speculator.Core;
 
+/// <summary>
+/// The main emulation entry point object.
+/// </summary>
 public class ZxSpectrum : IDisposable
 {
     // ReSharper disable once InconsistentNaming
@@ -20,7 +23,7 @@ public class ZxSpectrum : IDisposable
 
     private SoundHandler m_soundHandler;
 
-    public ZxSpectrum(ZXDisplay display)
+    public ZxSpectrum(ZxDisplay display)
     {
         TheDisplay = display;
         TheCpu = new CPU(new Memory(64 * 1024), PortHandler, SoundHandler)
@@ -34,10 +37,10 @@ public class ZxSpectrum : IDisposable
     private SoundHandler SoundHandler => m_soundHandler ??= new SoundHandler();
 
     public CPU TheCpu { get; }
-    private ZXDisplay TheDisplay { get; }
+    private ZxDisplay TheDisplay { get; }
 
-    private ZXPortHandler m_portHandler;
-    public ZXPortHandler PortHandler => m_portHandler ??= new ZXPortHandler(SoundHandler);
+    private ZxPortHandler m_portHandler;
+    public ZxPortHandler PortHandler => m_portHandler ??= new ZxPortHandler(SoundHandler);
 
     public ZxSpectrum LoadBasicRom()
     {
@@ -62,7 +65,7 @@ public class ZxSpectrum : IDisposable
     
     public ZxSpectrum LoadRom(FileInfo romFile)
     {
-        ZXFileFormats.LoadFile(TheCpu, romFile);
+        ZxFileFormats.LoadFile(TheCpu, romFile);
         return this;
     }
 }

@@ -17,7 +17,7 @@ using Avalonia.Platform;
 
 namespace Speculator.Core;
 
-public class ZXDisplay
+public class ZxDisplay
 {
     internal const int ScreenBase = 0x4000;
     private const int ColorMapBase = 0x5800;
@@ -49,7 +49,7 @@ public class ZXDisplay
     private const int WriteableWidth = 256;
     private const int WritableHeight = 192;
 
-    public WriteableBitmap Bitmap { get; set; } = new WriteableBitmap(new PixelSize(LeftMargin + WriteableWidth + RightMargin, TopMargin + WritableHeight + BottomMargin), new Vector(96, 96), PixelFormat.Rgba8888);
+    public WriteableBitmap Bitmap { get; } = new WriteableBitmap(new PixelSize(LeftMargin + WriteableWidth + RightMargin, TopMargin + WritableHeight + BottomMargin), new Vector(96, 96), PixelFormat.Rgba8888);
     public event EventHandler Refreshed;
 
     private void SetContentPixelGroup(ILockedFramebuffer frameBuffer, int characterColumn, int y, byte pixels, byte attr, bool invertColors)
