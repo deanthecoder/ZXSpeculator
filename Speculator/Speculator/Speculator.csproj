@@ -33,11 +33,11 @@
       <None Update="ROMs\48.rom">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <None Update="ROMs\ManicMiner.sna">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <None Update="ROMs\JetSetWilly.z80">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Update="ROMs\jetset.sna">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <None Update="ROMs\ManicMiner.z80">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>
 </Project>

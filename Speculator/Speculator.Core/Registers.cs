@@ -198,7 +198,7 @@ public class Registers
 
     public override string ToString()
     {
-        return string.Format("AF:{0:X4}, BC:{1:X4}, DE:{2:X4}, HL:{3:X4}, IX:{4:X4}, IY:{5:X4}, SP:{6:X4}, PC:{7:X4}, {8}, I:{9:X2}, R:{10:X2}", Main.AF, Main.BC, Main.DE, Main.HL, IX, IY, SP, PC, FlagsAsString(), I, R);
+        return $"AF:{Main.AF:X4}, BC:{Main.BC:X4}, DE:{Main.DE:X4}, HL:{Main.HL:X4}, IX:{IX:X4}, IY:{IY:X4}, SP:{SP:X4}, PC:{PC:X4}, {FlagsAsString()}, I:{I:X2}, R:{R:X2}";
     }
 
     public string FlagsAsString()

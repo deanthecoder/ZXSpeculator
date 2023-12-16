@@ -121,7 +121,7 @@ public class Instruction
         return new[] { 'S', 'Z', 'H', 'P', 'N', 'C' }[n];
     }
 
-    readonly int[] RegisterFlagBits = { 7, 6, 4, 2, 1, 0 };
+    private readonly int[] m_registerFlagBits = { 7, 6, 4, 2, 1, 0 };
 
     public bool CheckFlagChanges(byte oldFlags, CPU cpu)
     {
@@ -131,7 +131,7 @@ public class Instruction
 
         // Known state tests.
         var i = 0;
-        foreach (var bit in RegisterFlagBits)
+        foreach (var bit in m_registerFlagBits)
         {
             var oldBit = (oldFlags & (1 << bit)) != 0;
             var newBit = (newFlags & (1 << bit)) != 0;
@@ -140,15 +140,15 @@ public class Instruction
             {
                 case '0': 
                     if (newBit)
-                        Debug.Fail(string.Format("Flag bit {0} should be 0. ({1})", FlagNameForBit(i), ID));
+                        Debug.Fail($"Flag bit {FlagNameForBit(i)} should be 0. ({ID})");
                     break;
                 case '1':
                     if (!newBit)
-                        Debug.Fail(string.Format("Flag bit {0} should be 1. ({1})", FlagNameForBit(i), ID));
+                        Debug.Fail($"Flag bit {FlagNameForBit(i)} should be 1. ({ID})");
                     break;
                 case ' ': 
                     if (oldBit != newBit)
-                        Debug.Fail(string.Format("Flag bit {0} should be unchanged. ({1})", FlagNameForBit(i), ID));
+                        Debug.Fail($"Flag bit {FlagNameForBit(i)} should be unchanged. ({ID})");
                     break;
             }
 
@@ -170,7 +170,7 @@ public class Instruction
                     expected = (result & 0x80) != 0;
 
                 if (expected != cpu.TheRegisters.SignFlag)
-                    Debug.Fail(string.Format("Sign bit should be {0}. ({1} - Checking register {2})", expected, ID, ResultRegName));
+                    Debug.Fail($"Sign bit should be {expected}. ({ID} - Checking register {ResultRegName})");
             }
 
             // Zero flag tests.
@@ -178,7 +178,7 @@ public class Instruction
             {
                 var expected = result == 0;
                 if (expected != cpu.TheRegisters.ZeroFlag)
-                    Debug.Fail(string.Format("Zero bit should be {0}. ({1} - Checking register {2})", expected, ID, ResultRegName));
+                    Debug.Fail($"Zero bit should be {expected}. ({ID} - Checking register {ResultRegName})");
             }
 
             // Parity flag tests.
@@ -187,7 +187,7 @@ public class Instruction
                 case 'P':
                     var expected = ALU.isEvenParity((byte)result);
                     if (expected != cpu.TheRegisters.ParityFlag)
-                        Debug.Fail(string.Format("Parity bit should be {0}. ({1} - Checking register {2})", expected, ID, ResultRegName));
+                        Debug.Fail($"Parity bit should be {expected}. ({ID} - Checking register {ResultRegName})");
                     break;
             }
         }

@@ -37,7 +37,7 @@ public partial class CPU
         m_clockSync = new ClockSync(TStatesPerSecond);
     }
 
-    public bool FullThrottle { get; }
+    public bool FullThrottle { get; set; }
 
     public void PowerOnAsync()
     {
@@ -304,7 +304,7 @@ public partial class CPU
     private class UnsupportedInstruction : Exception
     {
         public UnsupportedInstruction(CPU cpu)
-            : base(string.Format("An invalid/unsupported emulated instruction was encountered: ({0:X4}: {1}...)", cpu.TheRegisters.PC, cpu.MainMemory.readAsHexString(cpu.TheRegisters.PC, 4)))
+            : base($"An invalid/unsupported emulated instruction was encountered: ({cpu.TheRegisters.PC:X4}: {cpu.MainMemory.readAsHexString(cpu.TheRegisters.PC, 4)}...)")
         {
             var message = base.Message;
             message = cpu.m_recentInstructionList.Aggregate(message, (current, s) => current + "\n  " + s);
@@ -312,7 +312,7 @@ public partial class CPU
         }
     }
 
-    public int disassemble(int addr, ref string hexBytes, out string mnemonics)
+    public int Disassemble(int addr, ref string hexBytes, out string mnemonics)
     {
         var instruction = InstructionSet.findInstructionAtMemoryLocation(MainMemory, addr);
 

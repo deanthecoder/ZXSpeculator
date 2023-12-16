@@ -398,3 +398,4 @@ FodyWeavers.xsd
 *.sln.iml
 *.rom
 *.sna
+*.z80

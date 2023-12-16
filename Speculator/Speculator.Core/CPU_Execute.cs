@@ -535,16 +535,12 @@ public partial class CPU
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.EX_DE_HL:
                 {
-                    var v = TheRegisters.Main.DE;
-                    TheRegisters.Main.DE = TheRegisters.Main.HL;
-                    TheRegisters.Main.HL = v;
+                    (TheRegisters.Main.DE, TheRegisters.Main.HL) = (TheRegisters.Main.HL, TheRegisters.Main.DE);
                     return instruction.TStateCount;
                 }
                 case Z80Instructions.InstructionID.EX_AF_altAF:
                 {
-                    var v = TheRegisters.Main.AF;
-                    TheRegisters.Main.AF = TheRegisters.Alt.AF;
-                    TheRegisters.Alt.AF = v;
+                    (TheRegisters.Main.AF, TheRegisters.Alt.AF) = (TheRegisters.Alt.AF, TheRegisters.Main.AF);
                     return instruction.TStateCount;
                 }
                 case Z80Instructions.InstructionID.EXX:

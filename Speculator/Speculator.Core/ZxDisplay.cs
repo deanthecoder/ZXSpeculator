@@ -52,7 +52,7 @@ public class ZxDisplay
     public WriteableBitmap Bitmap { get; } = new WriteableBitmap(new PixelSize(LeftMargin + WriteableWidth + RightMargin, TopMargin + WritableHeight + BottomMargin), new Vector(96, 96), PixelFormat.Rgba8888);
     public event EventHandler Refreshed;
 
-    private void SetContentPixelGroup(ILockedFramebuffer frameBuffer, int characterColumn, int y, byte pixels, byte attr, bool invertColors)
+    private unsafe void SetPixelGroup(byte* framePtr, int frameBufferRowBytes, int characterColumn, int y, byte pixels, byte attr, bool invertColors)
     {
         var x = characterColumn * 8;
 
@@ -71,7 +71,7 @@ public class ZxDisplay
         for (var i = 7; i >= 0; i--)
         {
             var isSet = (pixels & (1 << i)) != 0;
-            frameBuffer.SetPixel(x + offset, y, Colors[isSet ? penIndex : paperIndex]);
+            FrameBuffer.SetPixel(framePtr, frameBufferRowBytes, x + offset, y, Colors[isSet ? penIndex : paperIndex]);
             offset++;
         }
     }
@@ -87,13 +87,16 @@ public class ZxDisplay
     private const int FramesPerFlash = 16;
     private int m_flashFrameCount;
     private bool m_isFlashing;
-    
-    internal void UpdateScreen(CPU sender)
+
+    unsafe internal void UpdateScreen(CPU sender)
     {
         var borderAttr = sender.MainMemory.Peek(0x5C48);
 
         using (var frameBuffer = Bitmap.Lock())
         {
+            var framePtr = (byte*)frameBuffer.Address;
+            var frameBufferRowBytes = frameBuffer.RowBytes;
+
             if (m_previousBorderColor != borderAttr)
             {
                 m_previousBorderColor = borderAttr;
@@ -102,18 +105,18 @@ public class ZxDisplay
                 for (var x = 0; x < Bitmap.PixelSize.Width / 8; x++)
                 {
                     for (var y = 0; y < TopMargin; y++)
-                        SetContentPixelGroup(frameBuffer, x, y, 0x00, borderAttr, false);
+                        SetPixelGroup(framePtr, frameBufferRowBytes, x, y, 0x00, borderAttr, false);
                     for (var y = 0; y < BottomMargin; y++)
-                        SetContentPixelGroup(frameBuffer, x, TopMargin + WritableHeight + y, 0x00, borderAttr, false);
+                        SetPixelGroup(framePtr, frameBufferRowBytes, x, TopMargin + WritableHeight + y, 0x00, borderAttr, false);
                 }
 
                 // Draw left/right borders.
                 for (var y = 0; y < WritableHeight; y++)
                 {
                     for (var x = 0; x < LeftMargin / 8; x++)
-                        SetContentPixelGroup(frameBuffer, x, TopMargin + y, 0x00, borderAttr, false);
+                        SetPixelGroup(framePtr, frameBufferRowBytes, x, TopMargin + y, 0x00, borderAttr, false);
                     for (var x = 0; x < RightMargin / 8; x++)
-                        SetContentPixelGroup(frameBuffer, ((LeftMargin + WriteableWidth) / 8) + x, TopMargin + y, 0x00, borderAttr, false);
+                        SetPixelGroup(framePtr, frameBufferRowBytes, ((LeftMargin + WriteableWidth) / 8) + x, TopMargin + y, 0x00, borderAttr, false);
                 }
             }
 
@@ -138,7 +141,7 @@ public class ZxDisplay
 
                 var characterAttr = sender.MainMemory.Data[ColorMapBase + (((tt * 8) + cr) * 32) + cc];
                 var isFlashSet = (characterAttr & 0x80) != 0;
-                SetContentPixelGroup(frameBuffer, cc + (LeftMargin / 8), pixelY + TopMargin, screenByte, characterAttr, m_isFlashing && isFlashSet);
+                SetPixelGroup(framePtr, frameBufferRowBytes, cc + (LeftMargin / 8), pixelY + TopMargin, screenByte, characterAttr, m_isFlashing && isFlashSet);
             }
         }
 
