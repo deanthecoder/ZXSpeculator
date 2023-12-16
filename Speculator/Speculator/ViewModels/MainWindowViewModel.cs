@@ -11,6 +11,9 @@
 
 using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using Avalonia.Threading;
 using Speculator.Core;
 
 namespace Speculator.ViewModels;
@@ -25,9 +28,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         Speccy =
             new ZxSpectrum(Display)
             .LoadBasicRom()
-            .PowerOnAsync()
-            //.LoadRom(new FileInfo("ROMs/ManicMiner.sna")) // todo - remove
-            ;
+            .PowerOnAsync();
     }
     
     public void Dispose() => Speccy.Dispose();

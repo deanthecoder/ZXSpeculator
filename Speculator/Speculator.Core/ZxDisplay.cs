@@ -17,7 +17,7 @@ using Avalonia.Platform;
 
 namespace Speculator.Core;
 
-public class ZxDisplay
+public class ZxDisplay // todo - check 'bright' colors work.
 {
     internal const int ScreenBase = 0x4000;
     private const int ColorMapBase = 0x5800;
@@ -80,6 +80,12 @@ public class ZxDisplay
     {
         paperIndex = (attr >> 3) & 0x07;
         penIndex = attr & 0x07;
+        
+        var isBright = attr & 0x40;
+        if (isBright == 0)
+            return;
+        paperIndex += 8;
+        penIndex += 8;
     }
 
     private byte m_previousBorderColor;

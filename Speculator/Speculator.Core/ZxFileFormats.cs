@@ -61,92 +61,90 @@ public static class ZxFileFormats
         if (!File.Exists(fileName))
             return;
 
-        using (var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
+        using var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+        cpu.TheRegisters.clear();
+        cpu.TheRegisters.Main.A = (byte)stream.ReadByte();
+        cpu.TheRegisters.Main.F = (byte)stream.ReadByte();
+        cpu.TheRegisters.Main.BC = readSNAWord(stream);
+        cpu.TheRegisters.Main.HL = readSNAWord(stream);
+        cpu.TheRegisters.PC = readSNAWord(stream);
+        cpu.TheRegisters.SP = readSNAWord(stream);
+        cpu.TheRegisters.I = (byte)stream.ReadByte();
+        cpu.TheRegisters.R = (byte)(stream.ReadByte() & 0x7F);
+
+        var byte12 = (byte) stream.ReadByte();
+        if (byte12 == 0xFF)
+            byte12 = 0x01; // Version 1
+        cpu.TheRegisters.R |= (byte)((byte12 & 0x01) * 0x80);
+        var isDataCompressed = (byte12 & 0x20) != 0;
+
+        cpu.TheRegisters.Main.DE = readSNAWord(stream);
+        cpu.TheRegisters.Alt.BC = readSNAWord(stream);
+        cpu.TheRegisters.Alt.DE = readSNAWord(stream);
+        cpu.TheRegisters.Alt.HL = readSNAWord(stream);
+        cpu.TheRegisters.Alt.A = (byte)stream.ReadByte();
+        cpu.TheRegisters.Alt.F = (byte)stream.ReadByte();
+        cpu.TheRegisters.IY = readSNAWord(stream);
+        cpu.TheRegisters.IX = readSNAWord(stream);
+
+        var IFF = (byte)stream.ReadByte();
+        cpu.TheRegisters.IFF1 = cpu.TheRegisters.IFF2 = IFF != 0;
+        stream.ReadByte(); // IFF2
+
+        var byte29 = (byte)stream.ReadByte();
+        cpu.TheRegisters.IM = (byte) (byte29 & 0x03);
+
+        Debug.Assert(stream.Position == 30);
+
+        var isVersion1 = cpu.TheRegisters.PC != 0x0000;
+
+        if (isVersion1)
         {
-            cpu.TheRegisters.clear();
-            cpu.TheRegisters.Main.A = (byte)stream.ReadByte();
-            cpu.TheRegisters.Main.F = (byte)stream.ReadByte();
-            cpu.TheRegisters.Main.BC = readSNAWord(stream);
-            cpu.TheRegisters.Main.HL = readSNAWord(stream);
-            cpu.TheRegisters.PC = readSNAWord(stream);
-            cpu.TheRegisters.SP = readSNAWord(stream);
-            cpu.TheRegisters.I = (byte)stream.ReadByte();
-            cpu.TheRegisters.R = (byte)(stream.ReadByte() & 0x7F);
+            // Version 1
+            var bytesToRead = (int) (stream.Length - stream.Position);
+            var data = new List<byte>();
+            for (var i = 0; i < bytesToRead; i++)
+                data.Add((byte)stream.ReadByte());
 
-            var byte12 = (byte) stream.ReadByte();
-            if (byte12 == 0xFF)
-                byte12 = 0x01;  // Version 1
-            cpu.TheRegisters.R |= (byte)((byte12 & 0x01) * 0x80);
-            var isDataCompressed = (byte12 & 0x20) != 0;
-
-            cpu.TheRegisters.Main.DE = readSNAWord(stream);
-            cpu.TheRegisters.Alt.BC = readSNAWord(stream);
-            cpu.TheRegisters.Alt.DE = readSNAWord(stream);
-            cpu.TheRegisters.Alt.HL = readSNAWord(stream);
-            cpu.TheRegisters.Alt.A = (byte)stream.ReadByte();
-            cpu.TheRegisters.Alt.F = (byte)stream.ReadByte();
-            cpu.TheRegisters.IY = readSNAWord(stream);
-            cpu.TheRegisters.IX = readSNAWord(stream);
-
-            var IFF = (byte)stream.ReadByte();
-            cpu.TheRegisters.IFF1 = cpu.TheRegisters.IFF2 = IFF != 0;
-            stream.ReadByte(); // IFF2
-
-            var byte29 = (byte)stream.ReadByte();
-            cpu.TheRegisters.IM = (byte) (byte29 & 0x03);
-
-            Debug.Assert(stream.Position == 30);
-
-            var isVersion1 = cpu.TheRegisters.PC != 0x0000;
-
-            if (isVersion1)
+            if (isDataCompressed)
             {
-                // Version 1
-                var bytesToRead = (int) (stream.Length - stream.Position);
-                var data = new List<byte>();
-                for (var i = 0; i < bytesToRead; i++)
-                    data.Add((byte)stream.ReadByte());
-
-                if (isDataCompressed)
+                var offset = 0;
+                while (offset < data.Count - 4)
                 {
-                    var offset = 0;
-                    while (offset < data.Count - 4)
+                    if (data[offset] == 0xED && data[offset + 1] == 0xED)
                     {
-                        if (data[offset] == 0xED && data[offset + 1] == 0xED)
-                        {
-                            var count = data[offset + 2];
-                            Debug.Assert(count >= 5);
+                        var count = data[offset + 2];
+                        Debug.Assert(count >= 5);
 
-                            var b = data[offset + 3];
+                        var b = data[offset + 3];
 
-                            data.RemoveRange(offset, 4);
-                            for (var i = 0; i < count; i++)
-                                data.Insert(offset, b);
+                        data.RemoveRange(offset, 4);
+                        for (var i = 0; i < count; i++)
+                            data.Insert(offset, b);
 
-                            offset += count;
-                        }
-                        else
-                        {
-                            offset++;
-                        }
+                        offset += count;
                     }
-
-                    // Remove trailer.
-                    Debug.Assert(data[data.Count - 4] == 0x00);
-                    Debug.Assert(data[data.Count - 3] == 0xED);
-                    Debug.Assert(data[data.Count - 2] == 0xED);
-                    Debug.Assert(data[data.Count - 1] == 0x00);
-                    data.RemoveRange(data.Count - 4, 4);
+                    else
+                    {
+                        offset++;
+                    }
                 }
 
-                Debug.Assert(data.Count <= 48 * 1024);
+                // Remove trailer.
+                Debug.Assert(data[data.Count - 4] == 0x00);
+                Debug.Assert(data[data.Count - 3] == 0xED);
+                Debug.Assert(data[data.Count - 2] == 0xED);
+                Debug.Assert(data[data.Count - 1] == 0x00);
+                data.RemoveRange(data.Count - 4, 4);
+            }
 
-                data.CopyTo(cpu.MainMemory.Data, 0x4000);
-            }
-            else
-            {
-                Debug.Fail("Unsupported Z80 version (Only v1 implemented).");
-            }
+            Debug.Assert(data.Count <= 48 * 1024);
+
+            data.CopyTo(cpu.MainMemory.Data, 0x4000);
+        }
+        else
+        {
+            Debug.Fail("Unsupported Z80 version (Only v1 implemented).");
         }
     }
 
@@ -247,37 +245,35 @@ public static class ZxFileFormats
 
     private static void SaveSNA(string fileName, CPU cpu)
     {
-        using (var stream = new FileStream(fileName, FileMode.Create, FileAccess.Write))
+        using var stream = new FileStream(fileName, FileMode.Create, FileAccess.Write);
+        try
         {
-            try
-            {
-                cpu.TheRegisters.SP -= 2;
-                cpu.MainMemory.PokeWord(cpu.TheRegisters.SP, cpu.TheRegisters.PC);
+            cpu.TheRegisters.SP -= 2;
+            cpu.MainMemory.PokeWord(cpu.TheRegisters.SP, cpu.TheRegisters.PC);
 
-                stream.WriteByte(cpu.TheRegisters.I);
-                writeSNAWord(stream, cpu.TheRegisters.Alt.HL);
-                writeSNAWord(stream, cpu.TheRegisters.Alt.DE);
-                writeSNAWord(stream, cpu.TheRegisters.Alt.BC);
-                writeSNAWord(stream, cpu.TheRegisters.Alt.AF);
-                writeSNAWord(stream, cpu.TheRegisters.Main.HL);
-                writeSNAWord(stream, cpu.TheRegisters.Main.DE);
-                writeSNAWord(stream, cpu.TheRegisters.Main.BC);
-                writeSNAWord(stream, cpu.TheRegisters.IY);
-                writeSNAWord(stream, cpu.TheRegisters.IX);
-                stream.WriteByte((byte)(cpu.TheRegisters.IFF2 ? 0x02 : 0x00));
-                stream.WriteByte(cpu.TheRegisters.R);
-                writeSNAWord(stream, cpu.TheRegisters.Main.AF);
-                writeSNAWord(stream, cpu.TheRegisters.SP);
-                stream.WriteByte(cpu.TheRegisters.IM);
-                stream.WriteByte(0x07); // Border color.
-                for (var i = 16384; i <= 65535; i++)
-                    stream.WriteByte(cpu.MainMemory.Peek(i));
+            stream.WriteByte(cpu.TheRegisters.I);
+            writeSNAWord(stream, cpu.TheRegisters.Alt.HL);
+            writeSNAWord(stream, cpu.TheRegisters.Alt.DE);
+            writeSNAWord(stream, cpu.TheRegisters.Alt.BC);
+            writeSNAWord(stream, cpu.TheRegisters.Alt.AF);
+            writeSNAWord(stream, cpu.TheRegisters.Main.HL);
+            writeSNAWord(stream, cpu.TheRegisters.Main.DE);
+            writeSNAWord(stream, cpu.TheRegisters.Main.BC);
+            writeSNAWord(stream, cpu.TheRegisters.IY);
+            writeSNAWord(stream, cpu.TheRegisters.IX);
+            stream.WriteByte((byte)(cpu.TheRegisters.IFF2 ? 0x02 : 0x00));
+            stream.WriteByte(cpu.TheRegisters.R);
+            writeSNAWord(stream, cpu.TheRegisters.Main.AF);
+            writeSNAWord(stream, cpu.TheRegisters.SP);
+            stream.WriteByte(cpu.TheRegisters.IM);
+            stream.WriteByte(0x07); // Border color.
+            for (var i = 16384; i <= 65535; i++)
+                stream.WriteByte(cpu.MainMemory.Peek(i));
 
-            }
-            finally
-            {
-                cpu.TheRegisters.SP += 2;
-            }
+        }
+        finally
+        {
+            cpu.TheRegisters.SP += 2;
         }
     }
 
@@ -286,12 +282,10 @@ public static class ZxFileFormats
         if (!File.Exists(fileName))
             return;
 
-        using (var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
-        {
-            var length = stream.Length;
-            for (var i = 0; i < length; i++)
-                cpu.MainMemory.Poke(0x8000 + i, (byte)stream.ReadByte());
-            cpu.TheRegisters.PC = 0x8000;
-        }
+        using var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+        var length = stream.Length;
+        for (var i = 0; i < length; i++)
+            cpu.MainMemory.Poke(0x8000 + i, (byte)stream.ReadByte());
+        cpu.TheRegisters.PC = 0x8000;
     }
 }

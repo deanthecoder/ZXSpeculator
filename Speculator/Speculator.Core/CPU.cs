@@ -169,12 +169,12 @@ public partial class CPU
 
     public event RenderCallbackEventHandler RenderCallbackEvent;
 
-    protected readonly List<string> m_recentInstructionList = new List<string>();
+    private readonly List<string> m_recentInstructionList = new List<string>();
     private readonly ClockSync m_clockSync;
 
     private byte doIN_addrC()
     {
-        var b = (byte)(ThePortHandler != null ? ThePortHandler.In((TheRegisters.Main.B << 8) + TheRegisters.Main.C) : 0x00);
+        var b = ThePortHandler?.In((TheRegisters.Main.B << 8) + TheRegisters.Main.C) ?? 0x00;
         TheRegisters.SignFlag = !ALU.isBytePositive(b);
         TheRegisters.ZeroFlag = b == 0;
         TheRegisters.HalfCarryFlag = false;

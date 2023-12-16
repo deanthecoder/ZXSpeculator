@@ -10,6 +10,7 @@
 // or modifying this code.
 
 using System;
+using System.IO;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
@@ -46,5 +47,9 @@ public partial class MainWindow : Window
     private void OnKeyUp(object sender, KeyEventArgs e)
     {
         ViewModel.Speccy.PortHandler.SetKeyUp(e.Key);
+    }
+    private void OnMouseClick(object sender, PointerPressedEventArgs e)
+    {
+        //ViewModel.Speccy.LoadRom(new FileInfo("ROMs/ManicMiner.z80"));
     }
 }

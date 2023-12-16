@@ -556,7 +556,7 @@ public class ALU
     /// <remarks>
     /// Bit 7 goes to the carry flag. Bit 0 is set to newBit0.
     /// </remarks>
-    public byte shiftLeft(byte b, byte newBit0 = (byte) 0)
+    public byte shiftLeft(byte b, byte newBit0 = 0)
     {
         TheRegisters.CarryFlag = (b & 0x80) != 0x00;
         b = (byte) ((b << 1) | newBit0);
