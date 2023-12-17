@@ -136,7 +136,7 @@ public partial class CPU
                             CallIfTrue(0x0038, true);
                             break;
                         case 2:
-                            Debug.Fail("IM2 currently untested."); // todo
+                            //Debug.Fail("IM2 currently untested."); // todo
                             CallIfTrue(MainMemory.PeekWord((TheRegisters.I << 8) | 0xff), true);
                             break;
                         default:

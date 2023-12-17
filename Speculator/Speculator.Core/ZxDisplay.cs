@@ -98,6 +98,18 @@ public class ZxDisplay // todo - check 'bright' colors work.
     {
         var borderAttr = sender.MainMemory.Peek(0x5C48);
 
+        // Flashing?
+        if (m_flashFrameCount++ == FramesPerFlash)
+        {
+            m_isFlashing = !m_isFlashing;
+            m_flashFrameCount = 0;
+            sender.MainMemory.VideoMemoryChanged = true;
+        }
+
+        if (!sender.MainMemory.VideoMemoryChanged)
+            return;
+        sender.MainMemory.VideoMemoryChanged = false;
+
         using (var frameBuffer = Bitmap.Lock())
         {
             var framePtr = (byte*)frameBuffer.Address;
@@ -124,13 +136,6 @@ public class ZxDisplay // todo - check 'bright' colors work.
                     for (var x = 0; x < RightMargin / 8; x++)
                         SetPixelGroup(framePtr, frameBufferRowBytes, ((LeftMargin + WriteableWidth) / 8) + x, TopMargin + y, 0x00, borderAttr, false);
                 }
-            }
-
-            // Flashing?
-            if (m_flashFrameCount++ == FramesPerFlash)
-            {
-                m_isFlashing = !m_isFlashing;
-                m_flashFrameCount = 0;
             }
 
             // Draw content.

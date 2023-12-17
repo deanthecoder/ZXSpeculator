@@ -16,11 +16,6 @@ namespace Speculator.Core;
 [DebuggerDisplay("{MnemonicTemplate} ({HexTemplate})")]
 public class Instruction
 {
-    private readonly int m_TStateCount;
-    private readonly string m_hexTemplate;
-    private readonly Z80Instructions.InstructionID m_id;
-    private readonly string m_mnemonicTemplate;
-
     private string m_flagModifiers;
 
     internal string FlagModifiers
@@ -38,23 +33,23 @@ public class Instruction
 
     public Instruction(Z80Instructions.InstructionID id, string mnemonicTemplate, string hexTemplate, int TStateCount = 0)
     {
-        m_id = id;
-        m_mnemonicTemplate = mnemonicTemplate;
+        Id = id;
+        MnemonicTemplate = mnemonicTemplate;
 
         Debug.Assert(hexTemplate.Length >= 2, "Zero length opcodes are invalid.");
         Debug.Assert(!hexTemplate.Contains("nn"), "Invalid hex template. (Should be 'n n'?)");
-        m_hexTemplate = hexTemplate;
+        HexTemplate = hexTemplate;
         ByteCount = HexTemplate.Split(' ').Length;
-        m_TStateCount = TStateCount;
+        this.TStateCount = TStateCount;
     }
 
-    public string MnemonicTemplate => m_mnemonicTemplate;
+    public string MnemonicTemplate { get; }
 
-    public string HexTemplate => m_hexTemplate;
+    public string HexTemplate { get; }
 
-    public int TStateCount => m_TStateCount;
+    public int TStateCount { get; }
 
-    public Z80Instructions.InstructionID Id => m_id;
+    public Z80Instructions.InstructionID Id { get; }
 
     public int ByteCount { get; }
 

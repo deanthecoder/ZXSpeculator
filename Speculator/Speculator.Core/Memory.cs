@@ -15,45 +15,56 @@ namespace Speculator.Core;
 
 public class Memory
 {
-    private readonly byte[] m_data;
-
     private int m_romSize;
+
+    /// <summary>
+    /// Used to optimize screen rendering - Only refreshing the display if needed.
+    /// </summary>
+    public bool VideoMemoryChanged { get; set; } = true;
+    
     public int RomSize
     {
         get => m_romSize;
         set
         {
-            Debug.Assert(value <= m_maxAddress);
+            Debug.Assert(value <= MaxAddress);
             m_romSize = value;
         }
     }
 
-    private readonly int m_maxAddress;
     internal Memory(int maxAddress)
     {
         Debug.Assert(maxAddress > 0, "Invalid memory value specified.");
-        m_maxAddress = maxAddress;
+        MaxAddress = maxAddress;
 
         RomSize = 0;
 
-        m_data = new byte[m_maxAddress];
+        Data = new byte[MaxAddress];
     }
 
-    public byte[] Data => m_data;
+    public byte[] Data { get; }
 
-    public int MaxAddress => m_maxAddress;
+    public int MaxAddress { get; }
 
     public void ClearAll()
     {
         RomSize = 0;
         Array.Clear(Data, 0, Data.Length);
+        VideoMemoryChanged = true;
     }
 
     public void Poke(int addr, byte value)
     {
         if (addr < RomSize)
-            return;
+            return; // Can't write to ROM.
 
+        if (Data[addr] == value)
+            return; // No change.
+
+        // Write to pixel or color area?
+        if ((addr >= 0x4000 && addr <= 0x5800) || (addr >= 0x5800 && addr <= 0x5B00))
+            VideoMemoryChanged = true;
+        
         Data[addr] = value;
     }
 

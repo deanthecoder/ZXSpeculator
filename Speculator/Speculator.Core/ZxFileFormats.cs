@@ -140,16 +140,18 @@ public static class ZxFileFormats
             Debug.Assert(data.Count <= 48 * 1024);
 
             data.CopyTo(cpu.MainMemory.Data, 0x4000);
+            cpu.MainMemory.VideoMemoryChanged = true;
+            return;
         }
-        else
-        {
-            Debug.Fail("Unsupported Z80 version (Only v1 implemented).");
-        }
+        
+        // todo - pop up a message.
+        //Debug.Fail("Unsupported Z80 version (Only v1 implemented).");
     }
 
     private static void LoadSCR(string fullName, CPU cpu)
     {
         File.ReadAllBytes(fullName).CopyTo(cpu.MainMemory.Data, ZxDisplay.ScreenBase);
+        cpu.MainMemory.VideoMemoryChanged = true;
     }
 
     public static void SaveFile(CPU cpu, string fileName)
