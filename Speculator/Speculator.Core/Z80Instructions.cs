@@ -12,6 +12,7 @@
 
 
 // ReSharper disable InconsistentNaming
+// ReSharper disable PatternIsRedundant
 namespace Speculator.Core;
 
 public partial class Z80Instructions
@@ -28,7 +29,7 @@ public partial class Z80Instructions
     {
         for (var i = 0; i < Instructions.Count; i++)
         {
-            if (Instructions[i].ID == id)
+            if (Instructions[i].Id == id)
                 return Instructions[i];
         }
         

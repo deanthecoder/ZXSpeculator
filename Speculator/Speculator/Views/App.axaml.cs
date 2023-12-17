@@ -13,12 +13,17 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Speculator.ViewModels;
-using Speculator.Views;
 
-namespace Speculator;
+namespace Speculator.Views;
 
+// ReSharper disable once PartialTypeWithSinglePart
 public partial class App : Application
 {
+    public App()
+    {
+        DataContext = new AppViewModel();
+    }
+    
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);

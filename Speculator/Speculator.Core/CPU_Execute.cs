@@ -38,13 +38,13 @@ public partial class CPU
                     // and process the next opcode as normal.
                     instruction = InstructionSet.InstructionFromID(Z80Instructions.InstructionID.NOP);
 
-                    Debug.WriteLine("Warning: Ignoring {0:X2} prefix for opcode {1}...", opcode, MainMemory.readAsHexString(TheRegisters.PC, 4));
+                    Debug.WriteLine("Warning: Ignoring {0:X2} prefix for opcode {1}...", opcode, MainMemory.ReadAsHexString(TheRegisters.PC, 4));
                     break;
 
                 case 0xED:
                     // 'Zilog Z80 CPU Specifications by Sean Young' says if an EDxx instruction
                     // is not listed then treat as two NOPs.
-                    Debug.WriteLine("Warning: Ignoring {0:X2} prefix for opcode {1}...", opcode, MainMemory.readAsHexString(TheRegisters.PC, 4));
+                    Debug.WriteLine("Warning: Ignoring {0:X2} prefix for opcode {1}...", opcode, MainMemory.ReadAsHexString(TheRegisters.PC, 4));
                     instruction = InstructionSet.InstructionFromID(Z80Instructions.InstructionID.NOPNOP);
                     break;
 
@@ -65,7 +65,7 @@ public partial class CPU
 
         try
         {
-            switch (instruction.ID)
+            switch (instruction.Id)
             {
                 case Z80Instructions.InstructionID.NOP:
                     return instruction.TStateCount;
@@ -413,7 +413,7 @@ public partial class CPU
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.LD_A_I:
                     TheRegisters.Main.A = TheRegisters.I;
-                    TheRegisters.SignFlag = !ALU.isBytePositive(TheRegisters.I);
+                    TheRegisters.SignFlag = !Alu.IsBytePositive(TheRegisters.I);
                     TheRegisters.ZeroFlag = TheRegisters.I == 0;
                     TheRegisters.HalfCarryFlag = false;
                     TheRegisters.ParityFlag = TheRegisters.IFF2;
@@ -421,7 +421,7 @@ public partial class CPU
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.LD_A_R:
                     TheRegisters.Main.A = TheRegisters.R;
-                    TheRegisters.SignFlag = !ALU.isBytePositive(TheRegisters.R);
+                    TheRegisters.SignFlag = !Alu.IsBytePositive(TheRegisters.R);
                     TheRegisters.ZeroFlag = TheRegisters.R == 0;
                     TheRegisters.HalfCarryFlag = false;
                     TheRegisters.ParityFlag = TheRegisters.IFF2;
@@ -627,256 +627,256 @@ public partial class CPU
                     return tstates;
                 }
                 case Z80Instructions.InstructionID.ADC_A_n:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(valueAddress), true);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(valueAddress), true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADC_A_A:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.A, true);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.A, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADC_A_B:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.B, true);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.B, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADC_A_C:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.C, true);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.C, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADC_A_D:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.D, true);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.D, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADC_A_E:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.E, true);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.E, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADC_A_H:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.H, true);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.H, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADC_A_L:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.L, true);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.L, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADC_A_addrHL:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(TheRegisters.Main.HL), true);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(TheRegisters.Main.HL), true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADC_A_addrIXplus_d:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress))), true);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress))), true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADC_A_addrIYplus_d:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress))), true);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress))), true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_A_n:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(valueAddress), false);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(valueAddress), false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_A_A:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.A, false);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.A, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_A_B:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.B, false);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.B, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_A_C:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.C, false);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.C, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_A_D:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.D, false);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.D, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_A_E:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.E, false);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.E, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_A_H:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.H, false);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.H, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_A_L:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.L, false);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.L, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_A_addrHL:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(TheRegisters.Main.HL), false);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(TheRegisters.Main.HL), false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_A_addrIXplus_d:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress))), false);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress))), false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_A_addrIYplus_d:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress))), false);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress))), false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.DEC_A:
-                    TheRegisters.Main.A = TheAlu.decAndSetFlags(TheRegisters.Main.A);
+                    TheRegisters.Main.A = TheAlu.DecAndSetFlags(TheRegisters.Main.A);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.DEC_B:
-                    TheRegisters.Main.B = TheAlu.decAndSetFlags(TheRegisters.Main.B);
+                    TheRegisters.Main.B = TheAlu.DecAndSetFlags(TheRegisters.Main.B);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.DEC_C:
-                    TheRegisters.Main.C = TheAlu.decAndSetFlags(TheRegisters.Main.C);
+                    TheRegisters.Main.C = TheAlu.DecAndSetFlags(TheRegisters.Main.C);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.DEC_D:
-                    TheRegisters.Main.D = TheAlu.decAndSetFlags(TheRegisters.Main.D);
+                    TheRegisters.Main.D = TheAlu.DecAndSetFlags(TheRegisters.Main.D);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.DEC_E:
-                    TheRegisters.Main.E = TheAlu.decAndSetFlags(TheRegisters.Main.E);
+                    TheRegisters.Main.E = TheAlu.DecAndSetFlags(TheRegisters.Main.E);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.DEC_H:
-                    TheRegisters.Main.H = TheAlu.decAndSetFlags(TheRegisters.Main.H);
+                    TheRegisters.Main.H = TheAlu.DecAndSetFlags(TheRegisters.Main.H);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.DEC_L:
-                    TheRegisters.Main.L = TheAlu.decAndSetFlags(TheRegisters.Main.L);
+                    TheRegisters.Main.L = TheAlu.DecAndSetFlags(TheRegisters.Main.L);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.DEC_addrHL:
-                    MainMemory.Poke(TheRegisters.Main.HL, TheAlu.decAndSetFlags(MainMemory.Peek(TheRegisters.Main.HL)));
+                    MainMemory.Poke(TheRegisters.Main.HL, TheAlu.DecAndSetFlags(MainMemory.Peek(TheRegisters.Main.HL)));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.DEC_addrIXplus_d:
-                    MainMemory.Poke(IXPlusD(MainMemory.Peek(valueAddress)), TheAlu.decAndSetFlags(MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress)))));
+                    MainMemory.Poke(IXPlusD(MainMemory.Peek(valueAddress)), TheAlu.DecAndSetFlags(MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress)))));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.DEC_addrIYplus_d:
-                    MainMemory.Poke(IYPlusD(MainMemory.Peek(valueAddress)), TheAlu.decAndSetFlags(MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress)))));
+                    MainMemory.Poke(IYPlusD(MainMemory.Peek(valueAddress)), TheAlu.DecAndSetFlags(MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress)))));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.INC_A:
-                    TheRegisters.Main.A = TheAlu.incAndSetFlags(TheRegisters.Main.A);
+                    TheRegisters.Main.A = TheAlu.IncAndSetFlags(TheRegisters.Main.A);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.INC_B:
-                    TheRegisters.Main.B = TheAlu.incAndSetFlags(TheRegisters.Main.B);
+                    TheRegisters.Main.B = TheAlu.IncAndSetFlags(TheRegisters.Main.B);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.INC_C:
-                    TheRegisters.Main.C = TheAlu.incAndSetFlags(TheRegisters.Main.C);
+                    TheRegisters.Main.C = TheAlu.IncAndSetFlags(TheRegisters.Main.C);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.INC_D:
-                    TheRegisters.Main.D = TheAlu.incAndSetFlags(TheRegisters.Main.D);
+                    TheRegisters.Main.D = TheAlu.IncAndSetFlags(TheRegisters.Main.D);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.INC_E:
-                    TheRegisters.Main.E = TheAlu.incAndSetFlags(TheRegisters.Main.E);
+                    TheRegisters.Main.E = TheAlu.IncAndSetFlags(TheRegisters.Main.E);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.INC_H:
-                    TheRegisters.Main.H = TheAlu.incAndSetFlags(TheRegisters.Main.H);
+                    TheRegisters.Main.H = TheAlu.IncAndSetFlags(TheRegisters.Main.H);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.INC_L:
-                    TheRegisters.Main.L = TheAlu.incAndSetFlags(TheRegisters.Main.L);
+                    TheRegisters.Main.L = TheAlu.IncAndSetFlags(TheRegisters.Main.L);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.INC_addrHL:
-                    MainMemory.Poke(TheRegisters.Main.HL, TheAlu.incAndSetFlags(MainMemory.Peek(TheRegisters.Main.HL)));
+                    MainMemory.Poke(TheRegisters.Main.HL, TheAlu.IncAndSetFlags(MainMemory.Peek(TheRegisters.Main.HL)));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.INC_addrIXplus_d:
-                    MainMemory.Poke(IXPlusD(MainMemory.Peek(valueAddress)), TheAlu.incAndSetFlags(MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress)))));
+                    MainMemory.Poke(IXPlusD(MainMemory.Peek(valueAddress)), TheAlu.IncAndSetFlags(MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress)))));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.INC_addrIYplus_d:
-                    MainMemory.Poke(IYPlusD(MainMemory.Peek(valueAddress)), TheAlu.incAndSetFlags(MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress)))));
+                    MainMemory.Poke(IYPlusD(MainMemory.Peek(valueAddress)), TheAlu.IncAndSetFlags(MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress)))));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SBC_A_n:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(valueAddress), true);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(valueAddress), true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SBC_A_A:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.A, true);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.A, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SBC_A_B:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.B, true);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.B, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SBC_A_C:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.C, true);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.C, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SBC_A_D:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.D, true);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.D, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SBC_A_E:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.E, true);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.E, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SBC_A_H:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.H, true);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.H, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SBC_A_L:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.L, true);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.L, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SBC_A_addrHL:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(TheRegisters.Main.HL), true);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(TheRegisters.Main.HL), true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SBC_A_addrIXplus_d:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress))), true);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress))), true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SBC_A_addrIYplus_d:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress))), true);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress))), true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SUB_n:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(valueAddress), false);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(valueAddress), false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SUB_A:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.A, false);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.A, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SUB_B:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.B, false);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.B, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SUB_C:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.C, false);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.C, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SUB_D:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.D, false);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.D, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SUB_E:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.E, false);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.E, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SUB_H:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.H, false);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.H, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SUB_L:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.L, false);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.L, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SUB_addrHL:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(TheRegisters.Main.HL), false);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(TheRegisters.Main.HL), false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SUB_addrIXplus_d:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress))), false);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress))), false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SUB_addrIYplus_d:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress))), false);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress))), false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADC_HL_BC:
-                    TheRegisters.Main.HL = TheAlu.addAndSetFlags(TheRegisters.Main.HL, TheRegisters.Main.BC, true);
+                    TheRegisters.Main.HL = TheAlu.AddAndSetFlags(TheRegisters.Main.HL, TheRegisters.Main.BC, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADC_HL_DE:
-                    TheRegisters.Main.HL = TheAlu.addAndSetFlags(TheRegisters.Main.HL, TheRegisters.Main.DE, true);
+                    TheRegisters.Main.HL = TheAlu.AddAndSetFlags(TheRegisters.Main.HL, TheRegisters.Main.DE, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADC_HL_HL:
-                    TheRegisters.Main.HL = TheAlu.addAndSetFlags(TheRegisters.Main.HL, TheRegisters.Main.HL, true);
+                    TheRegisters.Main.HL = TheAlu.AddAndSetFlags(TheRegisters.Main.HL, TheRegisters.Main.HL, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADC_HL_SP:
-                    TheRegisters.Main.HL = TheAlu.addAndSetFlags(TheRegisters.Main.HL, TheRegisters.SP, true);
+                    TheRegisters.Main.HL = TheAlu.AddAndSetFlags(TheRegisters.Main.HL, TheRegisters.SP, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SBC_HL_BC:
-                    TheRegisters.Main.HL = TheAlu.subtractAndSetFlags(TheRegisters.Main.HL, TheRegisters.Main.BC, true);
+                    TheRegisters.Main.HL = TheAlu.SubtractAndSetFlags(TheRegisters.Main.HL, TheRegisters.Main.BC, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SBC_HL_DE:
-                    TheRegisters.Main.HL = TheAlu.subtractAndSetFlags(TheRegisters.Main.HL, TheRegisters.Main.DE, true);
+                    TheRegisters.Main.HL = TheAlu.SubtractAndSetFlags(TheRegisters.Main.HL, TheRegisters.Main.DE, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SBC_HL_HL:
-                    TheRegisters.Main.HL = TheAlu.subtractAndSetFlags(TheRegisters.Main.HL, TheRegisters.Main.HL, true);
+                    TheRegisters.Main.HL = TheAlu.SubtractAndSetFlags(TheRegisters.Main.HL, TheRegisters.Main.HL, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SBC_HL_SP:
-                    TheRegisters.Main.HL = TheAlu.subtractAndSetFlags(TheRegisters.Main.HL, TheRegisters.SP, true);
+                    TheRegisters.Main.HL = TheAlu.SubtractAndSetFlags(TheRegisters.Main.HL, TheRegisters.SP, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_HL_BC:
-                    TheRegisters.Main.HL = TheAlu.addAndSetFlags(TheRegisters.Main.HL, TheRegisters.Main.BC, false);
+                    TheRegisters.Main.HL = TheAlu.AddAndSetFlags(TheRegisters.Main.HL, TheRegisters.Main.BC, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_HL_DE:
-                    TheRegisters.Main.HL = TheAlu.addAndSetFlags(TheRegisters.Main.HL, TheRegisters.Main.DE, false);
+                    TheRegisters.Main.HL = TheAlu.AddAndSetFlags(TheRegisters.Main.HL, TheRegisters.Main.DE, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_HL_HL:
-                    TheRegisters.Main.HL = TheAlu.addAndSetFlags(TheRegisters.Main.HL, TheRegisters.Main.HL, false);
+                    TheRegisters.Main.HL = TheAlu.AddAndSetFlags(TheRegisters.Main.HL, TheRegisters.Main.HL, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_HL_SP:
-                    TheRegisters.Main.HL = TheAlu.addAndSetFlags(TheRegisters.Main.HL, TheRegisters.SP, false);
+                    TheRegisters.Main.HL = TheAlu.AddAndSetFlags(TheRegisters.Main.HL, TheRegisters.SP, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_IX_BC:
-                    TheRegisters.IX = TheAlu.addAndSetFlags(TheRegisters.IX, TheRegisters.Main.BC, false);
+                    TheRegisters.IX = TheAlu.AddAndSetFlags(TheRegisters.IX, TheRegisters.Main.BC, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_IX_DE:
-                    TheRegisters.IX = TheAlu.addAndSetFlags(TheRegisters.IX, TheRegisters.Main.DE, false);
+                    TheRegisters.IX = TheAlu.AddAndSetFlags(TheRegisters.IX, TheRegisters.Main.DE, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_IX_IX:
-                    TheRegisters.IX = TheAlu.addAndSetFlags(TheRegisters.IX, TheRegisters.IX, false);
+                    TheRegisters.IX = TheAlu.AddAndSetFlags(TheRegisters.IX, TheRegisters.IX, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_IX_SP:
-                    TheRegisters.IX = TheAlu.addAndSetFlags(TheRegisters.IX, TheRegisters.SP, false);
+                    TheRegisters.IX = TheAlu.AddAndSetFlags(TheRegisters.IX, TheRegisters.SP, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_IY_BC:
-                    TheRegisters.IY = TheAlu.addAndSetFlags(TheRegisters.IY, TheRegisters.Main.BC, false);
+                    TheRegisters.IY = TheAlu.AddAndSetFlags(TheRegisters.IY, TheRegisters.Main.BC, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_IY_DE:
-                    TheRegisters.IY = TheAlu.addAndSetFlags(TheRegisters.IY, TheRegisters.Main.DE, false);
+                    TheRegisters.IY = TheAlu.AddAndSetFlags(TheRegisters.IY, TheRegisters.Main.DE, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_IY_IY:
-                    TheRegisters.IY = TheAlu.addAndSetFlags(TheRegisters.IY, TheRegisters.IY, false);
+                    TheRegisters.IY = TheAlu.AddAndSetFlags(TheRegisters.IY, TheRegisters.IY, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_IY_SP:
-                    TheRegisters.IY = TheAlu.addAndSetFlags(TheRegisters.IY, TheRegisters.SP, false);
+                    TheRegisters.IY = TheAlu.AddAndSetFlags(TheRegisters.IY, TheRegisters.SP, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.DEC_BC:
                     TheRegisters.Main.BC = (ushort)TheRegisters.Main.BC - 1;
@@ -915,136 +915,136 @@ public partial class CPU
                     TheRegisters.IY = (ushort)TheRegisters.IY + 1;
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.AND_n:
-                    TheAlu.and(MainMemory.Peek(valueAddress));
+                    TheAlu.And(MainMemory.Peek(valueAddress));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.AND_A:
-                    TheAlu.and(TheRegisters.Main.A);
+                    TheAlu.And(TheRegisters.Main.A);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.AND_B:
-                    TheAlu.and(TheRegisters.Main.B);
+                    TheAlu.And(TheRegisters.Main.B);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.AND_C:
-                    TheAlu.and(TheRegisters.Main.C);
+                    TheAlu.And(TheRegisters.Main.C);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.AND_D:
-                    TheAlu.and(TheRegisters.Main.D);
+                    TheAlu.And(TheRegisters.Main.D);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.AND_E:
-                    TheAlu.and(TheRegisters.Main.E);
+                    TheAlu.And(TheRegisters.Main.E);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.AND_H:
-                    TheAlu.and(TheRegisters.Main.H);
+                    TheAlu.And(TheRegisters.Main.H);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.AND_L:
-                    TheAlu.and(TheRegisters.Main.L);
+                    TheAlu.And(TheRegisters.Main.L);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.AND_addrHL:
-                    TheAlu.and(MainMemory.Peek(TheRegisters.Main.HL));
+                    TheAlu.And(MainMemory.Peek(TheRegisters.Main.HL));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.AND_addrIX_plus_d:
-                    TheAlu.and(MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress))));
+                    TheAlu.And(MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress))));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.AND_addrIY_plus_d:
-                    TheAlu.and(MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress))));
+                    TheAlu.And(MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress))));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.CP_n:
-                    TheAlu.subtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(valueAddress), false);
+                    TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(valueAddress), false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.CP_A:
-                    TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.A, false);
+                    TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.A, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.CP_B:
-                    TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.B, false);
+                    TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.B, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.CP_C:
-                    TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.C, false);
+                    TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.C, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.CP_D:
-                    TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.D, false);
+                    TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.D, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.CP_E:
-                    TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.E, false);
+                    TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.E, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.CP_H:
-                    TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.H, false);
+                    TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.H, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.CP_L:
-                    TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.L, false);
+                    TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.Main.L, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.CP_addrHL:
-                    TheAlu.subtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(TheRegisters.Main.HL), false);
+                    TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(TheRegisters.Main.HL), false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.CP_addrIX_plus_d:
-                    TheAlu.subtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress))), false);
+                    TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress))), false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.CP_addrIY_plus_d:
-                    TheAlu.subtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress))), false);
+                    TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress))), false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.OR_n:
-                    TheAlu.or(MainMemory.Peek(valueAddress));
+                    TheAlu.Or(MainMemory.Peek(valueAddress));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.OR_A:
-                    TheAlu.or(TheRegisters.Main.A);
+                    TheAlu.Or(TheRegisters.Main.A);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.OR_B:
-                    TheAlu.or(TheRegisters.Main.B);
+                    TheAlu.Or(TheRegisters.Main.B);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.OR_C:
-                    TheAlu.or(TheRegisters.Main.C);
+                    TheAlu.Or(TheRegisters.Main.C);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.OR_D:
-                    TheAlu.or(TheRegisters.Main.D);
+                    TheAlu.Or(TheRegisters.Main.D);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.OR_E:
-                    TheAlu.or(TheRegisters.Main.E);
+                    TheAlu.Or(TheRegisters.Main.E);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.OR_H:
-                    TheAlu.or(TheRegisters.Main.H);
+                    TheAlu.Or(TheRegisters.Main.H);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.OR_L:
-                    TheAlu.or(TheRegisters.Main.L);
+                    TheAlu.Or(TheRegisters.Main.L);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.OR_addrHL:
-                    TheAlu.or(MainMemory.Peek(TheRegisters.Main.HL));
+                    TheAlu.Or(MainMemory.Peek(TheRegisters.Main.HL));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.OR_addrIX_plus_d:
-                    TheAlu.or(MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress))));
+                    TheAlu.Or(MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress))));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.OR_addrIY_plus_d:
-                    TheAlu.or(MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress))));
+                    TheAlu.Or(MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress))));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.XOR_n:
-                    TheAlu.xor(MainMemory.Peek(valueAddress));
+                    TheAlu.Xor(MainMemory.Peek(valueAddress));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.XOR_A:
-                    TheAlu.xor(TheRegisters.Main.A);
+                    TheAlu.Xor(TheRegisters.Main.A);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.XOR_B:
-                    TheAlu.xor(TheRegisters.Main.B);
+                    TheAlu.Xor(TheRegisters.Main.B);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.XOR_C:
-                    TheAlu.xor(TheRegisters.Main.C);
+                    TheAlu.Xor(TheRegisters.Main.C);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.XOR_D:
-                    TheAlu.xor(TheRegisters.Main.D);
+                    TheAlu.Xor(TheRegisters.Main.D);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.XOR_E:
-                    TheAlu.xor(TheRegisters.Main.E);
+                    TheAlu.Xor(TheRegisters.Main.E);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.XOR_H:
-                    TheAlu.xor(TheRegisters.Main.H);
+                    TheAlu.Xor(TheRegisters.Main.H);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.XOR_L:
-                    TheAlu.xor(TheRegisters.Main.L);
+                    TheAlu.Xor(TheRegisters.Main.L);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.XOR_addrHL:
-                    TheAlu.xor(MainMemory.Peek(TheRegisters.Main.HL));
+                    TheAlu.Xor(MainMemory.Peek(TheRegisters.Main.HL));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.XOR_addrIX_plus_d:
-                    TheAlu.xor(MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress))));
+                    TheAlu.Xor(MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress))));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.XOR_addrIY_plus_d:
-                    TheAlu.xor(MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress))));
+                    TheAlu.Xor(MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress))));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.CCF:
                     TheRegisters.HalfCarryFlag = TheRegisters.CarryFlag;
@@ -1057,7 +1057,7 @@ public partial class CPU
                     TheRegisters.Main.A = (byte)~TheRegisters.Main.A;
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.DAA:
-                    TheAlu.adjustAccumulatorToBCD();
+                    TheAlu.AdjustAccumulatorToBcd();
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.EI:
                     TheRegisters.IFF1 = TheRegisters.IFF2 = true;
@@ -1080,7 +1080,7 @@ public partial class CPU
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.NEG:
                 {
-                    var newA = TheAlu.subtractAndSetFlags((byte)0x00, TheRegisters.Main.A, false);
+                    var newA = TheAlu.SubtractAndSetFlags((byte)0x00, TheRegisters.Main.A, false);
                     TheRegisters.ParityFlag = TheRegisters.Main.A == 0x80;
                     TheRegisters.CarryFlag = TheRegisters.Main.A != 0x00;
                     TheRegisters.Main.A = newA;
@@ -1092,34 +1092,34 @@ public partial class CPU
                     TheRegisters.SubtractFlag = false;
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RL_A:
-                    TheRegisters.Main.A = TheAlu.rotateLeft(TheRegisters.Main.A);
+                    TheRegisters.Main.A = TheAlu.RotateLeft(TheRegisters.Main.A);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RL_B:
-                    TheRegisters.Main.B = TheAlu.rotateLeft(TheRegisters.Main.B);
+                    TheRegisters.Main.B = TheAlu.RotateLeft(TheRegisters.Main.B);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RL_C:
-                    TheRegisters.Main.C = TheAlu.rotateLeft(TheRegisters.Main.C);
+                    TheRegisters.Main.C = TheAlu.RotateLeft(TheRegisters.Main.C);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RL_D:
-                    TheRegisters.Main.D = TheAlu.rotateLeft(TheRegisters.Main.D);
+                    TheRegisters.Main.D = TheAlu.RotateLeft(TheRegisters.Main.D);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RL_E:
-                    TheRegisters.Main.E = TheAlu.rotateLeft(TheRegisters.Main.E);
+                    TheRegisters.Main.E = TheAlu.RotateLeft(TheRegisters.Main.E);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RL_H:
-                    TheRegisters.Main.H = TheAlu.rotateLeft(TheRegisters.Main.H);
+                    TheRegisters.Main.H = TheAlu.RotateLeft(TheRegisters.Main.H);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RL_L:
-                    TheRegisters.Main.L = TheAlu.rotateLeft(TheRegisters.Main.L);
+                    TheRegisters.Main.L = TheAlu.RotateLeft(TheRegisters.Main.L);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RL_addrHL:
-                    MainMemory.Poke(TheRegisters.Main.HL, TheAlu.rotateLeft(MainMemory.Peek(TheRegisters.Main.HL)));
+                    MainMemory.Poke(TheRegisters.Main.HL, TheAlu.RotateLeft(MainMemory.Peek(TheRegisters.Main.HL)));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RL_addrIX_plus_d:
-                    MainMemory.Poke(IXPlusD(MainMemory.Peek(valueAddress)), TheAlu.rotateLeft(MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress)))));
+                    MainMemory.Poke(IXPlusD(MainMemory.Peek(valueAddress)), TheAlu.RotateLeft(MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress)))));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RL_addrIY_plus_d:
-                    MainMemory.Poke(IYPlusD(MainMemory.Peek(valueAddress)), TheAlu.rotateLeft(MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress)))));
+                    MainMemory.Poke(IYPlusD(MainMemory.Peek(valueAddress)), TheAlu.RotateLeft(MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress)))));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RLA:
                 {
@@ -1135,25 +1135,25 @@ public partial class CPU
                     return instruction.TStateCount;
                 }
                 case Z80Instructions.InstructionID.RLC_A:
-                    TheRegisters.Main.A = TheAlu.rotateLeftCircular(TheRegisters.Main.A);
+                    TheRegisters.Main.A = TheAlu.RotateLeftCircular(TheRegisters.Main.A);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RLC_B:
-                    TheRegisters.Main.B = TheAlu.rotateLeftCircular(TheRegisters.Main.B);
+                    TheRegisters.Main.B = TheAlu.RotateLeftCircular(TheRegisters.Main.B);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RLC_C:
-                    TheRegisters.Main.C = TheAlu.rotateLeftCircular(TheRegisters.Main.C);
+                    TheRegisters.Main.C = TheAlu.RotateLeftCircular(TheRegisters.Main.C);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RLC_D:
-                    TheRegisters.Main.D = TheAlu.rotateLeftCircular(TheRegisters.Main.D);
+                    TheRegisters.Main.D = TheAlu.RotateLeftCircular(TheRegisters.Main.D);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RLC_E:
-                    TheRegisters.Main.E = TheAlu.rotateLeftCircular(TheRegisters.Main.E);
+                    TheRegisters.Main.E = TheAlu.RotateLeftCircular(TheRegisters.Main.E);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RLC_H:
-                    TheRegisters.Main.H = TheAlu.rotateLeftCircular(TheRegisters.Main.H);
+                    TheRegisters.Main.H = TheAlu.RotateLeftCircular(TheRegisters.Main.H);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RLC_L:
-                    TheRegisters.Main.L = TheAlu.rotateLeftCircular(TheRegisters.Main.L);
+                    TheRegisters.Main.L = TheAlu.RotateLeftCircular(TheRegisters.Main.L);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RLCA:
                     TheRegisters.CarryFlag = (TheRegisters.Main.A & 0x80) != 0x00;
@@ -1162,43 +1162,43 @@ public partial class CPU
                     TheRegisters.SubtractFlag = false;
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RLC_addrHL:
-                    MainMemory.Poke(TheRegisters.Main.HL, TheAlu.rotateLeftCircular(MainMemory.Peek(TheRegisters.Main.HL)));
+                    MainMemory.Poke(TheRegisters.Main.HL, TheAlu.RotateLeftCircular(MainMemory.Peek(TheRegisters.Main.HL)));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RLC_addrIX_plus_d:
-                    MainMemory.Poke(IXPlusD(MainMemory.Peek(valueAddress)), TheAlu.rotateLeftCircular(MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress)))));
+                    MainMemory.Poke(IXPlusD(MainMemory.Peek(valueAddress)), TheAlu.RotateLeftCircular(MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress)))));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RLC_addrIY_plus_d:
-                    MainMemory.Poke(IYPlusD(MainMemory.Peek(valueAddress)), TheAlu.rotateLeftCircular(MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress)))));
+                    MainMemory.Poke(IYPlusD(MainMemory.Peek(valueAddress)), TheAlu.RotateLeftCircular(MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress)))));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RR_A:
-                    TheRegisters.Main.A = TheAlu.rotateRight(TheRegisters.Main.A);
+                    TheRegisters.Main.A = TheAlu.RotateRight(TheRegisters.Main.A);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RR_B:
-                    TheRegisters.Main.B = TheAlu.rotateRight(TheRegisters.Main.B);
+                    TheRegisters.Main.B = TheAlu.RotateRight(TheRegisters.Main.B);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RR_C:
-                    TheRegisters.Main.C = TheAlu.rotateRight(TheRegisters.Main.C);
+                    TheRegisters.Main.C = TheAlu.RotateRight(TheRegisters.Main.C);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RR_D:
-                    TheRegisters.Main.D = TheAlu.rotateRight(TheRegisters.Main.D);
+                    TheRegisters.Main.D = TheAlu.RotateRight(TheRegisters.Main.D);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RR_E:
-                    TheRegisters.Main.E = TheAlu.rotateRight(TheRegisters.Main.E);
+                    TheRegisters.Main.E = TheAlu.RotateRight(TheRegisters.Main.E);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RR_H:
-                    TheRegisters.Main.H = TheAlu.rotateRight(TheRegisters.Main.H);
+                    TheRegisters.Main.H = TheAlu.RotateRight(TheRegisters.Main.H);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RR_L:
-                    TheRegisters.Main.L = TheAlu.rotateRight(TheRegisters.Main.L);
+                    TheRegisters.Main.L = TheAlu.RotateRight(TheRegisters.Main.L);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RR_addrHL:
-                    MainMemory.Poke(TheRegisters.Main.HL, TheAlu.rotateRight(MainMemory.Peek(TheRegisters.Main.HL)));
+                    MainMemory.Poke(TheRegisters.Main.HL, TheAlu.RotateRight(MainMemory.Peek(TheRegisters.Main.HL)));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RR_addrIX_plus_d:
-                    MainMemory.Poke(IXPlusD(MainMemory.Peek(valueAddress)), TheAlu.rotateRight(MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress)))));
+                    MainMemory.Poke(IXPlusD(MainMemory.Peek(valueAddress)), TheAlu.RotateRight(MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress)))));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RR_addrIY_plus_d:
-                    MainMemory.Poke(IYPlusD(MainMemory.Peek(valueAddress)), TheAlu.rotateRight(MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress)))));
+                    MainMemory.Poke(IYPlusD(MainMemory.Peek(valueAddress)), TheAlu.RotateRight(MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress)))));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RRA:
                 {
@@ -1210,34 +1210,34 @@ public partial class CPU
                     return instruction.TStateCount;
                 }
                 case Z80Instructions.InstructionID.RRC_A:
-                    TheRegisters.Main.A = TheAlu.rotateRightCircular(TheRegisters.Main.A);
+                    TheRegisters.Main.A = TheAlu.RotateRightCircular(TheRegisters.Main.A);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RRC_B:
-                    TheRegisters.Main.B = TheAlu.rotateRightCircular(TheRegisters.Main.B);
+                    TheRegisters.Main.B = TheAlu.RotateRightCircular(TheRegisters.Main.B);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RRC_C:
-                    TheRegisters.Main.C = TheAlu.rotateRightCircular(TheRegisters.Main.C);
+                    TheRegisters.Main.C = TheAlu.RotateRightCircular(TheRegisters.Main.C);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RRC_D:
-                    TheRegisters.Main.D = TheAlu.rotateRightCircular(TheRegisters.Main.D);
+                    TheRegisters.Main.D = TheAlu.RotateRightCircular(TheRegisters.Main.D);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RRC_E:
-                    TheRegisters.Main.E = TheAlu.rotateRightCircular(TheRegisters.Main.E);
+                    TheRegisters.Main.E = TheAlu.RotateRightCircular(TheRegisters.Main.E);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RRC_H:
-                    TheRegisters.Main.H = TheAlu.rotateRightCircular(TheRegisters.Main.H);
+                    TheRegisters.Main.H = TheAlu.RotateRightCircular(TheRegisters.Main.H);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RRC_L:
-                    TheRegisters.Main.L = TheAlu.rotateRightCircular(TheRegisters.Main.L);
+                    TheRegisters.Main.L = TheAlu.RotateRightCircular(TheRegisters.Main.L);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RRC_addrHL:
-                    MainMemory.Poke(TheRegisters.Main.HL, TheAlu.rotateRightCircular(MainMemory.Peek(TheRegisters.Main.HL)));
+                    MainMemory.Poke(TheRegisters.Main.HL, TheAlu.RotateRightCircular(MainMemory.Peek(TheRegisters.Main.HL)));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RRC_addrIX_plus_d:
-                    MainMemory.Poke(IXPlusD(MainMemory.Peek(valueAddress)), TheAlu.rotateRightCircular(MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress)))));
+                    MainMemory.Poke(IXPlusD(MainMemory.Peek(valueAddress)), TheAlu.RotateRightCircular(MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress)))));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RRC_addrIY_plus_d:
-                    MainMemory.Poke(IYPlusD(MainMemory.Peek(valueAddress)), TheAlu.rotateRightCircular(MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress)))));
+                    MainMemory.Poke(IYPlusD(MainMemory.Peek(valueAddress)), TheAlu.RotateRightCircular(MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress)))));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.RRCA:
                 {
@@ -1248,118 +1248,118 @@ public partial class CPU
                     return instruction.TStateCount;
                 }
                 case Z80Instructions.InstructionID.SLA_A:
-                    TheRegisters.Main.A = TheAlu.shiftLeft(TheRegisters.Main.A);
+                    TheRegisters.Main.A = TheAlu.ShiftLeft(TheRegisters.Main.A);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SLA_B:
-                    TheRegisters.Main.B = TheAlu.shiftLeft(TheRegisters.Main.B);
+                    TheRegisters.Main.B = TheAlu.ShiftLeft(TheRegisters.Main.B);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SLA_C:
-                    TheRegisters.Main.C = TheAlu.shiftLeft(TheRegisters.Main.C);
+                    TheRegisters.Main.C = TheAlu.ShiftLeft(TheRegisters.Main.C);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SLA_D:
-                    TheRegisters.Main.D = TheAlu.shiftLeft(TheRegisters.Main.D);
+                    TheRegisters.Main.D = TheAlu.ShiftLeft(TheRegisters.Main.D);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SLA_E:
-                    TheRegisters.Main.E = TheAlu.shiftLeft(TheRegisters.Main.E);
+                    TheRegisters.Main.E = TheAlu.ShiftLeft(TheRegisters.Main.E);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SLA_H:
-                    TheRegisters.Main.H = TheAlu.shiftLeft(TheRegisters.Main.H);
+                    TheRegisters.Main.H = TheAlu.ShiftLeft(TheRegisters.Main.H);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SLA_L:
-                    TheRegisters.Main.L = TheAlu.shiftLeft(TheRegisters.Main.L);
+                    TheRegisters.Main.L = TheAlu.ShiftLeft(TheRegisters.Main.L);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SLA_addrHL:
-                    MainMemory.Poke(TheRegisters.Main.HL, TheAlu.shiftLeft(MainMemory.Peek(TheRegisters.Main.HL)));
+                    MainMemory.Poke(TheRegisters.Main.HL, TheAlu.ShiftLeft(MainMemory.Peek(TheRegisters.Main.HL)));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SLL_A:
-                    TheRegisters.Main.A = TheAlu.shiftLeft(TheRegisters.Main.A, 1);
+                    TheRegisters.Main.A = TheAlu.ShiftLeft(TheRegisters.Main.A, 1);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SLL_B:
-                    TheRegisters.Main.B = TheAlu.shiftLeft(TheRegisters.Main.B, 1);
+                    TheRegisters.Main.B = TheAlu.ShiftLeft(TheRegisters.Main.B, 1);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SLL_C:
-                    TheRegisters.Main.C = TheAlu.shiftLeft(TheRegisters.Main.C, 1);
+                    TheRegisters.Main.C = TheAlu.ShiftLeft(TheRegisters.Main.C, 1);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SLL_D:
-                    TheRegisters.Main.D = TheAlu.shiftLeft(TheRegisters.Main.D, 1);
+                    TheRegisters.Main.D = TheAlu.ShiftLeft(TheRegisters.Main.D, 1);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SLL_E:
-                    TheRegisters.Main.E = TheAlu.shiftLeft(TheRegisters.Main.E, 1);
+                    TheRegisters.Main.E = TheAlu.ShiftLeft(TheRegisters.Main.E, 1);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SLL_H:
-                    TheRegisters.Main.H = TheAlu.shiftLeft(TheRegisters.Main.H, 1);
+                    TheRegisters.Main.H = TheAlu.ShiftLeft(TheRegisters.Main.H, 1);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SLL_L:
-                    TheRegisters.Main.L = TheAlu.shiftLeft(TheRegisters.Main.L, 1);
+                    TheRegisters.Main.L = TheAlu.ShiftLeft(TheRegisters.Main.L, 1);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SLL_addrHL:
-                    MainMemory.Poke(TheRegisters.Main.HL, TheAlu.shiftLeft(MainMemory.Peek(TheRegisters.Main.HL), 1));
+                    MainMemory.Poke(TheRegisters.Main.HL, TheAlu.ShiftLeft(MainMemory.Peek(TheRegisters.Main.HL), 1));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SLA_addrIX_plus_d:
-                    MainMemory.Poke(IXPlusD(MainMemory.Peek(valueAddress)), TheAlu.shiftLeft(MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress)))));
+                    MainMemory.Poke(IXPlusD(MainMemory.Peek(valueAddress)), TheAlu.ShiftLeft(MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress)))));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SLA_addrIY_plus_d:
-                    MainMemory.Poke(IYPlusD(MainMemory.Peek(valueAddress)), TheAlu.shiftLeft(MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress)))));
+                    MainMemory.Poke(IYPlusD(MainMemory.Peek(valueAddress)), TheAlu.ShiftLeft(MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress)))));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SRA_A:
-                    TheRegisters.Main.A = TheAlu.shiftRightArithmetic(TheRegisters.Main.A);
+                    TheRegisters.Main.A = TheAlu.ShiftRightArithmetic(TheRegisters.Main.A);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SRA_B:
-                    TheRegisters.Main.B = TheAlu.shiftRightArithmetic(TheRegisters.Main.B);
+                    TheRegisters.Main.B = TheAlu.ShiftRightArithmetic(TheRegisters.Main.B);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SRA_C:
-                    TheRegisters.Main.C = TheAlu.shiftRightArithmetic(TheRegisters.Main.C);
+                    TheRegisters.Main.C = TheAlu.ShiftRightArithmetic(TheRegisters.Main.C);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SRA_D:
-                    TheRegisters.Main.D = TheAlu.shiftRightArithmetic(TheRegisters.Main.D);
+                    TheRegisters.Main.D = TheAlu.ShiftRightArithmetic(TheRegisters.Main.D);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SRA_E:
-                    TheRegisters.Main.E = TheAlu.shiftRightArithmetic(TheRegisters.Main.E);
+                    TheRegisters.Main.E = TheAlu.ShiftRightArithmetic(TheRegisters.Main.E);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SRA_H:
-                    TheRegisters.Main.H = TheAlu.shiftRightArithmetic(TheRegisters.Main.H);
+                    TheRegisters.Main.H = TheAlu.ShiftRightArithmetic(TheRegisters.Main.H);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SRA_L:
-                    TheRegisters.Main.L = TheAlu.shiftRightArithmetic(TheRegisters.Main.L);
+                    TheRegisters.Main.L = TheAlu.ShiftRightArithmetic(TheRegisters.Main.L);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SRA_addrHL:
-                    MainMemory.Poke(TheRegisters.Main.HL, TheAlu.shiftRightArithmetic(MainMemory.Peek(TheRegisters.Main.HL)));
+                    MainMemory.Poke(TheRegisters.Main.HL, TheAlu.ShiftRightArithmetic(MainMemory.Peek(TheRegisters.Main.HL)));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SRA_addrIX_plus_d:
-                    MainMemory.Poke(IXPlusD(MainMemory.Peek(valueAddress)), TheAlu.shiftRightArithmetic(MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress)))));
+                    MainMemory.Poke(IXPlusD(MainMemory.Peek(valueAddress)), TheAlu.ShiftRightArithmetic(MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress)))));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SRA_addrIY_plus_d:
-                    MainMemory.Poke(IYPlusD(MainMemory.Peek(valueAddress)), TheAlu.shiftRightArithmetic(MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress)))));
+                    MainMemory.Poke(IYPlusD(MainMemory.Peek(valueAddress)), TheAlu.ShiftRightArithmetic(MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress)))));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SRL_A:
-                    TheRegisters.Main.A = TheAlu.shiftRightLogical(TheRegisters.Main.A);
+                    TheRegisters.Main.A = TheAlu.ShiftRightLogical(TheRegisters.Main.A);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SRL_B:
-                    TheRegisters.Main.B = TheAlu.shiftRightLogical(TheRegisters.Main.B);
+                    TheRegisters.Main.B = TheAlu.ShiftRightLogical(TheRegisters.Main.B);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SRL_C:
-                    TheRegisters.Main.C = TheAlu.shiftRightLogical(TheRegisters.Main.C);
+                    TheRegisters.Main.C = TheAlu.ShiftRightLogical(TheRegisters.Main.C);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SRL_D:
-                    TheRegisters.Main.D = TheAlu.shiftRightLogical(TheRegisters.Main.D);
+                    TheRegisters.Main.D = TheAlu.ShiftRightLogical(TheRegisters.Main.D);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SRL_E:
-                    TheRegisters.Main.E = TheAlu.shiftRightLogical(TheRegisters.Main.E);
+                    TheRegisters.Main.E = TheAlu.ShiftRightLogical(TheRegisters.Main.E);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SRL_H:
-                    TheRegisters.Main.H = TheAlu.shiftRightLogical(TheRegisters.Main.H);
+                    TheRegisters.Main.H = TheAlu.ShiftRightLogical(TheRegisters.Main.H);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SRL_L:
-                    TheRegisters.Main.L = TheAlu.shiftRightLogical(TheRegisters.Main.L);
+                    TheRegisters.Main.L = TheAlu.ShiftRightLogical(TheRegisters.Main.L);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SRL_addrHL:
-                    MainMemory.Poke(TheRegisters.Main.HL, TheAlu.shiftRightLogical(MainMemory.Peek(TheRegisters.Main.HL)));
+                    MainMemory.Poke(TheRegisters.Main.HL, TheAlu.ShiftRightLogical(MainMemory.Peek(TheRegisters.Main.HL)));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SRL_addrIX_plus_d:
-                    MainMemory.Poke(IXPlusD(MainMemory.Peek(valueAddress)), TheAlu.shiftRightLogical(MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress)))));
+                    MainMemory.Poke(IXPlusD(MainMemory.Peek(valueAddress)), TheAlu.ShiftRightLogical(MainMemory.Peek(IXPlusD(MainMemory.Peek(valueAddress)))));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SRL_addrIY_plus_d:
-                    MainMemory.Poke(IYPlusD(MainMemory.Peek(valueAddress)), TheAlu.shiftRightLogical(MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress)))));
+                    MainMemory.Poke(IYPlusD(MainMemory.Peek(valueAddress)), TheAlu.ShiftRightLogical(MainMemory.Peek(IYPlusD(MainMemory.Peek(valueAddress)))));
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.BIT_0_A:
                     doBitTest(TheRegisters.Main.A, 0);
@@ -2104,7 +2104,7 @@ public partial class CPU
                     TheRegisters.Main.B--;
                     if (TheRegisters.Main.B == 0)
                         return 8;
-                    TheRegisters.PC += ALU.fromTwosCompliment(MainMemory.Peek(valueAddress));
+                    TheRegisters.PC += Alu.FromTwosCompliment(MainMemory.Peek(valueAddress));
                     return 13;
                 case Z80Instructions.InstructionID.JP_nn:
                     JumpIfTrue(MainMemory.PeekWord(valueAddress), true);
@@ -2143,16 +2143,16 @@ public partial class CPU
                     JumpIfTrue(TheRegisters.IY, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.JR_n:
-                    JumpIfTrue(TheRegisters.PC + ALU.fromTwosCompliment(MainMemory.Peek(valueAddress)), true);
+                    JumpIfTrue(TheRegisters.PC + Alu.FromTwosCompliment(MainMemory.Peek(valueAddress)), true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.JR_NZ_n:
-                    return JumpIfTrue(TheRegisters.PC + ALU.fromTwosCompliment(MainMemory.Peek(valueAddress)), !TheRegisters.ZeroFlag) ? 12 : 7;
+                    return JumpIfTrue(TheRegisters.PC + Alu.FromTwosCompliment(MainMemory.Peek(valueAddress)), !TheRegisters.ZeroFlag) ? 12 : 7;
                 case Z80Instructions.InstructionID.JR_Z_n:
-                    return JumpIfTrue(TheRegisters.PC + ALU.fromTwosCompliment(MainMemory.Peek(valueAddress)), TheRegisters.ZeroFlag) ? 12 : 7;
+                    return JumpIfTrue(TheRegisters.PC + Alu.FromTwosCompliment(MainMemory.Peek(valueAddress)), TheRegisters.ZeroFlag) ? 12 : 7;
                 case Z80Instructions.InstructionID.JR_NC_n:
-                    return JumpIfTrue(TheRegisters.PC + ALU.fromTwosCompliment(MainMemory.Peek(valueAddress)), !TheRegisters.CarryFlag) ? 12 : 7;
+                    return JumpIfTrue(TheRegisters.PC + Alu.FromTwosCompliment(MainMemory.Peek(valueAddress)), !TheRegisters.CarryFlag) ? 12 : 7;
                 case Z80Instructions.InstructionID.JR_C_n:
-                    return JumpIfTrue(TheRegisters.PC + ALU.fromTwosCompliment(MainMemory.Peek(valueAddress)), TheRegisters.CarryFlag) ? 12 : 7;
+                    return JumpIfTrue(TheRegisters.PC + Alu.FromTwosCompliment(MainMemory.Peek(valueAddress)), TheRegisters.CarryFlag) ? 12 : 7;
                 case Z80Instructions.InstructionID.RET:
                     doRet();
                     return instruction.TStateCount;
@@ -2275,10 +2275,10 @@ public partial class CPU
                     TheRegisters.Main.A = (byte)newA;
                     MainMemory.Poke(TheRegisters.Main.HL, (byte)newValueAtHL);
 
-                    TheRegisters.SignFlag = !ALU.isBytePositive(TheRegisters.Main.A);
+                    TheRegisters.SignFlag = !Alu.IsBytePositive(TheRegisters.Main.A);
                     TheRegisters.ZeroFlag = TheRegisters.Main.A == 0;
                     TheRegisters.HalfCarryFlag = false;
-                    TheRegisters.ParityFlag = ALU.isEvenParity(TheRegisters.Main.A);
+                    TheRegisters.ParityFlag = Alu.IsEvenParity(TheRegisters.Main.A);
                     TheRegisters.SubtractFlag = false;
                 }
                     return instruction.TStateCount;
@@ -2290,10 +2290,10 @@ public partial class CPU
                     TheRegisters.Main.A = (byte)newA;
                     MainMemory.Poke(TheRegisters.Main.HL, (byte)newValueAtHL);
 
-                    TheRegisters.SignFlag = !ALU.isBytePositive(TheRegisters.Main.A);
+                    TheRegisters.SignFlag = !Alu.IsBytePositive(TheRegisters.Main.A);
                     TheRegisters.ZeroFlag = TheRegisters.Main.A == 0;
                     TheRegisters.HalfCarryFlag = false;
-                    TheRegisters.ParityFlag = ALU.isEvenParity(TheRegisters.Main.A);
+                    TheRegisters.ParityFlag = Alu.IsEvenParity(TheRegisters.Main.A);
                     TheRegisters.SubtractFlag = false;
                 }
                     return instruction.TStateCount;
@@ -2350,76 +2350,76 @@ public partial class CPU
                     return instruction.TStateCount;
 
                 case Z80Instructions.InstructionID.ADC_A_IXH:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, TheRegisters.IXH, true);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, TheRegisters.IXH, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADC_A_IXL:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, TheRegisters.IXL, true);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, TheRegisters.IXL, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADC_A_IYH:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, TheRegisters.IYH, true);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, TheRegisters.IYH, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADC_A_IYL:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, TheRegisters.IYL, true);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, TheRegisters.IYL, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_A_IXH:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, TheRegisters.IXH, false);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, TheRegisters.IXH, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_A_IXL:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, TheRegisters.IXL, false);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, TheRegisters.IXL, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_A_IYH:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, TheRegisters.IYH, false);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, TheRegisters.IYH, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.ADD_A_IYL:
-                    TheRegisters.Main.A = TheAlu.addAndSetFlags(TheRegisters.Main.A, TheRegisters.IYL, false);
+                    TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, TheRegisters.IYL, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.AND_IXH:
-                    TheAlu.and(TheRegisters.IXH);
+                    TheAlu.And(TheRegisters.IXH);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.AND_IXL:
-                    TheAlu.and(TheRegisters.IXL);
+                    TheAlu.And(TheRegisters.IXL);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.AND_IYH:
-                    TheAlu.and(TheRegisters.IYH);
+                    TheAlu.And(TheRegisters.IYH);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.AND_IYL:
-                    TheAlu.and(TheRegisters.IYL);
+                    TheAlu.And(TheRegisters.IYL);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.CP_IXH:
-                    TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IXH, false);
+                    TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IXH, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.CP_IXL:
-                    TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IXL, false);
+                    TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IXL, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.CP_IYH:
-                    TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IYH, false);
+                    TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IYH, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.CP_IYL:
-                    TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IYL, false);
+                    TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IYL, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.DEC_IXL:
-                    TheRegisters.IXL = TheAlu.decAndSetFlags(TheRegisters.IXL);
+                    TheRegisters.IXL = TheAlu.DecAndSetFlags(TheRegisters.IXL);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.DEC_IXH:
-                    TheRegisters.IXH = TheAlu.decAndSetFlags(TheRegisters.IXH);
+                    TheRegisters.IXH = TheAlu.DecAndSetFlags(TheRegisters.IXH);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.DEC_IYL:
-                    TheRegisters.IYL = TheAlu.decAndSetFlags(TheRegisters.IYL);
+                    TheRegisters.IYL = TheAlu.DecAndSetFlags(TheRegisters.IYL);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.DEC_IYH:
-                    TheRegisters.IYH = TheAlu.decAndSetFlags(TheRegisters.IYH);
+                    TheRegisters.IYH = TheAlu.DecAndSetFlags(TheRegisters.IYH);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.INC_IXL:
-                    TheRegisters.IXL = TheAlu.incAndSetFlags(TheRegisters.IXL);
+                    TheRegisters.IXL = TheAlu.IncAndSetFlags(TheRegisters.IXL);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.INC_IYL:
-                    TheRegisters.IYL = TheAlu.incAndSetFlags(TheRegisters.IYL);
+                    TheRegisters.IYL = TheAlu.IncAndSetFlags(TheRegisters.IYL);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.INC_IXH:
-                    TheRegisters.IXH = TheAlu.incAndSetFlags(TheRegisters.IXH);
+                    TheRegisters.IXH = TheAlu.IncAndSetFlags(TheRegisters.IXH);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.INC_IYH:
-                    TheRegisters.IYH = TheAlu.incAndSetFlags(TheRegisters.IYH);
+                    TheRegisters.IYH = TheAlu.IncAndSetFlags(TheRegisters.IYH);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.LD_A_IXH:
                     TheRegisters.Main.A = TheRegisters.IXH;
@@ -2574,52 +2574,52 @@ public partial class CPU
                     TheRegisters.IYL = MainMemory.Peek(valueAddress);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.OR_IXH:
-                    TheAlu.or(TheRegisters.IXH);
+                    TheAlu.Or(TheRegisters.IXH);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.OR_IXL:
-                    TheAlu.or(TheRegisters.IXL);
+                    TheAlu.Or(TheRegisters.IXL);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.OR_IYH:
-                    TheAlu.or(TheRegisters.IYH);
+                    TheAlu.Or(TheRegisters.IYH);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.OR_IYL:
-                    TheAlu.or(TheRegisters.IYL);
+                    TheAlu.Or(TheRegisters.IYL);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SBC_A_IXH:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IXH, true);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IXH, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SBC_A_IXL:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IXL, true);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IXL, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SBC_A_IYH:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IYH, true);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IYH, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SBC_A_IYL:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IYL, true);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IYL, true);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SUB_IXH:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IXH, false);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IXH, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SUB_IXL:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IXL, false);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IXL, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SUB_IYH:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IYH, false);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IYH, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.SUB_IYL:
-                    TheRegisters.Main.A = TheAlu.subtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IYL, false);
+                    TheRegisters.Main.A = TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IYL, false);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.XOR_IXH:
-                    TheAlu.xor(TheRegisters.IXH);
+                    TheAlu.Xor(TheRegisters.IXH);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.XOR_IXL:
-                    TheAlu.xor(TheRegisters.IXL);
+                    TheAlu.Xor(TheRegisters.IXL);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.XOR_IYH:
-                    TheAlu.xor(TheRegisters.IYH);
+                    TheAlu.Xor(TheRegisters.IYH);
                     return instruction.TStateCount;
                 case Z80Instructions.InstructionID.XOR_IYL:
-                    TheAlu.xor(TheRegisters.IYL);
+                    TheAlu.Xor(TheRegisters.IYL);
                     return instruction.TStateCount;
 
                 default:

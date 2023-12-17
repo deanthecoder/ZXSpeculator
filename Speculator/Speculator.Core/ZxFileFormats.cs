@@ -65,10 +65,10 @@ public static class ZxFileFormats
         cpu.TheRegisters.clear();
         cpu.TheRegisters.Main.A = (byte)stream.ReadByte();
         cpu.TheRegisters.Main.F = (byte)stream.ReadByte();
-        cpu.TheRegisters.Main.BC = readSNAWord(stream);
-        cpu.TheRegisters.Main.HL = readSNAWord(stream);
-        cpu.TheRegisters.PC = readSNAWord(stream);
-        cpu.TheRegisters.SP = readSNAWord(stream);
+        cpu.TheRegisters.Main.BC = ReadSNAWord(stream);
+        cpu.TheRegisters.Main.HL = ReadSNAWord(stream);
+        cpu.TheRegisters.PC = ReadSNAWord(stream);
+        cpu.TheRegisters.SP = ReadSNAWord(stream);
         cpu.TheRegisters.I = (byte)stream.ReadByte();
         cpu.TheRegisters.R = (byte)(stream.ReadByte() & 0x7F);
 
@@ -78,14 +78,14 @@ public static class ZxFileFormats
         cpu.TheRegisters.R |= (byte)((byte12 & 0x01) * 0x80);
         var isDataCompressed = (byte12 & 0x20) != 0;
 
-        cpu.TheRegisters.Main.DE = readSNAWord(stream);
-        cpu.TheRegisters.Alt.BC = readSNAWord(stream);
-        cpu.TheRegisters.Alt.DE = readSNAWord(stream);
-        cpu.TheRegisters.Alt.HL = readSNAWord(stream);
+        cpu.TheRegisters.Main.DE = ReadSNAWord(stream);
+        cpu.TheRegisters.Alt.BC = ReadSNAWord(stream);
+        cpu.TheRegisters.Alt.DE = ReadSNAWord(stream);
+        cpu.TheRegisters.Alt.HL = ReadSNAWord(stream);
         cpu.TheRegisters.Alt.A = (byte)stream.ReadByte();
         cpu.TheRegisters.Alt.F = (byte)stream.ReadByte();
-        cpu.TheRegisters.IY = readSNAWord(stream);
-        cpu.TheRegisters.IX = readSNAWord(stream);
+        cpu.TheRegisters.IY = ReadSNAWord(stream);
+        cpu.TheRegisters.IX = ReadSNAWord(stream);
 
         var IFF = (byte)stream.ReadByte();
         cpu.TheRegisters.IFF1 = cpu.TheRegisters.IFF2 = IFF != 0;
@@ -209,20 +209,20 @@ public static class ZxFileFormats
         {
             cpu.TheRegisters.clear();
             cpu.TheRegisters.I = (byte)stream.ReadByte();
-            cpu.TheRegisters.Alt.HL = readSNAWord(stream);
-            cpu.TheRegisters.Alt.DE = readSNAWord(stream);
-            cpu.TheRegisters.Alt.BC = readSNAWord(stream);
-            cpu.TheRegisters.Alt.AF = readSNAWord(stream);
-            cpu.TheRegisters.Main.HL = readSNAWord(stream);
-            cpu.TheRegisters.Main.DE = readSNAWord(stream);
-            cpu.TheRegisters.Main.BC = readSNAWord(stream);
-            cpu.TheRegisters.IY = readSNAWord(stream);
-            cpu.TheRegisters.IX = readSNAWord(stream);
+            cpu.TheRegisters.Alt.HL = ReadSNAWord(stream);
+            cpu.TheRegisters.Alt.DE = ReadSNAWord(stream);
+            cpu.TheRegisters.Alt.BC = ReadSNAWord(stream);
+            cpu.TheRegisters.Alt.AF = ReadSNAWord(stream);
+            cpu.TheRegisters.Main.HL = ReadSNAWord(stream);
+            cpu.TheRegisters.Main.DE = ReadSNAWord(stream);
+            cpu.TheRegisters.Main.BC = ReadSNAWord(stream);
+            cpu.TheRegisters.IY = ReadSNAWord(stream);
+            cpu.TheRegisters.IX = ReadSNAWord(stream);
             var IFF = (byte)stream.ReadByte();
             cpu.TheRegisters.IFF1 = cpu.TheRegisters.IFF2 = (IFF & 0x02) != 0;
             cpu.TheRegisters.R = (byte)stream.ReadByte();
-            cpu.TheRegisters.Main.AF = readSNAWord(stream);
-            cpu.TheRegisters.SP = readSNAWord(stream);
+            cpu.TheRegisters.Main.AF = ReadSNAWord(stream);
+            cpu.TheRegisters.SP = ReadSNAWord(stream);
             cpu.TheRegisters.IM = (byte)stream.ReadByte();
             stream.ReadByte(); // Border color.
             for (var i = 16384; i <= 65535; i++)
@@ -232,12 +232,12 @@ public static class ZxFileFormats
         cpu.RETN();
     }
 
-    private static int readSNAWord(FileStream stream)
+    private static int ReadSNAWord(FileStream stream)
     {
         return stream.ReadByte() + (stream.ReadByte() << 8);
     }
 
-    private static void writeSNAWord(FileStream stream, int n)
+    private static void WriteSNAWord(FileStream stream, int n)
     {
         stream.WriteByte((byte)(n & 0x00FF));
         stream.WriteByte((byte)((n >> 8) & 0xFF));
@@ -252,19 +252,19 @@ public static class ZxFileFormats
             cpu.MainMemory.PokeWord(cpu.TheRegisters.SP, cpu.TheRegisters.PC);
 
             stream.WriteByte(cpu.TheRegisters.I);
-            writeSNAWord(stream, cpu.TheRegisters.Alt.HL);
-            writeSNAWord(stream, cpu.TheRegisters.Alt.DE);
-            writeSNAWord(stream, cpu.TheRegisters.Alt.BC);
-            writeSNAWord(stream, cpu.TheRegisters.Alt.AF);
-            writeSNAWord(stream, cpu.TheRegisters.Main.HL);
-            writeSNAWord(stream, cpu.TheRegisters.Main.DE);
-            writeSNAWord(stream, cpu.TheRegisters.Main.BC);
-            writeSNAWord(stream, cpu.TheRegisters.IY);
-            writeSNAWord(stream, cpu.TheRegisters.IX);
+            WriteSNAWord(stream, cpu.TheRegisters.Alt.HL);
+            WriteSNAWord(stream, cpu.TheRegisters.Alt.DE);
+            WriteSNAWord(stream, cpu.TheRegisters.Alt.BC);
+            WriteSNAWord(stream, cpu.TheRegisters.Alt.AF);
+            WriteSNAWord(stream, cpu.TheRegisters.Main.HL);
+            WriteSNAWord(stream, cpu.TheRegisters.Main.DE);
+            WriteSNAWord(stream, cpu.TheRegisters.Main.BC);
+            WriteSNAWord(stream, cpu.TheRegisters.IY);
+            WriteSNAWord(stream, cpu.TheRegisters.IX);
             stream.WriteByte((byte)(cpu.TheRegisters.IFF2 ? 0x02 : 0x00));
             stream.WriteByte(cpu.TheRegisters.R);
-            writeSNAWord(stream, cpu.TheRegisters.Main.AF);
-            writeSNAWord(stream, cpu.TheRegisters.SP);
+            WriteSNAWord(stream, cpu.TheRegisters.Main.AF);
+            WriteSNAWord(stream, cpu.TheRegisters.SP);
             stream.WriteByte(cpu.TheRegisters.IM);
             stream.WriteByte(0x07); // Border color.
             for (var i = 16384; i <= 65535; i++)

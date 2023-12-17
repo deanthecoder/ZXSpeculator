@@ -54,7 +54,7 @@ public class Instruction
 
     public int TStateCount => m_TStateCount;
 
-    public Z80Instructions.InstructionID ID => m_id;
+    public Z80Instructions.InstructionID Id => m_id;
 
     public int ByteCount { get; }
 
@@ -140,15 +140,15 @@ public class Instruction
             {
                 case '0': 
                     if (newBit)
-                        Debug.Fail($"Flag bit {FlagNameForBit(i)} should be 0. ({ID})");
+                        Debug.Fail($"Flag bit {FlagNameForBit(i)} should be 0. ({Id})");
                     break;
                 case '1':
                     if (!newBit)
-                        Debug.Fail($"Flag bit {FlagNameForBit(i)} should be 1. ({ID})");
+                        Debug.Fail($"Flag bit {FlagNameForBit(i)} should be 1. ({Id})");
                     break;
                 case ' ': 
                     if (oldBit != newBit)
-                        Debug.Fail($"Flag bit {FlagNameForBit(i)} should be unchanged. ({ID})");
+                        Debug.Fail($"Flag bit {FlagNameForBit(i)} should be unchanged. ({Id})");
                     break;
             }
 
@@ -170,7 +170,7 @@ public class Instruction
                     expected = (result & 0x80) != 0;
 
                 if (expected != cpu.TheRegisters.SignFlag)
-                    Debug.Fail($"Sign bit should be {expected}. ({ID} - Checking register {ResultRegName})");
+                    Debug.Fail($"Sign bit should be {expected}. ({Id} - Checking register {ResultRegName})");
             }
 
             // Zero flag tests.
@@ -178,16 +178,16 @@ public class Instruction
             {
                 var expected = result == 0;
                 if (expected != cpu.TheRegisters.ZeroFlag)
-                    Debug.Fail($"Zero bit should be {expected}. ({ID} - Checking register {ResultRegName})");
+                    Debug.Fail($"Zero bit should be {expected}. ({Id} - Checking register {ResultRegName})");
             }
 
             // Parity flag tests.
             switch (FlagModifiers[3])
             {
                 case 'P':
-                    var expected = ALU.isEvenParity((byte)result);
+                    var expected = Alu.IsEvenParity((byte)result);
                     if (expected != cpu.TheRegisters.ParityFlag)
-                        Debug.Fail($"Parity bit should be {expected}. ({ID} - Checking register {ResultRegName})");
+                        Debug.Fail($"Parity bit should be {expected}. ({Id} - Checking register {ResultRegName})");
                     break;
             }
         }

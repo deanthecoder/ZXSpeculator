@@ -18,7 +18,7 @@ public class Memory
     private readonly byte[] m_data;
 
     private int m_romSize;
-    public int ROMSize
+    public int RomSize
     {
         get => m_romSize;
         set
@@ -34,7 +34,7 @@ public class Memory
         Debug.Assert(maxAddress > 0, "Invalid memory value specified.");
         m_maxAddress = maxAddress;
 
-        ROMSize = 0;
+        RomSize = 0;
 
         m_data = new byte[m_maxAddress];
     }
@@ -45,13 +45,13 @@ public class Memory
 
     public void ClearAll()
     {
-        ROMSize = 0;
+        RomSize = 0;
         Array.Clear(Data, 0, Data.Length);
     }
 
     public void Poke(int addr, byte value)
     {
-        if (addr < ROMSize)
+        if (addr < RomSize)
             return;
 
         Data[addr] = value;
@@ -62,7 +62,7 @@ public class Memory
         return Data[addr];
     }
 
-    public string readAsHexString(int addr, int byteCount, bool wantSpaces = false)
+    public string ReadAsHexString(int addr, int byteCount, bool wantSpaces = false)
     {
         Debug.Assert(byteCount > 0, "byteCount must be positive.");
 
@@ -103,6 +103,6 @@ public class Memory
         for (var i = 0; i < fileStream.Length; i++)
             Data[i] = (byte)fileStream.ReadByte();
             
-        ROMSize = (int)fileStream.Length;
+        RomSize = (int)fileStream.Length;
     }
 }

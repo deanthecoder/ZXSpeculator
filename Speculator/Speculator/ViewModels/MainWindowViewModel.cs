@@ -10,10 +10,6 @@
 // or modifying this code.
 
 using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-using Avalonia.Threading;
 using Speculator.Core;
 
 namespace Speculator.ViewModels;

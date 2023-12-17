@@ -22,7 +22,7 @@ public partial class CPU
     private Z80Instructions InstructionSet { get; }
     public Registers TheRegisters { get; }
     public Memory MainMemory { get; }
-    private ALU TheAlu { get; }
+    private Alu TheAlu { get; }
     private IPortHandler ThePortHandler { get; }
     private Thread m_cpuThread;
 
@@ -32,7 +32,7 @@ public partial class CPU
         MainMemory = mainMemory;
         InstructionSet = new Z80Instructions();
         TheRegisters = new Registers();
-        TheAlu = new ALU(TheRegisters);
+        TheAlu = new Alu(TheRegisters);
         ThePortHandler = portHandler;
         m_clockSync = new ClockSync(TStatesPerSecond);
     }
@@ -175,10 +175,10 @@ public partial class CPU
     private byte doIN_addrC()
     {
         var b = ThePortHandler?.In((TheRegisters.Main.B << 8) + TheRegisters.Main.C) ?? 0x00;
-        TheRegisters.SignFlag = !ALU.isBytePositive(b);
+        TheRegisters.SignFlag = !Alu.IsBytePositive(b);
         TheRegisters.ZeroFlag = b == 0;
         TheRegisters.HalfCarryFlag = false;
-        TheRegisters.ParityFlag = ALU.isEvenParity(b);
+        TheRegisters.ParityFlag = Alu.IsEvenParity(b);
         TheRegisters.SubtractFlag = false;
         return b;
     }
@@ -237,23 +237,23 @@ public partial class CPU
 
         // From 'undocumented' docs.
         TheRegisters.ParityFlag = TheRegisters.ZeroFlag;
-        TheRegisters.SignFlag = i == 7 && !ALU.isBytePositive(b);
+        TheRegisters.SignFlag = i == 7 && !Alu.IsBytePositive(b);
     }
 
     internal int IXPlusD(byte d)
     {
-        return TheRegisters.IX + ALU.fromTwosCompliment(d);
+        return TheRegisters.IX + Alu.FromTwosCompliment(d);
     }
 
     internal int IYPlusD(byte d)
     {
-        return TheRegisters.IY + ALU.fromTwosCompliment(d);
+        return TheRegisters.IY + Alu.FromTwosCompliment(d);
     }
 
     private void doCPI()
     {
         var oldCarry = TheRegisters.CarryFlag;
-        TheAlu.subtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(TheRegisters.Main.HL), false);
+        TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(TheRegisters.Main.HL), false);
         TheRegisters.Main.HL++;
         TheRegisters.Main.BC--;
         TheRegisters.ParityFlag = TheRegisters.Main.BC != 0;
@@ -264,7 +264,7 @@ public partial class CPU
     private void doCPD()
     {
         var oldCarry = TheRegisters.CarryFlag;
-        TheAlu.subtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(TheRegisters.Main.HL), false);
+        TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(TheRegisters.Main.HL), false);
         TheRegisters.Main.HL--;
         TheRegisters.Main.BC--;
         TheRegisters.ParityFlag = TheRegisters.Main.BC != 0;
@@ -304,7 +304,7 @@ public partial class CPU
     private class UnsupportedInstruction : Exception
     {
         public UnsupportedInstruction(CPU cpu)
-            : base($"An invalid/unsupported emulated instruction was encountered: ({cpu.TheRegisters.PC:X4}: {cpu.MainMemory.readAsHexString(cpu.TheRegisters.PC, 4)}...)")
+            : base($"An invalid/unsupported emulated instruction was encountered: ({cpu.TheRegisters.PC:X4}: {cpu.MainMemory.ReadAsHexString(cpu.TheRegisters.PC, 4)}...)")
         {
             var message = base.Message;
             message = cpu.m_recentInstructionList.Aggregate(message, (current, s) => current + "\n  " + s);
@@ -318,7 +318,7 @@ public partial class CPU
 
         if (instruction == null)
         {
-            hexBytes = MainMemory.readAsHexString(addr, 4) + "...";
+            hexBytes = MainMemory.ReadAsHexString(addr, 4) + "...";
             mnemonics = "??";
             return 0;
         }
@@ -328,7 +328,7 @@ public partial class CPU
         {
             if (i > 0)
                 hexBytes += " ";
-            hexBytes += MainMemory.readAsHexString(addr + i, 1);
+            hexBytes += MainMemory.ReadAsHexString(addr + i, 1);
         }
 
         // Format the instruction as opcodes.
@@ -339,10 +339,10 @@ public partial class CPU
             switch (hexParts[i])
             {
                 case "n":
-                    hexValues.Add(MainMemory.readAsHexString(addr + i, 1));
+                    hexValues.Add(MainMemory.ReadAsHexString(addr + i, 1));
                     break;
                 case "d":
-                    hexValues.Add(ALU.fromTwosCompliment(MainMemory.Peek(addr + i)).ToString());
+                    hexValues.Add(Alu.FromTwosCompliment(MainMemory.Peek(addr + i)).ToString());
                     break;
             }
         }

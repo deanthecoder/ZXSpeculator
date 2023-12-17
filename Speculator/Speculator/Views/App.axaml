@@ -1,0 +1,31 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Speculator.Views.App"
+             xmlns:local="using:Speculator"
+             xmlns:viewModels="clr-namespace:Speculator.ViewModels"
+             xmlns:themes="clr-namespace:Material.Styles.Themes;assembly=Material.Styles"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:dialogHostAvalonia="clr-namespace:DialogHostAvalonia;assembly=DialogHost.Avalonia"
+             RequestedThemeVariant="Default"
+             x:DataType="viewModels:AppViewModel">
+
+    <Application.DataTemplates>
+        <local:ViewLocator/>
+    </Application.DataTemplates>
+
+             <Application.Styles>
+                 <FluentTheme />
+                 <themes:MaterialTheme BaseTheme="Dark" PrimaryColor="BlueGrey" SecondaryColor="Lime" />
+                 <avalonia:MaterialIconStyles />
+                 <dialogHostAvalonia:DialogHostStyles />
+
+                 <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
+             </Application.Styles>
+
+
+    <NativeMenu.Menu>
+        <NativeMenu>
+            <NativeMenuItem Header="About ZX Speculator" Command="{CompiledBinding AboutCommand}" />
+        </NativeMenu>
+    </NativeMenu.Menu>
+</Application>
