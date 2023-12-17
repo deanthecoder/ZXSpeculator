@@ -40,6 +40,7 @@ public class ZxPortHandler : IPortHandler
             [new KeyId(Key.OemQuotes, KeyModifiers.Shift)] = new List<Key> { Key.RightShift, Key.P },
             [Key.OemSemicolon] = new List<Key> { Key.RightShift, Key.O },
             [new KeyId(Key.OemSemicolon, KeyModifiers.Shift)] = new List<Key> { Key.RightShift, Key.Z },
+            [new KeyId(Key.LeftCtrl, KeyModifiers.Control)] = new List<Key> { Key.LeftShift, Key.RightShift },
         };
     }
 
