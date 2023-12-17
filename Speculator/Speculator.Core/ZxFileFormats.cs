@@ -15,8 +15,7 @@ namespace Speculator.Core;
 
 public static class ZxFileFormats
 {
-    private const string FileFilters = "Z80 Files|*.z80|SNA Files|*.sna|BIN Files|*.bin|Screen Files|*.scr|All Supported Files|*.bin;*.sna;*.scr;*.z80";
-    private const int DefaultFilterIndex = 5;
+    public static string[] FileFilters { get; } = { "*.z80", "*.bin", "*.scr", "*.sna" };
 
     public static void LoadFile(CPU cpu, FileInfo fileInfo)
     {
@@ -180,26 +179,7 @@ public static class ZxFileFormats
                 cpu.IsDebugging = false;
         }
     }
-
-    /*
-    private static string m_lastSaveFolder;
-    public static void SaveFile(CPU cpu)
-    {
-        SaveFileDialog dlg = new SaveFileDialog
-        {
-            Filter = FileFilters,
-            InitialDirectory = m_lastSaveFolder ?? Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? ".",
-            FilterIndex = DefaultFilterIndex
-        };
-
-        bool? dialogResult = dlg.ShowDialog();
-        if ((bool)(!dialogResult)) return;
-
-        m_lastSaveFolder = new FileInfo(dlg.FileName).DirectoryName;
-        SaveFile(cpu, dlg.FileName);
-    }
-    */
-
+    
     private static void LoadSNA(string fileName, CPU cpu)
     {
         if (!File.Exists(fileName))

@@ -27,6 +27,7 @@ public class SoundHandler : IDisposable
     private readonly SoundDevice m_soundDevice = new SoundDevice(SampleHz);
     private bool m_isDisposed;
     private readonly Thread m_thread;
+    private bool m_isSoundEnabled = true;
 
     public SoundHandler()
     {
@@ -62,6 +63,9 @@ public class SoundHandler : IDisposable
         m_speakerStates[1] = 0;
 
         // Append to the sample buffer.
-        m_soundDevice.AddSample(sampleValue);
+        m_soundDevice.AddSample(m_isSoundEnabled ? sampleValue : 0.0);
     }
+    
+    public void SetSoundEnabled(bool isSoundEnabled) =>
+        m_isSoundEnabled = isSoundEnabled;
 }

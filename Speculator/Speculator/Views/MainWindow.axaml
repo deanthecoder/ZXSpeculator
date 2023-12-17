@@ -3,22 +3,47 @@
         xmlns:vm="using:Speculator.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d"
+        d:DesignHeight="450"
         x:Class="Speculator.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/app.ico"
-        Title="Speculator"
-        Width="1000" Height="750"
+        Title="ZX Speculator"
+        Width="1000"
         KeyDown="OnKeyDown"
-        KeyUp="OnKeyUp"
-        PointerPressed="OnMouseClick">
+        KeyUp="OnKeyUp">
 
     <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainWindowViewModel/>
+        <vm:MainWindowViewModel />
     </Design.DataContext>
 
-    <Image Source="{Binding Display.Bitmap}" Loaded="OnScreenBitmapLoaded"/>
+    <Window.KeyBindings>
+        <KeyBinding Command="{Binding LoadRom}" Gesture="{OnPlatform 'ctrl+o', macOS='⌘+o'}" />
+        <KeyBinding Command="{Binding ResetMachine}" Gesture="{OnPlatform 'escape'}" />
+    </Window.KeyBindings>
+
+    <Grid RowDefinitions="Auto,*">
+        <Menu Grid.Row="0">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Load ROM" Command="{Binding LoadRom}"
+                          InputGesture="{OnPlatform 'ctrl+o', macOS='⌘+o'}"/>
+                <Separator/>
+                <MenuItem Header="_Exit" Command="{Binding CloseCommand}" />
+            </MenuItem>
+            
+            <MenuItem Header="_Hardware">
+                <MenuItem Header="Enable _Sound" Command="{Binding ToggleSound}"
+                          IsVisible="{Binding !IsSoundEnabled}" />
+                <MenuItem Header="Disable _Sound" Command="{Binding ToggleSound}"
+                          IsVisible="{Binding IsSoundEnabled}" />
+                <MenuItem Header="_Reset Emulator" Command="{Binding ResetMachine}"
+                          InputGesture="{OnPlatform 'escape'}"/>
+            </MenuItem>
+        </Menu>
+
+        <Image Grid.Row="1"
+               Source="{Binding Display.Bitmap}"
+               Loaded="OnScreenBitmapLoaded"/>
+    </Grid>
 
 </Window>

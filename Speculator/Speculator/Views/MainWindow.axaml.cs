@@ -39,17 +39,15 @@ public partial class MainWindow : Window
         var action = new Action(() => (sender as Image)?.InvalidateVisual());
         ViewModel.Display.Refreshed += (_, _) => Dispatcher.UIThread.InvokeAsync(action);
     }
+    
     private void OnKeyDown(object sender, KeyEventArgs e)
     {
+        if (e.KeyModifiers.HasFlag(KeyModifiers.Meta))
+            return; // No need need to report these.
+        
         ViewModel.Speccy.PortHandler.SetKeyDown(e.Key, e.KeyModifiers);
     }
-    
-    private void OnKeyUp(object sender, KeyEventArgs e)
-    {
+
+    private void OnKeyUp(object sender, KeyEventArgs e) =>
         ViewModel.Speccy.PortHandler.SetKeyUp(e.Key);
-    }
-    private void OnMouseClick(object sender, PointerPressedEventArgs e)
-    {
-        //ViewModel.Speccy.LoadRom(new FileInfo("ROMs/ManicMiner.z80"));
-    }
 }

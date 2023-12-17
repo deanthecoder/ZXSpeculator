@@ -68,4 +68,7 @@ public class ZxSpectrum : IDisposable
         ZxFileFormats.LoadFile(TheCpu, romFile);
         return this;
     }
+    
+    public void SetSoundEnabled(bool isSoundEnabled) =>
+        SoundHandler.SetSoundEnabled(isSoundEnabled);
 }
