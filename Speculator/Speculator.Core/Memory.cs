@@ -62,8 +62,7 @@ public class Memory
             return; // No change.
 
         // Write to pixel or color area?
-        if ((addr >= 0x4000 && addr <= 0x5800) || (addr >= 0x5800 && addr <= 0x5B00))
-            VideoMemoryChanged = true;
+        VideoMemoryChanged |= ZxDisplay.IsScreenAddress(addr);
         
         Data[addr] = value;
     }

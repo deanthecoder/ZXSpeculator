@@ -9,7 +9,6 @@
 // We do not accept any liability for damage caused by executing
 // or modifying this code.
 
-using System.Diagnostics;
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
@@ -21,6 +20,7 @@ public class ZxDisplay // todo - check 'bright' colors work.
 {
     internal const int ScreenBase = 0x4000;
     private const int ColorMapBase = 0x5800;
+    private const int BorderAddr = 0x5C48;
 
     private static readonly List<Color> Colors = new List<Color>
     {
@@ -52,20 +52,15 @@ public class ZxDisplay // todo - check 'bright' colors work.
     public WriteableBitmap Bitmap { get; } = new WriteableBitmap(new PixelSize(LeftMargin + WriteableWidth + RightMargin, TopMargin + WritableHeight + BottomMargin), new Vector(96, 96), PixelFormat.Rgba8888);
     public event EventHandler Refreshed;
 
-    private unsafe void SetPixelGroup(byte* framePtr, int frameBufferRowBytes, int characterColumn, int y, byte pixels, byte attr, bool invertColors)
+    private unsafe static void SetPixelGroup(byte* framePtr, int frameBufferRowBytes, int characterColumn, int y, byte pixels, byte attr, bool invertColors = false)
+    {
+        var penAndPaper = GetColorIndices(attr, invertColors);
+        SetPixelGroup(framePtr, frameBufferRowBytes, characterColumn, y, pixels, penAndPaper.Item1, penAndPaper.Item2);
+    }
+    
+    private unsafe static void SetPixelGroup(byte* framePtr, int frameBufferRowBytes, int characterColumn, int y, byte pixels, int penIndex, int paperIndex)
     {
         var x = characterColumn * 8;
-
-        Debug.Assert(x >= 0 && x <= Bitmap.PixelSize.Width);
-        Debug.Assert(y >= 0 && y <= Bitmap.PixelSize.Height);
-
-        // Assign the color data to the pixel.
-        int penIndex;
-        int paperIndex;
-        if (invertColors)
-            GetColorIndices(attr, out penIndex, out paperIndex);
-        else
-            GetColorIndices(attr, out paperIndex, out penIndex);
 
         var offset = 0;
         for (var i = 7; i >= 0; i--)
@@ -76,16 +71,19 @@ public class ZxDisplay // todo - check 'bright' colors work.
         }
     }
 
-    private static void GetColorIndices(byte attr, out int paperIndex, out int penIndex)
+    private static (int, int) GetColorIndices(byte attr, bool invert = false)
     {
-        paperIndex = (attr >> 3) & 0x07;
-        penIndex = attr & 0x07;
+        var paperIndex = attr >> 3 & 0x07;
+        var penIndex = attr & 0x07;
         
         var isBright = attr & 0x40;
-        if (isBright == 0)
-            return;
-        paperIndex += 8;
-        penIndex += 8;
+        if (isBright != 0)
+        {
+            paperIndex += 8;
+            penIndex += 8;
+        }
+
+        return invert ? (paperIndex, penIndex) : (penIndex, paperIndex);
     }
 
     private byte m_previousBorderColor;
@@ -96,8 +94,6 @@ public class ZxDisplay // todo - check 'bright' colors work.
 
     unsafe internal void UpdateScreen(CPU sender)
     {
-        var borderAttr = sender.MainMemory.Peek(0x5C48);
-
         // Flashing?
         if (m_flashFrameCount++ == FramesPerFlash)
         {
@@ -110,6 +106,7 @@ public class ZxDisplay // todo - check 'bright' colors work.
             return;
         sender.MainMemory.VideoMemoryChanged = false;
 
+        var borderAttr = sender.MainMemory.Peek(BorderAddr);
         using (var frameBuffer = Bitmap.Lock())
         {
             var framePtr = (byte*)frameBuffer.Address;
@@ -119,22 +116,24 @@ public class ZxDisplay // todo - check 'bright' colors work.
             {
                 m_previousBorderColor = borderAttr;
 
+                var penAndPaper = GetColorIndices(borderAttr);
+                
                 // Draw top/bottom borders.
                 for (var x = 0; x < Bitmap.PixelSize.Width / 8; x++)
                 {
                     for (var y = 0; y < TopMargin; y++)
-                        SetPixelGroup(framePtr, frameBufferRowBytes, x, y, 0x00, borderAttr, false);
+                        SetPixelGroup(framePtr, frameBufferRowBytes, x, y, 0x00, penAndPaper.Item1, penAndPaper.Item2);
                     for (var y = 0; y < BottomMargin; y++)
-                        SetPixelGroup(framePtr, frameBufferRowBytes, x, TopMargin + WritableHeight + y, 0x00, borderAttr, false);
+                        SetPixelGroup(framePtr, frameBufferRowBytes, x, TopMargin + WritableHeight + y, 0x00, penAndPaper.Item1, penAndPaper.Item2);
                 }
 
                 // Draw left/right borders.
                 for (var y = 0; y < WritableHeight; y++)
                 {
                     for (var x = 0; x < LeftMargin / 8; x++)
-                        SetPixelGroup(framePtr, frameBufferRowBytes, x, TopMargin + y, 0x00, borderAttr, false);
+                        SetPixelGroup(framePtr, frameBufferRowBytes, x, TopMargin + y, 0x00, penAndPaper.Item1, penAndPaper.Item2);
                     for (var x = 0; x < RightMargin / 8; x++)
-                        SetPixelGroup(framePtr, frameBufferRowBytes, ((LeftMargin + WriteableWidth) / 8) + x, TopMargin + y, 0x00, borderAttr, false);
+                        SetPixelGroup(framePtr, frameBufferRowBytes, (LeftMargin + WriteableWidth) / 8 + x, TopMargin + y, 0x00, penAndPaper.Item1, penAndPaper.Item2);
                 }
             }
 
@@ -142,21 +141,24 @@ public class ZxDisplay // todo - check 'bright' colors work.
             for (var i = 0; i < 6144; i++)
             {
                 var addr = ScreenBase + i;
-                var tt = (addr >> 11) & 0x03;
-                var lll = (addr >> 8) & 0x07;
-                var cr = (addr >> 5) & 0x07;
+                var tt = addr >> 11 & 0x03;
+                var lll = addr >> 8 & 0x07;
+                var cr = addr >> 5 & 0x07;
                 var cc = addr & 0x1F;
 
-                var pixelY = (cr * 8) + (tt * 64) + lll;
+                var pixelY = cr * 8 + tt * 64 + lll;
                 var screenByte = sender.MainMemory.Data[addr];
 
-                var characterAttr = sender.MainMemory.Data[ColorMapBase + (((tt * 8) + cr) * 32) + cc];
+                var characterAttr = sender.MainMemory.Data[ColorMapBase + (tt * 8 + cr) * 32 + cc];
                 var isFlashSet = (characterAttr & 0x80) != 0;
-                SetPixelGroup(framePtr, frameBufferRowBytes, cc + (LeftMargin / 8), pixelY + TopMargin, screenByte, characterAttr, m_isFlashing && isFlashSet);
+                SetPixelGroup(framePtr, frameBufferRowBytes, cc + LeftMargin / 8, pixelY + TopMargin, screenByte, characterAttr, m_isFlashing && isFlashSet);
             }
         }
 
         // todo - Only send if content changed.
         Refreshed?.Invoke(this, EventArgs.Empty);
     }
+
+    public static bool IsScreenAddress(int addr) =>
+        addr >= ScreenBase && addr <= 0x5800 || addr >= ColorMapBase && addr <= 0x5B00 || addr == BorderAddr;
 }

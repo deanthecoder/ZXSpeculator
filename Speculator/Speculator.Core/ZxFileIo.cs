@@ -232,7 +232,7 @@ public static class ZxFileIo
     private static void WriteSNAWord(Stream stream, int n)
     {
         stream.WriteByte((byte)(n & 0x00FF));
-        stream.WriteByte((byte)((n >> 8) & 0xFF));
+        stream.WriteByte((byte)(n >> 8 & 0xFF));
     }
 
     private static void SaveSNA(FileInfo file, CPU cpu)
