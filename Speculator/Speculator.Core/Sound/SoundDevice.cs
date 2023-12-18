@@ -10,6 +10,8 @@ public class SoundDevice
     private readonly int m_sampleHz;
     private Action<IntPtr, double> m_writeSampleFunc;
     private readonly List<double> m_soundBuffer = new List<double>(4096);
+    private double m_lastSample;
+    private int m_channelCount;
     
     public SoundDevice(int sampleHz)
     {
@@ -74,6 +76,7 @@ public class SoundDevice
             Console.Error.WriteLine("Unable to set sound channel layout: " + outStream.LayoutErrorMessage);
 
         outStream.Start();
+        m_channelCount = outStream.Layout.ChannelCount;
 
         while (!isCancelled())
             api.FlushEvents();
@@ -81,7 +84,7 @@ public class SoundDevice
         outStream.Dispose();
         device.RemoveReference();
     }
-
+    
     /// <summary>
     /// Called periodically by the sound library to send more data to the sound card.
     /// </summary>
@@ -89,29 +92,41 @@ public class SoundDevice
     {
         lock (m_soundBuffer)
         {
-            if (m_soundBuffer.Count < frameCountMin)
-                return; // No (or not enough) data, yet.
+            var toWrite = frameCountMin;
+            if (m_soundBuffer.Count > toWrite)
+                toWrite = Math.Min(m_soundBuffer.Count, frameCountMax);
+            
+            // Prepare to stream the buffer samples.
+            var results = outStream.BeginWrite(ref toWrite);
 
-            // Stream the buffer samples.
-            var sampleCount = Math.Min(m_soundBuffer.Count, frameCountMax);
-            var results = outStream.BeginWrite(ref sampleCount);
-            var layout = outStream.Layout;
+            // Write real sample data.
+            var toWriteFromBuffer = Math.Min(toWrite, m_soundBuffer.Count);
+            int written;
+            for (written = 0; written < toWriteFromBuffer; written++)
+                WriteSample(results, m_soundBuffer[written]);
 
-            for (var i = 0; i < sampleCount; i++)
+            // If there's a shortfall, pad by reusing the last known sample.
+            while (written < toWrite)
             {
-                // Write sample to both device channels.
-                for (var channel = 0; channel < layout.ChannelCount; channel++)
-                {
-                    var area = results.GetArea(channel);
-                    m_writeSampleFunc(area.Pointer, m_soundBuffer[i]);
-                    area.Pointer += area.Step;
-                }
+                WriteSample(results, m_lastSample);
+                written++;
             }
 
             outStream.EndWrite();
 
             // Remove the 'sent' samples from the front of the sound buffer.
-            m_soundBuffer.RemoveRange(0, sampleCount);
+            m_soundBuffer.RemoveRange(0, toWriteFromBuffer);
+        }
+    }
+    
+    private void WriteSample(SoundIOChannelAreas channelAreas, double sample)
+    {
+        for (var channel = 0; channel < m_channelCount; channel++)
+        {
+            m_lastSample = sample;
+            var area = channelAreas.GetArea(channel);
+            m_writeSampleFunc(area.Pointer, m_lastSample);
+            area.Pointer += area.Step;
         }
     }
 

@@ -24,6 +24,7 @@ public class ClockSync
         m_emulatedTicksPerSecond = emulatedCpuMHz;
     }
 
+    // todo - Pause when loading ROMs.
     public void SyncWithRealTime(long ticksSinceCpuStart)
     {
         var emulatedUptimeSecs = ticksSinceCpuStart / m_emulatedTicksPerSecond;
