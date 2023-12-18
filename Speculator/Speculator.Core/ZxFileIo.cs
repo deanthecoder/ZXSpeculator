@@ -20,6 +20,8 @@ public static class ZxFileIo
 
     public static void LoadFile(CPU cpu, FileInfo fileInfo)
     {
+        using var _ = cpu.ClockSync.CreatePauser();
+        
         fileInfo.Refresh();
         if (!fileInfo.Exists)
             throw new FileNotFoundException(fileInfo.FullName);

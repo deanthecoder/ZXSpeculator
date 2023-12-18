@@ -34,7 +34,7 @@ public partial class CPU
         TheRegisters = new Registers();
         TheAlu = new Alu(TheRegisters);
         ThePortHandler = portHandler;
-        m_clockSync = new ClockSync(TStatesPerSecond);
+        ClockSync = new ClockSync(TStatesPerSecond);
     }
 
     public bool FullThrottle { get; set; }
@@ -94,7 +94,7 @@ public partial class CPU
 
             // Execute instruction.
             if (!FullThrottle)
-                m_clockSync.SyncWithRealTime(TStatesSinceCpuStart);
+                ClockSync.SyncWithRealTime(TStatesSinceCpuStart);
 
             var TStates = ExecuteAtPC();
             TStatesSinceCpuStart += TStates;
@@ -170,7 +170,7 @@ public partial class CPU
     public event RenderCallbackEventHandler RenderCallbackEvent;
 
     private readonly List<string> m_recentInstructionList = new List<string>();
-    private readonly ClockSync m_clockSync;
+    public ClockSync ClockSync { get; }
 
     private byte doIN_addrC()
     {

@@ -24,7 +24,13 @@ public class ClockSync
         m_emulatedTicksPerSecond = emulatedCpuMHz;
     }
 
-    // todo - Pause when loading ROMs.
+    /// <summary>
+    /// Operations external to emulation (such as loading a ROM) should pause
+    /// emulated machine whilst they're 'busy'.
+    /// </summary>
+    /// <returns></returns>
+    public Pauser CreatePauser() => new Pauser(m_realTime);
+
     public void SyncWithRealTime(long ticksSinceCpuStart)
     {
         var emulatedUptimeSecs = ticksSinceCpuStart / m_emulatedTicksPerSecond;
@@ -35,5 +41,17 @@ public class ClockSync
             // Absolutely nothing.
             Thread.Sleep(0);
         }
+    }
+
+    public class Pauser : IDisposable
+    {
+        private readonly Stopwatch m_stopwatch;
+        public Pauser(Stopwatch stopwatch)
+        {
+            m_stopwatch = stopwatch;
+            stopwatch.Stop();
+        }
+
+        public void Dispose() => m_stopwatch.Start();
     }
 }
