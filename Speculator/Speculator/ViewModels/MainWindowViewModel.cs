@@ -30,7 +30,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 
     public void LoadRom()
     {
-        var command = new FileOpenCommand("Load ROM file", "ROM Files", ZxFileFormats.FileFilters);
+        var command = new FileOpenCommand("Load ROM file", "ROM Files", ZxFileIo.FileFilters);
         command.FileSelected += (_, info) =>
         {
             Speccy.LoadRom(info);

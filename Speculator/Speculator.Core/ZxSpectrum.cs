@@ -65,7 +65,7 @@ public class ZxSpectrum : IDisposable
     
     public ZxSpectrum LoadRom(FileInfo romFile)
     {
-        ZxFileFormats.LoadFile(TheCpu, romFile);
+        ZxFileIo.LoadFile(TheCpu, romFile);
         return this;
     }
     

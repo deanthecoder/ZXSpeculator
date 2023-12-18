@@ -18,8 +18,6 @@
         <themes:MaterialTheme BaseTheme="Dark" PrimaryColor="BlueGrey" SecondaryColor="Lime" />
         <avalonia:MaterialIconStyles />
         <dialogHostAvalonia:DialogHostStyles />
-
-        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml" />
     </Application.Styles>
 
     <NativeMenu.Menu>

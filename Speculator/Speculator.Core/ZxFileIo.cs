@@ -10,15 +10,17 @@
 // or modifying this code.
 
 using System.Diagnostics;
+using Speculator.Core.Utils;
 
 namespace Speculator.Core;
 
-public static class ZxFileFormats
+public static class ZxFileIo
 {
-    public static string[] FileFilters { get; } = { "*.z80", "*.bin", "*.scr", "*.sna" };
+    public static string[] FileFilters { get; } = { "*.z80", "*.bin", "*.scr", "*.sna", "*.zip" };
 
     public static void LoadFile(CPU cpu, FileInfo fileInfo)
     {
+        fileInfo.Refresh();
         if (!fileInfo.Exists)
             throw new FileNotFoundException(fileInfo.FullName);
         
@@ -32,21 +34,7 @@ public static class ZxFileFormats
                 Thread.Sleep(500);
             }
 
-            switch (fileInfo.Extension)
-            {
-                case ".bin":
-                    LoadBIN(fileInfo.FullName, cpu);
-                    return;
-                case ".sna":
-                    LoadSNA(fileInfo.FullName, cpu);
-                    return;
-                case ".scr":
-                    LoadSCR(fileInfo.FullName, cpu);
-                    return;
-                case ".z80":
-                    LoadZ80(fileInfo.FullName, cpu);
-                    return;
-            }
+            LoadFileInternal(cpu, fileInfo);
         }
         finally
         {
@@ -54,13 +42,38 @@ public static class ZxFileFormats
                 cpu.IsDebugging = false;
         }
     }
-
-    private static void LoadZ80(string fileName, CPU cpu)
+    private static void LoadFileInternal(CPU cpu, FileInfo fileInfo)
     {
-        if (!File.Exists(fileName))
-            return;
 
-        using var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+        switch (fileInfo.Extension)
+        {
+            case ".zip":
+            {
+                var tempFile = ZipExtractor.ExtractZxFile(fileInfo);
+                if (tempFile?.Exists != true)
+                    return;
+                LoadFileInternal(cpu, tempFile);
+                tempFile.Delete();
+                return;
+            }
+            case ".bin":
+                LoadBIN(fileInfo, cpu);
+                return;
+            case ".sna":
+                LoadSNA(fileInfo, cpu);
+                return;
+            case ".scr":
+                LoadSCR(fileInfo, cpu);
+                return;
+            case ".z80":
+                LoadZ80(fileInfo, cpu);
+                return;
+        }
+    }
+
+    private static void LoadZ80(FileInfo file, CPU cpu)
+    {
+        using var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read);
         cpu.TheRegisters.clear();
         cpu.TheRegisters.Main.A = (byte)stream.ReadByte();
         cpu.TheRegisters.Main.F = (byte)stream.ReadByte();
@@ -145,19 +158,17 @@ public static class ZxFileFormats
         }
         
         // todo - pop up a message.
-        //Debug.Fail("Unsupported Z80 version (Only v1 implemented).");
+        Console.WriteLine("Unsupported Z80 version (Only v1 implemented).");
     }
 
-    private static void LoadSCR(string fullName, CPU cpu)
+    private static void LoadSCR(FileInfo file, CPU cpu)
     {
-        File.ReadAllBytes(fullName).CopyTo(cpu.MainMemory.Data, ZxDisplay.ScreenBase);
+        File.ReadAllBytes(file.FullName).CopyTo(cpu.MainMemory.Data, ZxDisplay.ScreenBase);
         cpu.MainMemory.VideoMemoryChanged = true;
     }
 
-    public static void SaveFile(CPU cpu, string fileName)
+    public static void SaveFile(CPU cpu, FileInfo file)
     {
-        var fileInfo = new FileInfo(fileName);
-
         var resetDebuggingFlag = false;
         try
         {
@@ -168,10 +179,10 @@ public static class ZxFileFormats
                 Thread.Sleep(500);
             }
 
-            switch (fileInfo.Extension)
+            switch (file.Extension)
             {
                 case ".sna":
-                    SaveSNA(fileInfo.FullName, cpu);
+                    SaveSNA(file, cpu);
                     return;
             }
         }
@@ -182,12 +193,9 @@ public static class ZxFileFormats
         }
     }
     
-    private static void LoadSNA(string fileName, CPU cpu)
+    private static void LoadSNA(FileInfo file, CPU cpu)
     {
-        if (!File.Exists(fileName))
-            return;
-
-        using (var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read))
+        using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
         {
             cpu.TheRegisters.clear();
             cpu.TheRegisters.I = (byte)stream.ReadByte();
@@ -214,20 +222,20 @@ public static class ZxFileFormats
         cpu.RETN();
     }
 
-    private static int ReadSNAWord(FileStream stream)
+    private static int ReadSNAWord(Stream stream)
     {
         return stream.ReadByte() + (stream.ReadByte() << 8);
     }
 
-    private static void WriteSNAWord(FileStream stream, int n)
+    private static void WriteSNAWord(Stream stream, int n)
     {
         stream.WriteByte((byte)(n & 0x00FF));
         stream.WriteByte((byte)((n >> 8) & 0xFF));
     }
 
-    private static void SaveSNA(string fileName, CPU cpu)
+    private static void SaveSNA(FileInfo file, CPU cpu)
     {
-        using var stream = new FileStream(fileName, FileMode.Create, FileAccess.Write);
+        using var stream = new FileStream(file.FullName, FileMode.Create, FileAccess.Write);
         try
         {
             cpu.TheRegisters.SP -= 2;
@@ -259,12 +267,9 @@ public static class ZxFileFormats
         }
     }
 
-    private static void LoadBIN(string fileName, CPU cpu)
+    private static void LoadBIN(FileInfo file, CPU cpu)
     {
-        if (!File.Exists(fileName))
-            return;
-
-        using var stream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+        using var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read);
         var length = stream.Length;
         for (var i = 0; i < length; i++)
             cpu.MainMemory.Poke(0x8000 + i, (byte)stream.ReadByte());
