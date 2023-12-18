@@ -9,7 +9,7 @@
 // We do not accept any liability for damage caused by executing
 // or modifying this code.
 
-using Speculator.Core.Sound;
+using Speculator.Core.HostDevices;
 
 namespace Speculator.Core;
 

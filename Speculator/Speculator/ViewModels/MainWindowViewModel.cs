@@ -20,11 +20,12 @@ namespace Speculator.ViewModels;
 public class MainWindowViewModel : ViewModelBase, IDisposable
 {
     public ZxSpectrum Speccy { get; }
-    public ZxDisplay Display { get; } = new ZxDisplay();
+    public ZxDisplay Display { get; }
     public bool IsSoundEnabled { get; private set; } = true;
 
     public MainWindowViewModel()
     {
+        Display = new ZxDisplay();
         Speccy = new ZxSpectrum(Display).LoadBasicRom();
     }
 

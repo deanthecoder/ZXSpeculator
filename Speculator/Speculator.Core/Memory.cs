@@ -15,12 +15,8 @@ namespace Speculator.Core;
 
 public class Memory
 {
+    private readonly ZxDisplay m_zxDisplay;
     private int m_romSize;
-
-    /// <summary>
-    /// Used to optimize screen rendering - Only refreshing the display if needed.
-    /// </summary>
-    public bool VideoMemoryChanged { get; set; } = true;
     
     public int RomSize
     {
@@ -32,9 +28,9 @@ public class Memory
         }
     }
 
-    internal Memory(int maxAddress)
+    public Memory(int maxAddress, ZxDisplay zxDisplay)
     {
-        Debug.Assert(maxAddress > 0, "Invalid memory value specified.");
+        m_zxDisplay = zxDisplay;
         MaxAddress = maxAddress;
 
         RomSize = 0;
@@ -49,8 +45,8 @@ public class Memory
     public void ClearAll()
     {
         RomSize = 0;
-        Array.Clear(Data, 0, Data.Length);
-        VideoMemoryChanged = true;
+        for (var i = 0; i < Data.Length; i++)
+            Poke(i, 0);
     }
 
     public void Poke(int addr, byte value)
@@ -62,15 +58,12 @@ public class Memory
             return; // No change.
 
         // Write to pixel or color area?
-        VideoMemoryChanged |= ZxDisplay.IsScreenAddress(addr);
+        m_zxDisplay.OnMemoryWrite(addr);
         
         Data[addr] = value;
     }
 
-    public byte Peek(int addr)
-    {
-        return Data[addr];
-    }
+    public byte Peek(int addr) => Data[addr];
 
     public string ReadAsHexString(int addr, int byteCount, bool wantSpaces = false)
     {

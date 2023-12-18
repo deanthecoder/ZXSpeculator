@@ -16,11 +16,10 @@ using Avalonia.Platform;
 
 namespace Speculator.Core;
 
-public class ZxDisplay // todo - check 'bright' colors work.
+public class ZxDisplay
 {
     internal const int ScreenBase = 0x4000;
     private const int ColorMapBase = 0x5800;
-    private const int BorderAddr = 0x5C48;
 
     private static readonly List<Color> Colors = new List<Color>
     {
@@ -50,6 +49,24 @@ public class ZxDisplay // todo - check 'bright' colors work.
     private const int WritableHeight = 192;
 
     public WriteableBitmap Bitmap { get; } = new WriteableBitmap(new PixelSize(LeftMargin + WriteableWidth + RightMargin, TopMargin + WritableHeight + BottomMargin), new Vector(96, 96), PixelFormat.Rgba8888);
+
+    /// <summary>
+    /// Used to optimize screen rendering - Only refreshing the display if needed.
+    /// </summary>
+    public bool IsScreenDirty { get; set; } = true;
+
+    public byte BorderAttr
+    {
+        get => m_borderAttr;
+        set
+        {
+            if (m_borderAttr == value)
+                return;
+            m_borderAttr = value;
+            IsScreenDirty = true;
+        }
+    }
+
     public event EventHandler Refreshed;
 
     private unsafe static void SetPixelGroup(byte* framePtr, int frameBufferRowBytes, int characterColumn, int y, byte pixels, byte attr, bool invertColors = false)
@@ -91,6 +108,7 @@ public class ZxDisplay // todo - check 'bright' colors work.
     private const int FramesPerFlash = 16;
     private int m_flashFrameCount;
     private bool m_isFlashing;
+    private byte m_borderAttr;
 
     unsafe internal void UpdateScreen(CPU sender)
     {
@@ -99,14 +117,14 @@ public class ZxDisplay // todo - check 'bright' colors work.
         {
             m_isFlashing = !m_isFlashing;
             m_flashFrameCount = 0;
-            sender.MainMemory.VideoMemoryChanged = true;
+            IsScreenDirty = true;
         }
 
-        if (!sender.MainMemory.VideoMemoryChanged)
+        if (!IsScreenDirty)
             return;
-        sender.MainMemory.VideoMemoryChanged = false;
+        IsScreenDirty = false;
 
-        var borderAttr = sender.MainMemory.Peek(BorderAddr);
+        var borderAttr = BorderAttr;
         using (var frameBuffer = Bitmap.Lock())
         {
             var framePtr = (byte*)frameBuffer.Address;
@@ -116,7 +134,7 @@ public class ZxDisplay // todo - check 'bright' colors work.
             {
                 m_previousBorderColor = borderAttr;
 
-                var penAndPaper = GetColorIndices(borderAttr);
+                var penAndPaper = GetColorIndices(borderAttr, true);
                 
                 // Draw top/bottom borders.
                 for (var x = 0; x < Bitmap.PixelSize.Width / 8; x++)
@@ -159,6 +177,6 @@ public class ZxDisplay // todo - check 'bright' colors work.
         Refreshed?.Invoke(this, EventArgs.Empty);
     }
 
-    public static bool IsScreenAddress(int addr) =>
-        addr >= ScreenBase && addr <= 0x5800 || addr >= ColorMapBase && addr <= 0x5B00 || addr == BorderAddr;
+    public void OnMemoryWrite(int addr) =>
+        IsScreenDirty |= addr >= ScreenBase && addr <= 0x5800 || addr >= ColorMapBase && addr <= 0x5B00;
 }

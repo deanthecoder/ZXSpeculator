@@ -26,10 +26,12 @@ public class ZxSpectrum : IDisposable
     public ZxSpectrum(ZxDisplay display)
     {
         TheDisplay = display;
-        TheCpu = new CPU(new Memory(64 * 1024), PortHandler, SoundHandler)
+        PortHandler = new ZxPortHandler(SoundHandler, TheDisplay);
+        TheCpu = new CPU(new Memory(64 * 1024, display), PortHandler, SoundHandler)
         {
             TStatesPerInterrupt = TStatesPerRenderFrame
         };
+        PortHandler.MainMemory = TheCpu.MainMemory;
 
         TheCpu.RenderCallbackEvent += TheCPU_RenderCallbackEvent;
     }
@@ -39,8 +41,7 @@ public class ZxSpectrum : IDisposable
     public CPU TheCpu { get; }
     private ZxDisplay TheDisplay { get; }
 
-    private ZxPortHandler m_portHandler;
-    public ZxPortHandler PortHandler => m_portHandler ??= new ZxPortHandler(SoundHandler);
+    public ZxPortHandler PortHandler { get; }
 
     public ZxSpectrum LoadBasicRom()
     {
@@ -65,7 +66,7 @@ public class ZxSpectrum : IDisposable
     
     public ZxSpectrum LoadRom(FileInfo romFile)
     {
-        ZxFileIo.LoadFile(TheCpu, romFile);
+        new ZxFileIo(TheCpu, TheDisplay).LoadFile(romFile);
         return this;
     }
     

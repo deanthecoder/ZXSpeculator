@@ -1,6 +1,6 @@
 ﻿using SoundIOSharp;
 
-namespace Speculator.Core.Sound;
+namespace Speculator.Core.HostDevices;
 
 /// <summary>
 /// A sound device to interface with the host machine's sound card.

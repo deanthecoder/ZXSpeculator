@@ -19,12 +19,16 @@ namespace Speculator.Core;
 public class ZxPortHandler : IPortHandler
 {
     private readonly SoundHandler m_soundHandler;
+    private readonly ZxDisplay m_theDisplay;
     private readonly Dictionary<Key, bool> m_pressedKeys = new Dictionary<Key, bool>();
     private readonly Dictionary<KeyId, List<Key>> m_pcToSpectrumKeyMap;
 
-    public ZxPortHandler(SoundHandler soundHandler)
+    public Memory MainMemory { get; set; }
+
+    public ZxPortHandler(SoundHandler soundHandler, ZxDisplay theDisplay)
     {
         m_soundHandler = soundHandler;
+        m_theDisplay = theDisplay;
 
         m_pcToSpectrumKeyMap = new Dictionary<KeyId, List<Key>>
         {
@@ -130,11 +134,16 @@ public class ZxPortHandler : IPortHandler
 
     public void Out(byte port, byte b)
     {
+        // We only care about writes to port 0xFE.
         if (port != 0xFE)
             return;
-
+        
+        // Bit 4 is the speaker on/off bit.
         var bit4 = (b & (1 << 4)) != 0;
         m_soundHandler.SetSpeakerState(bit4);
+        
+        // Lower 3 bits will set the border color.
+        m_theDisplay.BorderAttr = b;
     }
 
     private bool IsKeyPressed(Key key) => m_pressedKeys.ContainsKey(key);
