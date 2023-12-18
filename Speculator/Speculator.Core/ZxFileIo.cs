@@ -95,10 +95,13 @@ public class ZxFileIo
         m_cpu.TheRegisters.I = (byte)stream.ReadByte();
         m_cpu.TheRegisters.R = (byte)(stream.ReadByte() & 0x7F);
 
-        var byte12 = (byte) stream.ReadByte();
+        var byte12 = (byte)stream.ReadByte();
         if (byte12 == 0xFF)
             byte12 = 0x01; // Version 1
-        m_cpu.TheRegisters.R |= (byte)((byte12 & 0x01) * 0x80);
+        m_cpu.TheRegisters.R |= (byte)((byte12 & 0x01) << 7);
+
+        m_zxDisplay.BorderAttr = (byte)((byte12 & 0x0e) >> 1);
+        
         var isDataCompressed = (byte12 & 0x20) != 0;
 
         m_cpu.TheRegisters.Main.DE = ReadSNAWord(stream);
@@ -109,10 +112,8 @@ public class ZxFileIo
         m_cpu.TheRegisters.Alt.F = (byte)stream.ReadByte();
         m_cpu.TheRegisters.IY = ReadSNAWord(stream);
         m_cpu.TheRegisters.IX = ReadSNAWord(stream);
-
-        var IFF = (byte)stream.ReadByte();
-        m_cpu.TheRegisters.IFF1 = m_cpu.TheRegisters.IFF2 = IFF != 0;
-        stream.ReadByte(); // IFF2
+        m_cpu.TheRegisters.IFF1 = stream.ReadByte() != 0;
+        m_cpu.TheRegisters.IFF2 = stream.ReadByte() != 0;
 
         var byte29 = (byte)stream.ReadByte();
         m_cpu.TheRegisters.IM = (byte) (byte29 & 0x03);
@@ -120,55 +121,48 @@ public class ZxFileIo
         Debug.Assert(stream.Position == 30);
 
         var isVersion1 = m_cpu.TheRegisters.PC != 0x0000;
-
-        if (isVersion1)
+        if (!isVersion1)
         {
-            // Version 1
-            var bytesToRead = (int) (stream.Length - stream.Position);
-            var data = new List<byte>();
-            for (var i = 0; i < bytesToRead; i++)
-                data.Add((byte)stream.ReadByte());
-
-            if (isDataCompressed)
-            {
-                var offset = 0;
-                while (offset < data.Count - 4)
-                {
-                    if (data[offset] == 0xED && data[offset + 1] == 0xED)
-                    {
-                        var count = data[offset + 2];
-                        Debug.Assert(count >= 5);
-
-                        var b = data[offset + 3];
-
-                        data.RemoveRange(offset, 4);
-                        for (var i = 0; i < count; i++)
-                            data.Insert(offset, b);
-
-                        offset += count;
-                    }
-                    else
-                    {
-                        offset++;
-                    }
-                }
-
-                // Remove trailer.
-                Debug.Assert(data[data.Count - 4] == 0x00);
-                Debug.Assert(data[data.Count - 3] == 0xED);
-                Debug.Assert(data[data.Count - 2] == 0xED);
-                Debug.Assert(data[data.Count - 1] == 0x00);
-                data.RemoveRange(data.Count - 4, 4);
-            }
-
-            Debug.Assert(data.Count <= 48 * 1024);
-
-            data.CopyTo(m_cpu.MainMemory.Data, 0x4000);
+            // todo - pop up a message.
+            Console.WriteLine("Unsupported Z80 version (Only v1 implemented).");
             return;
         }
         
-        // todo - pop up a message.
-        Console.WriteLine("Unsupported Z80 version (Only v1 implemented).");
+        // Version 1
+        var bytesToRead = (int)(stream.Length - stream.Position);
+        var data = new List<byte>();
+        for (var i = 0; i < bytesToRead; i++)
+            data.Add((byte)stream.ReadByte());
+
+        if (isDataCompressed)
+        {
+            var offset = 0;
+            while (offset < data.Count - 4)
+            {
+                if (data[offset] == 0xED && data[offset + 1] == 0xED)
+                {
+                    var count = data[offset + 2];
+                    var b = data[offset + 3];
+
+                    data.RemoveRange(offset, 4);
+                    for (var i = 0; i < count; i++)
+                        data.Insert(offset, b);
+
+                    offset += count;
+                }
+                else
+                {
+                    offset++;
+                }
+            }
+
+            // Remove trailer.
+            data.RemoveRange(data.Count - 4, 4);
+        }
+
+        Debug.Assert(data.Count <= 48 * 1024);
+
+        data.CopyTo(m_cpu.MainMemory.Data, 0x4000);
     }
 
     private void LoadSCR(FileInfo file)
@@ -223,7 +217,7 @@ public class ZxFileIo
             m_cpu.TheRegisters.Main.AF = ReadSNAWord(stream);
             m_cpu.TheRegisters.SP = ReadSNAWord(stream);
             m_cpu.TheRegisters.IM = (byte)stream.ReadByte();
-            stream.ReadByte(); // Border color.
+            m_zxDisplay.BorderAttr = (byte)stream.ReadByte();
             for (var i = 16384; i <= 65535; i++)
                 m_cpu.MainMemory.Poke(i, (byte)stream.ReadByte());
         }
