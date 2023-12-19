@@ -9,8 +9,6 @@
 // We do not accept any liability for damage caused by executing
 // or modifying this code.
 
-using System.Diagnostics;
-
 namespace Speculator.Core;
 
 public class Alu
@@ -39,28 +37,26 @@ public class Alu
         TheRegisters.ZeroFlag = v == 0;
         TheRegisters.ParityFlag = IsOverflow8(a, b, result, false);
         TheRegisters.SubtractFlag = true;
+        TheRegisters.SetFlags53From((byte)v);
         return (byte)v;
     }
 
-    internal int SubtractAndSetFlags(int a, int b, bool subCarryFlag)
+    internal ushort SubtractAndSetFlags(int a, int b, bool subCarryFlag)
     {
-        Debug.Assert(a <= 0xffff, "Word value out of range.");
-        Debug.Assert(b <= 0xffff, "Word value out of range.");
-
         var v = a - b;
         var needCarry = subCarryFlag && TheRegisters.CarryFlag;
         if (needCarry)
             v--;
 
-        var result = v & 0xffff;
+        var result = (ushort)(v & 0xffff);
 
         TheRegisters.HalfCarryFlag = IsHalfCarry16((ushort) a, (ushort) b, needCarry, false);
         TheRegisters.CarryFlag = IsCarry16(v);
         TheRegisters.SignFlag = !IsWordPositive(result);
         TheRegisters.ZeroFlag = v == 0;
-        TheRegisters.ParityFlag = IsOverflow16((ushort)a, (ushort)b, (ushort)result, false);
+        TheRegisters.ParityFlag = IsOverflow16((ushort)a, (ushort)b, result, false);
         TheRegisters.SubtractFlag = true;
-
+        TheRegisters.SetFlags53From(result);
         return result;
     }
 
@@ -81,15 +77,13 @@ public class Alu
         TheRegisters.HalfCarryFlag = IsHalfCarry8(a, b, needCarry, true);
         TheRegisters.CarryFlag = IsCarry8(v);
         TheRegisters.SubtractFlag = false;
+        TheRegisters.SetFlags53From(result);
 
         return result;
     }
 
-    internal int AddAndSetFlags(int a, int b, bool addCarryFlag)
+    internal ushort AddAndSetFlags(ushort a, ushort b, bool addCarryFlag)
     {
-        Debug.Assert(a <= 0xffff, "Word value out of range.");
-        Debug.Assert(b <= 0xffff, "Word value out of range.");
-
         var v = a + b;
         var needCarry = addCarryFlag && TheRegisters.CarryFlag;
         if (needCarry)
@@ -101,12 +95,13 @@ public class Alu
         {
             TheRegisters.SignFlag = !IsWordPositive((ushort)v);
             TheRegisters.ZeroFlag = result == 0;
-            TheRegisters.ParityFlag = IsOverflow16((ushort)a, (ushort)b, result, true);
+            TheRegisters.ParityFlag = IsOverflow16(a, b, result, true);
         }
 
-        TheRegisters.HalfCarryFlag = IsHalfCarry16((ushort)a, (ushort)b, needCarry, true);
+        TheRegisters.HalfCarryFlag = IsHalfCarry16(a, b, needCarry, true);
         TheRegisters.CarryFlag = IsCarry16(v);
         TheRegisters.SubtractFlag = false;
+        TheRegisters.SetFlags53From(result);
 
         return result;
     }
@@ -116,7 +111,7 @@ public class Alu
         return (b & 0x80) == 0;
     }
 
-    internal static bool IsWordPositive(int a)
+    private static bool IsWordPositive(int a)
     {
         return (a & 0x8000) == 0;
     }
@@ -140,6 +135,7 @@ public class Alu
         TheRegisters.SubtractFlag = true;
         var result = (byte)v;
         TheRegisters.ParityFlag = b == 0x80;
+        TheRegisters.SetFlags53From(result);
         return result;
     }
 
@@ -152,6 +148,8 @@ public class Alu
         TheRegisters.ZeroFlag = (byte)v == 0;
         TheRegisters.SubtractFlag = false;
         TheRegisters.ParityFlag = b == 0x7F;
+        TheRegisters.SetFlags53From((byte)v);
+        
         return (byte)v;
     }
 
@@ -164,11 +162,12 @@ public class Alu
         TheRegisters.ParityFlag = IsEvenParity(r);
         TheRegisters.SubtractFlag = false;
         TheRegisters.CarryFlag = false;
+        TheRegisters.SetFlags53From(r);
 
         TheRegisters.Main.A = r;
     }
 
-    internal static int CountBits(byte b)
+    private static int CountBits(byte b)
     {
         var count = 0;
         for (var i = 0; i < 8; i++)
@@ -191,6 +190,8 @@ public class Alu
         TheRegisters.SubtractFlag = false;
         TheRegisters.CarryFlag = false;
         TheRegisters.Main.A = r;
+
+        TheRegisters.SetFlags53From(r);
     }
 
     public void Xor(byte b)
@@ -203,6 +204,7 @@ public class Alu
         TheRegisters.SubtractFlag = false;
         TheRegisters.CarryFlag = false;
         TheRegisters.Main.A = r;
+        TheRegisters.SetFlags53From(r);
     }
 
     public void AdjustAccumulatorToBcd()
@@ -510,6 +512,8 @@ public class Alu
         TheRegisters.HalfCarryFlag = false;
         TheRegisters.ParityFlag = IsEvenParity(b);
         TheRegisters.SubtractFlag = false;
+        TheRegisters.SetFlags53From(b);
+
         return b;
     }
 
@@ -529,6 +533,8 @@ public class Alu
         TheRegisters.HalfCarryFlag = false;
         TheRegisters.ParityFlag = IsEvenParity(b);
         TheRegisters.SubtractFlag = false;
+        TheRegisters.SetFlags53From(b);
+
         return b;
     }
 
@@ -569,7 +575,7 @@ public class Alu
     }
 
     /// <summary>
-    /// Shift right, underflowing into the carry flag.
+    /// Shift right, under-flowing into the carry flag.
     /// </summary>
     /// <remarks>
     /// Bit 0 goes to the carry flag. Bit 7 is unchanged.
@@ -587,7 +593,7 @@ public class Alu
     }
 
     /// <summary>
-    /// Shift right, underflowing into the carry flag.
+    /// Shift right, under-flowing into the carry flag.
     /// </summary>
     /// <remarks>
     /// Bit 0 goes to the carry flag. Bit 7 is reset.

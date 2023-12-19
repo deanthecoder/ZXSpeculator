@@ -137,7 +137,7 @@ public partial class CPU
                             break;
                         case 2:
                             //Debug.Fail("IM2 currently untested."); // todo
-                            CallIfTrue(MainMemory.PeekWord((TheRegisters.I << 8) | 0xff), true);
+                            CallIfTrue(MainMemory.PeekWord((ushort)((TheRegisters.I << 8) | 0xff)), true);
                             break;
                         default:
                             Debug.Fail("Invalid interrupt mode.");
@@ -195,7 +195,7 @@ public partial class CPU
         TheRegisters.SP += 2;
     }
 
-    private bool JumpIfTrue(int addr, bool b)
+    private bool JumpIfTrue(ushort addr, bool b)
     {
         if (b)
             TheRegisters.PC = addr;
@@ -203,7 +203,7 @@ public partial class CPU
         return b;
     }
 
-    private bool CallIfTrue(int addr, bool b)
+    private bool CallIfTrue(ushort addr, bool b)
     {
         if (b)
         {
@@ -240,14 +240,14 @@ public partial class CPU
         TheRegisters.SignFlag = i == 7 && !Alu.IsBytePositive(b);
     }
 
-    internal int IXPlusD(byte d)
+    private ushort IXPlusD(byte d)
     {
-        return TheRegisters.IX + Alu.FromTwosCompliment(d);
+        return (ushort)(TheRegisters.IX + Alu.FromTwosCompliment(d));
     }
 
-    internal int IYPlusD(byte d)
+    private ushort IYPlusD(byte d)
     {
-        return TheRegisters.IY + Alu.FromTwosCompliment(d);
+        return (ushort)(TheRegisters.IY + Alu.FromTwosCompliment(d));
     }
 
     private void doCPI()
@@ -312,7 +312,7 @@ public partial class CPU
         }
     }
 
-    public int Disassemble(int addr, ref string hexBytes, out string mnemonics)
+    public int Disassemble(ushort addr, ref string hexBytes, out string mnemonics)
     {
         var instruction = InstructionSet.findInstructionAtMemoryLocation(MainMemory, addr);
 
@@ -328,7 +328,7 @@ public partial class CPU
         {
             if (i > 0)
                 hexBytes += " ";
-            hexBytes += MainMemory.ReadAsHexString(addr + i, 1);
+            hexBytes += MainMemory.ReadAsHexString((ushort)(addr + i), 1);
         }
 
         // Format the instruction as opcodes.
@@ -339,10 +339,10 @@ public partial class CPU
             switch (hexParts[i])
             {
                 case "n":
-                    hexValues.Add(MainMemory.ReadAsHexString(addr + i, 1));
+                    hexValues.Add(MainMemory.ReadAsHexString((ushort)(addr + i), 1));
                     break;
                 case "d":
-                    hexValues.Add(Alu.FromTwosCompliment(MainMemory.Peek(addr + i)).ToString());
+                    hexValues.Add(Alu.FromTwosCompliment(MainMemory.Peek((ushort)(addr + i))).ToString());
                     break;
             }
         }

@@ -39,7 +39,7 @@ public class Instruction
         Debug.Assert(hexTemplate.Length >= 2, "Zero length opcodes are invalid.");
         Debug.Assert(!hexTemplate.Contains("nn"), "Invalid hex template. (Should be 'n n'?)");
         HexTemplate = hexTemplate;
-        ByteCount = HexTemplate.Split(' ').Length;
+        ByteCount = (byte)HexTemplate.Split(' ').Length;
         this.TStateCount = TStateCount;
     }
 
@@ -51,7 +51,7 @@ public class Instruction
 
     public Z80Instructions.InstructionID Id { get; }
 
-    public int ByteCount { get; }
+    public byte ByteCount { get; }
 
     private int m_valueByteOffset = -1;
     public int ValueByteOffset
@@ -78,7 +78,7 @@ public class Instruction
 
     private byte?[] m_opcodeBytes;
     
-    public bool StartsWithOpcodeBytes(Memory mainMemory, int addr)
+    public bool StartsWithOpcodeBytes(Memory mainMemory, ushort addr)
     {
         if (m_opcodeBytes == null)
         {
@@ -110,86 +110,7 @@ public class Instruction
 
         return true;
     }
-
-    private static char FlagNameForBit(int n)
-    {
-        return new[] { 'S', 'Z', 'H', 'P', 'N', 'C' }[n];
-    }
-
-    private readonly int[] m_registerFlagBits = { 7, 6, 4, 2, 1, 0 };
-
-    public bool CheckFlagChanges(byte oldFlags, CPU cpu)
-    {
-        if (string.IsNullOrEmpty(FlagModifiers)) return true;
-
-        var newFlags = cpu.TheRegisters.Main.F;
-
-        // Known state tests.
-        var i = 0;
-        foreach (var bit in m_registerFlagBits)
-        {
-            var oldBit = (oldFlags & (1 << bit)) != 0;
-            var newBit = (newFlags & (1 << bit)) != 0;
-
-            switch (FlagModifiers[i])
-            {
-                case '0': 
-                    if (newBit)
-                        Debug.Fail($"Flag bit {FlagNameForBit(i)} should be 0. ({Id})");
-                    break;
-                case '1':
-                    if (!newBit)
-                        Debug.Fail($"Flag bit {FlagNameForBit(i)} should be 1. ({Id})");
-                    break;
-                case ' ': 
-                    if (oldBit != newBit)
-                        Debug.Fail($"Flag bit {FlagNameForBit(i)} should be unchanged. ({Id})");
-                    break;
-            }
-
-            i++;
-        }
-
-        if (ResultRegName != null)
-        {
-            var result = cpu.RegisterValue(ResultRegName);
-
-            // Sign flag tests.
-            if (FlagModifiers[0] == 'X')
-            {
-                bool expected;
-
-                if (ResultRegName.Length == 2)
-                    expected = (result & 0x8000) != 0;
-                else
-                    expected = (result & 0x80) != 0;
-
-                if (expected != cpu.TheRegisters.SignFlag)
-                    Debug.Fail($"Sign bit should be {expected}. ({Id} - Checking register {ResultRegName})");
-            }
-
-            // Zero flag tests.
-            if (FlagModifiers[1] == 'X')
-            {
-                var expected = result == 0;
-                if (expected != cpu.TheRegisters.ZeroFlag)
-                    Debug.Fail($"Zero bit should be {expected}. ({Id} - Checking register {ResultRegName})");
-            }
-
-            // Parity flag tests.
-            switch (FlagModifiers[3])
-            {
-                case 'P':
-                    var expected = Alu.IsEvenParity((byte)result);
-                    if (expected != cpu.TheRegisters.ParityFlag)
-                        Debug.Fail($"Parity bit should be {expected}. ({Id} - Checking register {ResultRegName})");
-                    break;
-            }
-        }
-
-        return true;
-    }
-
+    
     public void SetFlagModifiers(string flags, string resultRegName = null)
     {
         FlagModifiers = flags;

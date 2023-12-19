@@ -21,35 +21,26 @@ public class Memory
     public int RomSize
     {
         get => m_romSize;
-        set
-        {
-            Debug.Assert(value <= MaxAddress);
-            m_romSize = value;
-        }
+        set => m_romSize = value;
     }
 
-    public Memory(int maxAddress, ZxDisplay zxDisplay)
+    public Memory(ZxDisplay zxDisplay)
     {
         m_zxDisplay = zxDisplay;
-        MaxAddress = maxAddress;
-
         RomSize = 0;
-
-        Data = new byte[MaxAddress];
+        Data = new byte[0x10000];
     }
 
     public byte[] Data { get; }
-
-    public int MaxAddress { get; }
 
     public void ClearAll()
     {
         RomSize = 0;
         for (var i = 0; i < Data.Length; i++)
-            Poke(i, 0);
+            Poke((ushort)i, 0);
     }
 
-    public void Poke(int addr, byte value)
+    public void Poke(ushort addr, byte value)
     {
         if (addr < RomSize)
             return; // Can't write to ROM.
@@ -63,16 +54,16 @@ public class Memory
         Data[addr] = value;
     }
 
-    public byte Peek(int addr) => Data[addr];
+    public byte Peek(ushort addr) => Data[addr];
 
-    public string ReadAsHexString(int addr, int byteCount, bool wantSpaces = false)
+    public string ReadAsHexString(ushort addr, ushort byteCount, bool wantSpaces = false)
     {
         Debug.Assert(byteCount > 0, "byteCount must be positive.");
 
         var result = string.Empty;
-        for (var i = 0; i < byteCount && addr + i < MaxAddress; i++)
+        for (var i = 0; i < byteCount && addr + i < 0xffff; i++)
         {
-            result += Peek(addr + i).ToString("X2");
+            result += Peek((ushort)(addr + i)).ToString("X2");
             if (wantSpaces)
                 result += " ";
         }
@@ -80,16 +71,15 @@ public class Memory
         return result.Trim();
     }
 
-    public int PeekWord(int addr)
+    public ushort PeekWord(ushort addr)
     {
-        return Data[addr + 1] << 8 | Data[addr];
+        return (ushort)(Data[(ushort)(addr + 1)] << 8 | Data[addr]);
     }
 
-    public void PokeWord(int addr, int v)
+    public void PokeWord(ushort addr, int v)
     {
-        Debug.Assert(v >= 0 && v <= 0xffff);
         Poke(addr, (byte)(v & 0x00ff));
-        Poke(addr + 1, (byte)(v >> 8));
+        Poke((ushort)(addr + 1), (byte)(v >> 8));
     }
 
     public void LoadBasicROM(string systemROM)

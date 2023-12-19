@@ -219,15 +219,15 @@ public class ZxFileIo
             m_cpu.TheRegisters.IM = (byte)stream.ReadByte();
             m_zxDisplay.BorderAttr = (byte)stream.ReadByte();
             for (var i = 16384; i <= 65535; i++)
-                m_cpu.MainMemory.Poke(i, (byte)stream.ReadByte());
+                m_cpu.MainMemory.Poke((ushort)i, (byte)stream.ReadByte());
         }
 
         m_cpu.RETN();
     }
 
-    private static int ReadSNAWord(Stream stream)
+    private static ushort ReadSNAWord(Stream stream)
     {
-        return stream.ReadByte() + (stream.ReadByte() << 8);
+        return (ushort)(stream.ReadByte() + (stream.ReadByte() << 8));
     }
 
     private static void WriteSNAWord(Stream stream, int n)
@@ -261,7 +261,7 @@ public class ZxFileIo
             stream.WriteByte(m_cpu.TheRegisters.IM);
             stream.WriteByte(0x07); // Border color.
             for (var i = 16384; i <= 65535; i++)
-                stream.WriteByte(m_cpu.MainMemory.Peek(i));
+                stream.WriteByte(m_cpu.MainMemory.Peek((ushort)i));
 
         }
         finally
@@ -275,7 +275,7 @@ public class ZxFileIo
         using var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read);
         var length = stream.Length;
         for (var i = 0; i < length; i++)
-            m_cpu.MainMemory.Poke(0x8000 + i, (byte)stream.ReadByte());
+            m_cpu.MainMemory.Poke((ushort)(0x8000 + i), (byte)stream.ReadByte());
         m_cpu.TheRegisters.PC = 0x8000;
     }
 }

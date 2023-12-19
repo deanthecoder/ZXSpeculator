@@ -50,8 +50,9 @@ public class ZxPortHandler : IPortHandler
 
     public byte In(int portAddress)
     {
+        // We only support reading from the keyboard.
         if ((portAddress & 0x00FF) != 0xFE)
-            return 0xFF;
+            return 0xFF; // Floating bus value.
 
         byte result = 0x00;
 
@@ -140,7 +141,7 @@ public class ZxPortHandler : IPortHandler
         
         // Bit 4 is the speaker on/off bit.
         var bit4 = (b & (1 << 4)) != 0;
-        m_soundHandler.SetSpeakerState(bit4);
+        m_soundHandler?.SetSpeakerState(bit4);
         
         // Lower 3 bits will set the border color.
         m_theDisplay.BorderAttr = b;

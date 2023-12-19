@@ -36,7 +36,7 @@ public partial class Z80Instructions
         return null;
     }
 
-    public Instruction findInstructionAtMemoryLocation(Memory mainMemory, int addr)
+    public Instruction findInstructionAtMemoryLocation(Memory mainMemory, ushort addr)
     {
         #region Auto-generated code.
 
@@ -567,9 +567,9 @@ public partial class Z80Instructions
         #endregion
     }
     
-    private bool HandleFDPrefix(Memory mainMemory, int addr, out Instruction instr)
+    private bool HandleFDPrefix(Memory mainMemory, ushort addr, out Instruction instr)
     {
-        switch (mainMemory.Peek(addr + 1))
+        switch (mainMemory.Peek((ushort)(addr + 1)))
         {
             case 0x09: // ADD IY,BC
             {
@@ -1018,7 +1018,7 @@ public partial class Z80Instructions
     private bool HandleEDPrefix(Memory mainMemory, int addr, out Instruction instr)
     {
 
-        switch (mainMemory.Peek(addr + 1))
+        switch (mainMemory.Peek((ushort)(addr + 1)))
         {
             case 0x40: // IN B,(C)
             {
@@ -1316,9 +1316,9 @@ public partial class Z80Instructions
         return false;
     }
     
-    private bool HandleDDPrefix(Memory mainMemory, int addr, out Instruction instr)
+    private bool HandleDDPrefix(Memory mainMemory, ushort addr, out Instruction instr)
     {
-        switch (mainMemory.Peek(addr + 1))
+        switch (mainMemory.Peek((ushort)(addr + 1)))
         {
             case 0x09: // ADD IX,BC
             {
@@ -1766,521 +1766,521 @@ public partial class Z80Instructions
     
     private Instruction HandleCBPrefix(Memory mainMemory, int addr)
     {
-        switch (mainMemory.Peek(addr + 1))
+        return mainMemory.Peek((ushort)(addr + 1)) switch
         {
-            case 0x00: // RLC B
-                return Instructions[580];
-            case 0x01: // RLC C
-                return Instructions[581];
-            case 0x02: // RLC D
-                return Instructions[582];
-            case 0x03: // RLC E
-                return Instructions[583];
-            case 0x04: // RLC H
-                return Instructions[584];
-            case 0x05: // RLC L
-                return Instructions[585];
-            case 0x06: // RLC (HL)
-                return Instructions[586];
-            case 0x07: // RLC A
-                return Instructions[579];
-            case 0x08: // RRC B
-                return Instructions[603];
-            case 0x09: // RRC C
-                return Instructions[604];
-            case 0x0A: // RRC D
-                return Instructions[605];
-            case 0x0B: // RRC E
-                return Instructions[606];
-            case 0x0C: // RRC H
-                return Instructions[607];
-            case 0x0D: // RRC L
-                return Instructions[608];
-            case 0x0E: // RRC (HL)
-                return Instructions[609];
-            case 0x0F: // RRC A
-                return Instructions[602];
-            case 0x10: // RL B
-                return Instructions[591];
-            case 0x11: // RL C
-                return Instructions[592];
-            case 0x12: // RL D
-                return Instructions[593];
-            case 0x13: // RL E
-                return Instructions[594];
-            case 0x14: // RL H
-                return Instructions[595];
-            case 0x15: // RL L
-                return Instructions[596];
-            case 0x16: // RL (HL)
-                return Instructions[597];
-            case 0x17: // RL A
-                return Instructions[590];
-            case 0x18: // RR B
-                return Instructions[614];
-            case 0x19: // RR C
-                return Instructions[615];
-            case 0x1A: // RR D
-                return Instructions[616];
-            case 0x1B: // RR E
-                return Instructions[617];
-            case 0x1C: // RR H
-                return Instructions[618];
-            case 0x1D: // RR L
-                return Instructions[619];
-            case 0x1E: // RR (HL)
-                return Instructions[620];
-            case 0x1F: // RR A
-                return Instructions[613];
-            case 0x20: // SLA B
-                return Instructions[732];
-            case 0x21: // SLA C
-                return Instructions[733];
-            case 0x22: // SLA D
-                return Instructions[734];
-            case 0x23: // SLA E
-                return Instructions[735];
-            case 0x24: // SLA H
-                return Instructions[736];
-            case 0x25: // SLA L
-                return Instructions[737];
-            case 0x26: // SLA (HL)
-                return Instructions[738];
-            case 0x27: // SLA A
-                return Instructions[731];
-            case 0x28: // SRA B
-                return Instructions[750];
-            case 0x29: // SRA C
-                return Instructions[751];
-            case 0x2A: // SRA D
-                return Instructions[752];
-            case 0x2B: // SRA E
-                return Instructions[753];
-            case 0x2C: // SRA H
-                return Instructions[754];
-            case 0x2D: // SRA L
-                return Instructions[755];
-            case 0x2E: // SRA (HL)
-                return Instructions[756];
-            case 0x2F: // SRA A
-                return Instructions[749];
-            case 0x30: // SLL B
-                return Instructions[742];
-            case 0x31: // SLL C
-                return Instructions[743];
-            case 0x32: // SLL D
-                return Instructions[744];
-            case 0x33: // SLL E
-                return Instructions[745];
-            case 0x34: // SLL H
-                return Instructions[746];
-            case 0x35: // SLL L
-                return Instructions[747];
-            case 0x36: // SLL (HL)
-                return Instructions[748];
-            case 0x37: // SLL A
-                return Instructions[741];
-            case 0x38: // SRL B
-                return Instructions[760];
-            case 0x39: // SRL C
-                return Instructions[761];
-            case 0x3A: // SRL D
-                return Instructions[762];
-            case 0x3B: // SRL E
-                return Instructions[763];
-            case 0x3C: // SRL H
-                return Instructions[764];
-            case 0x3D: // SRL L
-                return Instructions[765];
-            case 0x3E: // SRL (HL)
-                return Instructions[766];
-            case 0x3F: // SRL A
-                return Instructions[759];
-            case 0x40: // BIT 0,B
-                return Instructions[62];
-            case 0x41: // BIT 0,C
-                return Instructions[63];
-            case 0x42: // BIT 0,D
-                return Instructions[64];
-            case 0x43: // BIT 0,E
-                return Instructions[65];
-            case 0x44: // BIT 0,H
-                return Instructions[66];
-            case 0x45: // BIT 0,L
-                return Instructions[67];
-            case 0x46: // BIT 0,(HL)
-                return Instructions[68];
-            case 0x47: // BIT 0,A
-                return Instructions[61];
-            case 0x48: // BIT 1,B
-                return Instructions[72];
-            case 0x49: // BIT 1,C
-                return Instructions[73];
-            case 0x4A: // BIT 1,D
-                return Instructions[74];
-            case 0x4B: // BIT 1,E
-                return Instructions[75];
-            case 0x4C: // BIT 1,H
-                return Instructions[76];
-            case 0x4D: // BIT 1,L
-                return Instructions[77];
-            case 0x4E: // BIT 1,(HL)
-                return Instructions[78];
-            case 0x4F: // BIT 1,A
-                return Instructions[71];
-            case 0x50: // BIT 2,B
-                return Instructions[82];
-            case 0x51: // BIT 2,C
-                return Instructions[83];
-            case 0x52: // BIT 2,D
-                return Instructions[84];
-            case 0x53: // BIT 2,E
-                return Instructions[85];
-            case 0x54: // BIT 2,H
-                return Instructions[86];
-            case 0x55: // BIT 2,L
-                return Instructions[87];
-            case 0x56: // BIT 2,(HL)
-                return Instructions[88];
-            case 0x57: // BIT 2,A
-                return Instructions[81];
-            case 0x58: // BIT 3,B
-                return Instructions[92];
-            case 0x59: // BIT 3,C
-                return Instructions[93];
-            case 0x5A: // BIT 3,D
-                return Instructions[94];
-            case 0x5B: // BIT 3,E
-                return Instructions[95];
-            case 0x5C: // BIT 3,H
-                return Instructions[96];
-            case 0x5D: // BIT 3,L
-                return Instructions[97];
-            case 0x5E: // BIT 3,(HL)
-                return Instructions[98];
-            case 0x5F: // BIT 3,A
-                return Instructions[91];
-            case 0x60: // BIT 4,B
-                return Instructions[102];
-            case 0x61: // BIT 4,C
-                return Instructions[103];
-            case 0x62: // BIT 4,D
-                return Instructions[104];
-            case 0x63: // BIT 4,E
-                return Instructions[105];
-            case 0x64: // BIT 4,H
-                return Instructions[106];
-            case 0x65: // BIT 4,L
-                return Instructions[107];
-            case 0x66: // BIT 4,(HL)
-                return Instructions[108];
-            case 0x67: // BIT 4,A
-                return Instructions[101];
-            case 0x68: // BIT 5,B
-                return Instructions[112];
-            case 0x69: // BIT 5,C
-                return Instructions[113];
-            case 0x6A: // BIT 5,D
-                return Instructions[114];
-            case 0x6B: // BIT 5,E
-                return Instructions[115];
-            case 0x6C: // BIT 5,H
-                return Instructions[116];
-            case 0x6D: // BIT 5,L
-                return Instructions[117];
-            case 0x6E: // BIT 5,(HL)
-                return Instructions[118];
-            case 0x6F: // BIT 5,A
-                return Instructions[111];
-            case 0x70: // BIT 6,B
-                return Instructions[122];
-            case 0x71: // BIT 6,C
-                return Instructions[123];
-            case 0x72: // BIT 6,D
-                return Instructions[124];
-            case 0x73: // BIT 6,E
-                return Instructions[125];
-            case 0x74: // BIT 6,H
-                return Instructions[126];
-            case 0x75: // BIT 6,L
-                return Instructions[127];
-            case 0x76: // BIT 6,(HL)
-                return Instructions[128];
-            case 0x77: // BIT 6,A
-                return Instructions[121];
-            case 0x78: // BIT 7,B
-                return Instructions[132];
-            case 0x79: // BIT 7,C
-                return Instructions[133];
-            case 0x7A: // BIT 7,D
-                return Instructions[134];
-            case 0x7B: // BIT 7,E
-                return Instructions[135];
-            case 0x7C: // BIT 7,H
-                return Instructions[136];
-            case 0x7D: // BIT 7,L
-                return Instructions[137];
-            case 0x7E: // BIT 7,(HL)
-                return Instructions[138];
-            case 0x7F: // BIT 7,A
-                return Instructions[131];
-            case 0x80: // RES 0,B
-                return Instructions[487];
-            case 0x81: // RES 0,C
-                return Instructions[488];
-            case 0x82: // RES 0,D
-                return Instructions[489];
-            case 0x83: // RES 0,E
-                return Instructions[490];
-            case 0x84: // RES 0,H
-                return Instructions[491];
-            case 0x85: // RES 0,L
-                return Instructions[492];
-            case 0x86: // RES 0,(HL)
-                return Instructions[493];
-            case 0x87: // RES 0,A
-                return Instructions[486];
-            case 0x88: // RES 1,B
-                return Instructions[497];
-            case 0x89: // RES 1,C
-                return Instructions[498];
-            case 0x8A: // RES 1,D
-                return Instructions[499];
-            case 0x8B: // RES 1,E
-                return Instructions[500];
-            case 0x8C: // RES 1,H
-                return Instructions[501];
-            case 0x8D: // RES 1,L
-                return Instructions[502];
-            case 0x8E: // RES 1,(HL)
-                return Instructions[503];
-            case 0x8F: // RES 1,A
-                return Instructions[496];
-            case 0x90: // RES 2,B
-                return Instructions[507];
-            case 0x91: // RES 2,C
-                return Instructions[508];
-            case 0x92: // RES 2,D
-                return Instructions[509];
-            case 0x93: // RES 2,E
-                return Instructions[510];
-            case 0x94: // RES 2,H
-                return Instructions[511];
-            case 0x95: // RES 2,L
-                return Instructions[512];
-            case 0x96: // RES 2,(HL)
-                return Instructions[513];
-            case 0x97: // RES 2,A
-                return Instructions[506];
-            case 0x98: // RES 3,B
-                return Instructions[517];
-            case 0x99: // RES 3,C
-                return Instructions[518];
-            case 0x9A: // RES 3,D
-                return Instructions[519];
-            case 0x9B: // RES 3,E
-                return Instructions[520];
-            case 0x9C: // RES 3,H
-                return Instructions[521];
-            case 0x9D: // RES 3,L
-                return Instructions[522];
-            case 0x9E: // RES 3,(HL)
-                return Instructions[523];
-            case 0x9F: // RES 3,A
-                return Instructions[516];
-            case 0xA0: // RES 4,B
-                return Instructions[527];
-            case 0xA1: // RES 4,C
-                return Instructions[528];
-            case 0xA2: // RES 4,D
-                return Instructions[529];
-            case 0xA3: // RES 4,E
-                return Instructions[530];
-            case 0xA4: // RES 4,H
-                return Instructions[531];
-            case 0xA5: // RES 4,L
-                return Instructions[532];
-            case 0xA6: // RES 4,(HL)
-                return Instructions[533];
-            case 0xA7: // RES 4,A
-                return Instructions[526];
-            case 0xA8: // RES 5,B
-                return Instructions[537];
-            case 0xA9: // RES 5,C
-                return Instructions[538];
-            case 0xAA: // RES 5,D
-                return Instructions[539];
-            case 0xAB: // RES 5,E
-                return Instructions[540];
-            case 0xAC: // RES 5,H
-                return Instructions[541];
-            case 0xAD: // RES 5,L
-                return Instructions[542];
-            case 0xAE: // RES 5,(HL)
-                return Instructions[543];
-            case 0xAF: // RES 5,A
-                return Instructions[536];
-            case 0xB0: // RES 6,B
-                return Instructions[547];
-            case 0xB1: // RES 6,C
-                return Instructions[548];
-            case 0xB2: // RES 6,D
-                return Instructions[549];
-            case 0xB3: // RES 6,E
-                return Instructions[550];
-            case 0xB4: // RES 6,H
-                return Instructions[551];
-            case 0xB5: // RES 6,L
-                return Instructions[552];
-            case 0xB6: // RES 6,(HL)
-                return Instructions[553];
-            case 0xB7: // RES 6,A
-                return Instructions[546];
-            case 0xB8: // RES 7,B
-                return Instructions[557];
-            case 0xB9: // RES 7,C
-                return Instructions[558];
-            case 0xBA: // RES 7,D
-                return Instructions[559];
-            case 0xBB: // RES 7,E
-                return Instructions[560];
-            case 0xBC: // RES 7,H
-                return Instructions[561];
-            case 0xBD: // RES 7,L
-                return Instructions[562];
-            case 0xBE: // RES 7,(HL)
-                return Instructions[563];
-            case 0xBF: // RES 7,A
-                return Instructions[556];
-            case 0xC0: // SET 0,B
-                return Instructions[652];
-            case 0xC1: // SET 0,C
-                return Instructions[653];
-            case 0xC2: // SET 0,D
-                return Instructions[654];
-            case 0xC3: // SET 0,E
-                return Instructions[655];
-            case 0xC4: // SET 0,H
-                return Instructions[656];
-            case 0xC5: // SET 0,L
-                return Instructions[657];
-            case 0xC6: // SET 0,(HL)
-                return Instructions[658];
-            case 0xC7: // SET 0,A
-                return Instructions[651];
-            case 0xC8: // SET 1,B
-                return Instructions[662];
-            case 0xC9: // SET 1,C
-                return Instructions[663];
-            case 0xCA: // SET 1,D
-                return Instructions[664];
-            case 0xCB: // SET 1,E
-                return Instructions[665];
-            case 0xCC: // SET 1,H
-                return Instructions[666];
-            case 0xCD: // SET 1,L
-                return Instructions[667];
-            case 0xCE: // SET 1,(HL)
-                return Instructions[668];
-            case 0xCF: // SET 1,A
-                return Instructions[661];
-            case 0xD0: // SET 2,B
-                return Instructions[672];
-            case 0xD1: // SET 2,C
-                return Instructions[673];
-            case 0xD2: // SET 2,D
-                return Instructions[674];
-            case 0xD3: // SET 2,E
-                return Instructions[675];
-            case 0xD4: // SET 2,H
-                return Instructions[676];
-            case 0xD5: // SET 2,L
-                return Instructions[677];
-            case 0xD6: // SET 2,(HL)
-                return Instructions[678];
-            case 0xD7: // SET 2,A
-                return Instructions[671];
-            case 0xD8: // SET 3,B
-                return Instructions[682];
-            case 0xD9: // SET 3,C
-                return Instructions[683];
-            case 0xDA: // SET 3,D
-                return Instructions[684];
-            case 0xDB: // SET 3,E
-                return Instructions[685];
-            case 0xDC: // SET 3,H
-                return Instructions[686];
-            case 0xDD: // SET 3,L
-                return Instructions[687];
-            case 0xDE: // SET 3,(HL)
-                return Instructions[688];
-            case 0xDF: // SET 3,A
-                return Instructions[681];
-            case 0xE0: // SET 4,B
-                return Instructions[692];
-            case 0xE1: // SET 4,C
-                return Instructions[693];
-            case 0xE2: // SET 4,D
-                return Instructions[694];
-            case 0xE3: // SET 4,E
-                return Instructions[695];
-            case 0xE4: // SET 4,H
-                return Instructions[696];
-            case 0xE5: // SET 4,L
-                return Instructions[697];
-            case 0xE6: // SET 4,(HL)
-                return Instructions[698];
-            case 0xE7: // SET 4,A
-                return Instructions[691];
-            case 0xE8: // SET 5,B
-                return Instructions[702];
-            case 0xE9: // SET 5,C
-                return Instructions[703];
-            case 0xEA: // SET 5,D
-                return Instructions[704];
-            case 0xEB: // SET 5,E
-                return Instructions[705];
-            case 0xEC: // SET 5,H
-                return Instructions[706];
-            case 0xED: // SET 5,L
-                return Instructions[707];
-            case 0xEE: // SET 5,(HL)
-                return Instructions[708];
-            case 0xEF: // SET 5,A
-                return Instructions[701];
-            case 0xF0: // SET 6,B
-                return Instructions[712];
-            case 0xF1: // SET 6,C
-                return Instructions[713];
-            case 0xF2: // SET 6,D
-                return Instructions[714];
-            case 0xF3: // SET 6,E
-                return Instructions[715];
-            case 0xF4: // SET 6,H
-                return Instructions[716];
-            case 0xF5: // SET 6,L
-                return Instructions[717];
-            case 0xF6: // SET 6,(HL)
-                return Instructions[718];
-            case 0xF7: // SET 6,A
-                return Instructions[711];
-            case 0xF8: // SET 7,B
-                return Instructions[722];
-            case 0xF9: // SET 7,C
-                return Instructions[723];
-            case 0xFA: // SET 7,D
-                return Instructions[724];
-            case 0xFB: // SET 7,E
-                return Instructions[725];
-            case 0xFC: // SET 7,H
-                return Instructions[726];
-            case 0xFD: // SET 7,L
-                return Instructions[727];
-            case 0xFE: // SET 7,(HL)
-                return Instructions[728];
-            case 0xFF: // SET 7,A
-                return Instructions[721];
-        }
+            0x00 => // RLC B
+                Instructions[580],
+            0x01 => // RLC C
+                Instructions[581],
+            0x02 => // RLC D
+                Instructions[582],
+            0x03 => // RLC E
+                Instructions[583],
+            0x04 => // RLC H
+                Instructions[584],
+            0x05 => // RLC L
+                Instructions[585],
+            0x06 => // RLC (HL)
+                Instructions[586],
+            0x07 => // RLC A
+                Instructions[579],
+            0x08 => // RRC B
+                Instructions[603],
+            0x09 => // RRC C
+                Instructions[604],
+            0x0A => // RRC D
+                Instructions[605],
+            0x0B => // RRC E
+                Instructions[606],
+            0x0C => // RRC H
+                Instructions[607],
+            0x0D => // RRC L
+                Instructions[608],
+            0x0E => // RRC (HL)
+                Instructions[609],
+            0x0F => // RRC A
+                Instructions[602],
+            0x10 => // RL B
+                Instructions[591],
+            0x11 => // RL C
+                Instructions[592],
+            0x12 => // RL D
+                Instructions[593],
+            0x13 => // RL E
+                Instructions[594],
+            0x14 => // RL H
+                Instructions[595],
+            0x15 => // RL L
+                Instructions[596],
+            0x16 => // RL (HL)
+                Instructions[597],
+            0x17 => // RL A
+                Instructions[590],
+            0x18 => // RR B
+                Instructions[614],
+            0x19 => // RR C
+                Instructions[615],
+            0x1A => // RR D
+                Instructions[616],
+            0x1B => // RR E
+                Instructions[617],
+            0x1C => // RR H
+                Instructions[618],
+            0x1D => // RR L
+                Instructions[619],
+            0x1E => // RR (HL)
+                Instructions[620],
+            0x1F => // RR A
+                Instructions[613],
+            0x20 => // SLA B
+                Instructions[732],
+            0x21 => // SLA C
+                Instructions[733],
+            0x22 => // SLA D
+                Instructions[734],
+            0x23 => // SLA E
+                Instructions[735],
+            0x24 => // SLA H
+                Instructions[736],
+            0x25 => // SLA L
+                Instructions[737],
+            0x26 => // SLA (HL)
+                Instructions[738],
+            0x27 => // SLA A
+                Instructions[731],
+            0x28 => // SRA B
+                Instructions[750],
+            0x29 => // SRA C
+                Instructions[751],
+            0x2A => // SRA D
+                Instructions[752],
+            0x2B => // SRA E
+                Instructions[753],
+            0x2C => // SRA H
+                Instructions[754],
+            0x2D => // SRA L
+                Instructions[755],
+            0x2E => // SRA (HL)
+                Instructions[756],
+            0x2F => // SRA A
+                Instructions[749],
+            0x30 => // SLL B
+                Instructions[742],
+            0x31 => // SLL C
+                Instructions[743],
+            0x32 => // SLL D
+                Instructions[744],
+            0x33 => // SLL E
+                Instructions[745],
+            0x34 => // SLL H
+                Instructions[746],
+            0x35 => // SLL L
+                Instructions[747],
+            0x36 => // SLL (HL)
+                Instructions[748],
+            0x37 => // SLL A
+                Instructions[741],
+            0x38 => // SRL B
+                Instructions[760],
+            0x39 => // SRL C
+                Instructions[761],
+            0x3A => // SRL D
+                Instructions[762],
+            0x3B => // SRL E
+                Instructions[763],
+            0x3C => // SRL H
+                Instructions[764],
+            0x3D => // SRL L
+                Instructions[765],
+            0x3E => // SRL (HL)
+                Instructions[766],
+            0x3F => // SRL A
+                Instructions[759],
+            0x40 => // BIT 0,B
+                Instructions[62],
+            0x41 => // BIT 0,C
+                Instructions[63],
+            0x42 => // BIT 0,D
+                Instructions[64],
+            0x43 => // BIT 0,E
+                Instructions[65],
+            0x44 => // BIT 0,H
+                Instructions[66],
+            0x45 => // BIT 0,L
+                Instructions[67],
+            0x46 => // BIT 0,(HL)
+                Instructions[68],
+            0x47 => // BIT 0,A
+                Instructions[61],
+            0x48 => // BIT 1,B
+                Instructions[72],
+            0x49 => // BIT 1,C
+                Instructions[73],
+            0x4A => // BIT 1,D
+                Instructions[74],
+            0x4B => // BIT 1,E
+                Instructions[75],
+            0x4C => // BIT 1,H
+                Instructions[76],
+            0x4D => // BIT 1,L
+                Instructions[77],
+            0x4E => // BIT 1,(HL)
+                Instructions[78],
+            0x4F => // BIT 1,A
+                Instructions[71],
+            0x50 => // BIT 2,B
+                Instructions[82],
+            0x51 => // BIT 2,C
+                Instructions[83],
+            0x52 => // BIT 2,D
+                Instructions[84],
+            0x53 => // BIT 2,E
+                Instructions[85],
+            0x54 => // BIT 2,H
+                Instructions[86],
+            0x55 => // BIT 2,L
+                Instructions[87],
+            0x56 => // BIT 2,(HL)
+                Instructions[88],
+            0x57 => // BIT 2,A
+                Instructions[81],
+            0x58 => // BIT 3,B
+                Instructions[92],
+            0x59 => // BIT 3,C
+                Instructions[93],
+            0x5A => // BIT 3,D
+                Instructions[94],
+            0x5B => // BIT 3,E
+                Instructions[95],
+            0x5C => // BIT 3,H
+                Instructions[96],
+            0x5D => // BIT 3,L
+                Instructions[97],
+            0x5E => // BIT 3,(HL)
+                Instructions[98],
+            0x5F => // BIT 3,A
+                Instructions[91],
+            0x60 => // BIT 4,B
+                Instructions[102],
+            0x61 => // BIT 4,C
+                Instructions[103],
+            0x62 => // BIT 4,D
+                Instructions[104],
+            0x63 => // BIT 4,E
+                Instructions[105],
+            0x64 => // BIT 4,H
+                Instructions[106],
+            0x65 => // BIT 4,L
+                Instructions[107],
+            0x66 => // BIT 4,(HL)
+                Instructions[108],
+            0x67 => // BIT 4,A
+                Instructions[101],
+            0x68 => // BIT 5,B
+                Instructions[112],
+            0x69 => // BIT 5,C
+                Instructions[113],
+            0x6A => // BIT 5,D
+                Instructions[114],
+            0x6B => // BIT 5,E
+                Instructions[115],
+            0x6C => // BIT 5,H
+                Instructions[116],
+            0x6D => // BIT 5,L
+                Instructions[117],
+            0x6E => // BIT 5,(HL)
+                Instructions[118],
+            0x6F => // BIT 5,A
+                Instructions[111],
+            0x70 => // BIT 6,B
+                Instructions[122],
+            0x71 => // BIT 6,C
+                Instructions[123],
+            0x72 => // BIT 6,D
+                Instructions[124],
+            0x73 => // BIT 6,E
+                Instructions[125],
+            0x74 => // BIT 6,H
+                Instructions[126],
+            0x75 => // BIT 6,L
+                Instructions[127],
+            0x76 => // BIT 6,(HL)
+                Instructions[128],
+            0x77 => // BIT 6,A
+                Instructions[121],
+            0x78 => // BIT 7,B
+                Instructions[132],
+            0x79 => // BIT 7,C
+                Instructions[133],
+            0x7A => // BIT 7,D
+                Instructions[134],
+            0x7B => // BIT 7,E
+                Instructions[135],
+            0x7C => // BIT 7,H
+                Instructions[136],
+            0x7D => // BIT 7,L
+                Instructions[137],
+            0x7E => // BIT 7,(HL)
+                Instructions[138],
+            0x7F => // BIT 7,A
+                Instructions[131],
+            0x80 => // RES 0,B
+                Instructions[487],
+            0x81 => // RES 0,C
+                Instructions[488],
+            0x82 => // RES 0,D
+                Instructions[489],
+            0x83 => // RES 0,E
+                Instructions[490],
+            0x84 => // RES 0,H
+                Instructions[491],
+            0x85 => // RES 0,L
+                Instructions[492],
+            0x86 => // RES 0,(HL)
+                Instructions[493],
+            0x87 => // RES 0,A
+                Instructions[486],
+            0x88 => // RES 1,B
+                Instructions[497],
+            0x89 => // RES 1,C
+                Instructions[498],
+            0x8A => // RES 1,D
+                Instructions[499],
+            0x8B => // RES 1,E
+                Instructions[500],
+            0x8C => // RES 1,H
+                Instructions[501],
+            0x8D => // RES 1,L
+                Instructions[502],
+            0x8E => // RES 1,(HL)
+                Instructions[503],
+            0x8F => // RES 1,A
+                Instructions[496],
+            0x90 => // RES 2,B
+                Instructions[507],
+            0x91 => // RES 2,C
+                Instructions[508],
+            0x92 => // RES 2,D
+                Instructions[509],
+            0x93 => // RES 2,E
+                Instructions[510],
+            0x94 => // RES 2,H
+                Instructions[511],
+            0x95 => // RES 2,L
+                Instructions[512],
+            0x96 => // RES 2,(HL)
+                Instructions[513],
+            0x97 => // RES 2,A
+                Instructions[506],
+            0x98 => // RES 3,B
+                Instructions[517],
+            0x99 => // RES 3,C
+                Instructions[518],
+            0x9A => // RES 3,D
+                Instructions[519],
+            0x9B => // RES 3,E
+                Instructions[520],
+            0x9C => // RES 3,H
+                Instructions[521],
+            0x9D => // RES 3,L
+                Instructions[522],
+            0x9E => // RES 3,(HL)
+                Instructions[523],
+            0x9F => // RES 3,A
+                Instructions[516],
+            0xA0 => // RES 4,B
+                Instructions[527],
+            0xA1 => // RES 4,C
+                Instructions[528],
+            0xA2 => // RES 4,D
+                Instructions[529],
+            0xA3 => // RES 4,E
+                Instructions[530],
+            0xA4 => // RES 4,H
+                Instructions[531],
+            0xA5 => // RES 4,L
+                Instructions[532],
+            0xA6 => // RES 4,(HL)
+                Instructions[533],
+            0xA7 => // RES 4,A
+                Instructions[526],
+            0xA8 => // RES 5,B
+                Instructions[537],
+            0xA9 => // RES 5,C
+                Instructions[538],
+            0xAA => // RES 5,D
+                Instructions[539],
+            0xAB => // RES 5,E
+                Instructions[540],
+            0xAC => // RES 5,H
+                Instructions[541],
+            0xAD => // RES 5,L
+                Instructions[542],
+            0xAE => // RES 5,(HL)
+                Instructions[543],
+            0xAF => // RES 5,A
+                Instructions[536],
+            0xB0 => // RES 6,B
+                Instructions[547],
+            0xB1 => // RES 6,C
+                Instructions[548],
+            0xB2 => // RES 6,D
+                Instructions[549],
+            0xB3 => // RES 6,E
+                Instructions[550],
+            0xB4 => // RES 6,H
+                Instructions[551],
+            0xB5 => // RES 6,L
+                Instructions[552],
+            0xB6 => // RES 6,(HL)
+                Instructions[553],
+            0xB7 => // RES 6,A
+                Instructions[546],
+            0xB8 => // RES 7,B
+                Instructions[557],
+            0xB9 => // RES 7,C
+                Instructions[558],
+            0xBA => // RES 7,D
+                Instructions[559],
+            0xBB => // RES 7,E
+                Instructions[560],
+            0xBC => // RES 7,H
+                Instructions[561],
+            0xBD => // RES 7,L
+                Instructions[562],
+            0xBE => // RES 7,(HL)
+                Instructions[563],
+            0xBF => // RES 7,A
+                Instructions[556],
+            0xC0 => // SET 0,B
+                Instructions[652],
+            0xC1 => // SET 0,C
+                Instructions[653],
+            0xC2 => // SET 0,D
+                Instructions[654],
+            0xC3 => // SET 0,E
+                Instructions[655],
+            0xC4 => // SET 0,H
+                Instructions[656],
+            0xC5 => // SET 0,L
+                Instructions[657],
+            0xC6 => // SET 0,(HL)
+                Instructions[658],
+            0xC7 => // SET 0,A
+                Instructions[651],
+            0xC8 => // SET 1,B
+                Instructions[662],
+            0xC9 => // SET 1,C
+                Instructions[663],
+            0xCA => // SET 1,D
+                Instructions[664],
+            0xCB => // SET 1,E
+                Instructions[665],
+            0xCC => // SET 1,H
+                Instructions[666],
+            0xCD => // SET 1,L
+                Instructions[667],
+            0xCE => // SET 1,(HL)
+                Instructions[668],
+            0xCF => // SET 1,A
+                Instructions[661],
+            0xD0 => // SET 2,B
+                Instructions[672],
+            0xD1 => // SET 2,C
+                Instructions[673],
+            0xD2 => // SET 2,D
+                Instructions[674],
+            0xD3 => // SET 2,E
+                Instructions[675],
+            0xD4 => // SET 2,H
+                Instructions[676],
+            0xD5 => // SET 2,L
+                Instructions[677],
+            0xD6 => // SET 2,(HL)
+                Instructions[678],
+            0xD7 => // SET 2,A
+                Instructions[671],
+            0xD8 => // SET 3,B
+                Instructions[682],
+            0xD9 => // SET 3,C
+                Instructions[683],
+            0xDA => // SET 3,D
+                Instructions[684],
+            0xDB => // SET 3,E
+                Instructions[685],
+            0xDC => // SET 3,H
+                Instructions[686],
+            0xDD => // SET 3,L
+                Instructions[687],
+            0xDE => // SET 3,(HL)
+                Instructions[688],
+            0xDF => // SET 3,A
+                Instructions[681],
+            0xE0 => // SET 4,B
+                Instructions[692],
+            0xE1 => // SET 4,C
+                Instructions[693],
+            0xE2 => // SET 4,D
+                Instructions[694],
+            0xE3 => // SET 4,E
+                Instructions[695],
+            0xE4 => // SET 4,H
+                Instructions[696],
+            0xE5 => // SET 4,L
+                Instructions[697],
+            0xE6 => // SET 4,(HL)
+                Instructions[698],
+            0xE7 => // SET 4,A
+                Instructions[691],
+            0xE8 => // SET 5,B
+                Instructions[702],
+            0xE9 => // SET 5,C
+                Instructions[703],
+            0xEA => // SET 5,D
+                Instructions[704],
+            0xEB => // SET 5,E
+                Instructions[705],
+            0xEC => // SET 5,H
+                Instructions[706],
+            0xED => // SET 5,L
+                Instructions[707],
+            0xEE => // SET 5,(HL)
+                Instructions[708],
+            0xEF => // SET 5,A
+                Instructions[701],
+            0xF0 => // SET 6,B
+                Instructions[712],
+            0xF1 => // SET 6,C
+                Instructions[713],
+            0xF2 => // SET 6,D
+                Instructions[714],
+            0xF3 => // SET 6,E
+                Instructions[715],
+            0xF4 => // SET 6,H
+                Instructions[716],
+            0xF5 => // SET 6,L
+                Instructions[717],
+            0xF6 => // SET 6,(HL)
+                Instructions[718],
+            0xF7 => // SET 6,A
+                Instructions[711],
+            0xF8 => // SET 7,B
+                Instructions[722],
+            0xF9 => // SET 7,C
+                Instructions[723],
+            0xFA => // SET 7,D
+                Instructions[724],
+            0xFB => // SET 7,E
+                Instructions[725],
+            0xFC => // SET 7,H
+                Instructions[726],
+            0xFD => // SET 7,L
+                Instructions[727],
+            0xFE => // SET 7,(HL)
+                Instructions[728],
+            0xFF => // SET 7,A
+                Instructions[721]
+        };
     }
 
     #region Auto-generated code.

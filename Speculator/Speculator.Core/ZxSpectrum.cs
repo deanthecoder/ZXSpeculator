@@ -27,7 +27,7 @@ public class ZxSpectrum : IDisposable
     {
         TheDisplay = display;
         PortHandler = new ZxPortHandler(SoundHandler, TheDisplay);
-        TheCpu = new CPU(new Memory(64 * 1024, display), PortHandler, SoundHandler)
+        TheCpu = new CPU(new Memory(display), PortHandler, SoundHandler)
         {
             TStatesPerInterrupt = TStatesPerRenderFrame
         };
