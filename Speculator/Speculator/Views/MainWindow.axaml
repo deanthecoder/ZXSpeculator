@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         mc:Ignorable="d"
-        d:DesignHeight="500"
+        d:DesignHeight="600"
         x:Class="Speculator.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/app.ico"
@@ -56,7 +56,7 @@
             <Grid Grid.Column="1"
                   RowDefinitions="Auto,Auto,Auto,Auto,*"
                   Background="#10ffffff"
-                  IsVisible="{Binding IsDebuggingEnabled}">
+                  IsVisible="{Binding !IsDebuggingEnabled}">
                 <Grid.Styles>
                     <Style Selector="TextBlock">
                         <Setter Property="HorizontalAlignment" Value="Right"/>
@@ -81,7 +81,7 @@
                 
                 <!-- Registers -->
                 <Grid ColumnDefinitions="Auto,Auto,32,Auto,Auto,*"
-                      RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
+                      RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto"
                       HorizontalAlignment="Center"
                       Margin="0,8,0,0"
                       DataContext="{Binding Speccy.TheCpu.TheRegisters}">
@@ -114,58 +114,90 @@
                     <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding IX, StringFormat={}{0:X4}, Mode=OneWay}"/>
                     <TextBlock Grid.Row="5" Grid.Column="3" Text="'IY"/>
                     <TextBox Grid.Row="5" Grid.Column="4" Text="{Binding IY, StringFormat={}{0:X4}, Mode=OneWay}"/>
+
+                    <TextBlock Grid.Row="6" Grid.Column="0" Text="I"/>
+                    <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding I, StringFormat={}{0:X2}, Mode=OneWay}"/>
+                    <TextBlock Grid.Row="6" Grid.Column="3" Text="R"/>
+                    <TextBox Grid.Row="6" Grid.Column="4" Text="{Binding R, StringFormat={}{0:X2}, Mode=OneWay}"/>
                 </Grid>
 
                 <!-- Flags -->
-                <Border Grid.Row="1"
-                        DataContext="{Binding Speccy.TheCpu.TheRegisters}"
-                        HorizontalAlignment="Center"
-                        BorderThickness="1"
-                        BorderBrush="White"
-                        CornerRadius="6"
-                        Margin="0,16">
-                    <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
-                          RowDefinitions="Auto,Auto"
-                          Margin="8,4">
-                        <Grid.Styles>
-                            <Style Selector="TextBlock">
-                                <Setter Property="HorizontalAlignment" Value="Center"/>
-                                <Setter Property="Margin" Value="0"/>
-                            </Style>
-                            <Style Selector="avalonia|MaterialIcon[Tag=True]">
-                                <Setter Property="Kind" Value="Tick"/>
-                            </Style>
-                            <Style Selector="avalonia|MaterialIcon[Tag=False]">
-                                <Setter Property="Kind" Value="Close"/>
-                                <Setter Property="Foreground" Value="DarkGray" />
-                            </Style>
-                        </Grid.Styles>
-                            
-                        <TextBlock Grid.Column="0" Grid.Row="0" Text="S" ToolTip.Tip="Sign"/>
-                        <avalonia:MaterialIcon Grid.Column="0" Grid.Row="1" ToolTip.Tip="Sign" Tag="{Binding SignFlag}"/>
+                <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Border DataContext="{Binding Speccy.TheCpu.TheRegisters}"
+                            BorderThickness="1"
+                            BorderBrush="White"
+                            CornerRadius="6"
+                            Margin="0,16">
+                        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+                              RowDefinitions="Auto,Auto"
+                              Margin="8,4">
+                            <Grid.Styles>
+                                <Style Selector="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                    <Setter Property="Margin" Value="0"/>
+                                </Style>
+                                <Style Selector="avalonia|MaterialIcon[Tag=True]">
+                                    <Setter Property="Kind" Value="Tick"/>
+                                </Style>
+                                <Style Selector="avalonia|MaterialIcon[Tag=False]">
+                                    <Setter Property="Kind" Value="Close"/>
+                                    <Setter Property="Foreground" Value="DarkGray" />
+                                </Style>
+                            </Grid.Styles>
+                                
+                            <TextBlock Grid.Column="0" Grid.Row="0" Text="S" ToolTip.Tip="Sign"/>
+                            <avalonia:MaterialIcon Grid.Column="0" Grid.Row="1" ToolTip.Tip="Sign" Tag="{Binding SignFlag}"/>
 
-                        <TextBlock Grid.Column="1" Grid.Row="0" Text="Z" ToolTip.Tip="Zero" />
-                        <avalonia:MaterialIcon Grid.Column="1" Grid.Row="1" ToolTip.Tip="Zero" Tag="{Binding ZeroFlag}" />
+                            <TextBlock Grid.Column="1" Grid.Row="0" Text="Z" ToolTip.Tip="Zero" />
+                            <avalonia:MaterialIcon Grid.Column="1" Grid.Row="1" ToolTip.Tip="Zero" Tag="{Binding ZeroFlag}" />
 
-                        <TextBlock Grid.Column="2" Grid.Row="0" Text="5" ToolTip.Tip="F5" />
-                        <avalonia:MaterialIcon Grid.Column="2" Grid.Row="1" ToolTip.Tip="F5" Tag="{Binding Flag5}" />
+                            <TextBlock Grid.Column="2" Grid.Row="0" Text="5" ToolTip.Tip="F5" />
+                            <avalonia:MaterialIcon Grid.Column="2" Grid.Row="1" ToolTip.Tip="F5" Tag="{Binding Flag5}" />
 
-                        <TextBlock Grid.Column="3" Grid.Row="0" Text="H" ToolTip.Tip="Half Carry" />
-                        <avalonia:MaterialIcon Grid.Column="3" Grid.Row="1" ToolTip.Tip="Half Carry" Tag="{Binding HalfCarryFlag}" />
+                            <TextBlock Grid.Column="3" Grid.Row="0" Text="H" ToolTip.Tip="Half Carry" />
+                            <avalonia:MaterialIcon Grid.Column="3" Grid.Row="1" ToolTip.Tip="Half Carry" Tag="{Binding HalfCarryFlag}" />
 
-                        <TextBlock Grid.Column="4" Grid.Row="0" Text="3" ToolTip.Tip="F3" />
-                        <avalonia:MaterialIcon Grid.Column="4" Grid.Row="1" ToolTip.Tip="F3" Tag="{Binding Flag3}" />
+                            <TextBlock Grid.Column="4" Grid.Row="0" Text="3" ToolTip.Tip="F3" />
+                            <avalonia:MaterialIcon Grid.Column="4" Grid.Row="1" ToolTip.Tip="F3" Tag="{Binding Flag3}" />
 
-                        <TextBlock Grid.Column="5" Grid.Row="0" Text="P" ToolTip.Tip="Parity/Overflow" />
-                        <avalonia:MaterialIcon Grid.Column="5" Grid.Row="1" ToolTip.Tip="Parity/Overflow" Tag="{Binding ParityFlag}" />
+                            <TextBlock Grid.Column="5" Grid.Row="0" Text="P" ToolTip.Tip="Parity/Overflow" />
+                            <avalonia:MaterialIcon Grid.Column="5" Grid.Row="1" ToolTip.Tip="Parity/Overflow" Tag="{Binding ParityFlag}" />
 
-                        <TextBlock Grid.Column="6" Grid.Row="0" Text="N" ToolTip.Tip="Subtract" />
-                        <avalonia:MaterialIcon Grid.Column="6" Grid.Row="1" ToolTip.Tip="Subtract" Tag="{Binding SubtractFlag}" />
+                            <TextBlock Grid.Column="6" Grid.Row="0" Text="N" ToolTip.Tip="Subtract" />
+                            <avalonia:MaterialIcon Grid.Column="6" Grid.Row="1" ToolTip.Tip="Subtract" Tag="{Binding SubtractFlag}" />
 
-                        <TextBlock Grid.Column="7" Grid.Row="0" Text="C" ToolTip.Tip="Carry" />
-                        <avalonia:MaterialIcon Grid.Column="7" Grid.Row="1" ToolTip.Tip="Carry" Tag="{Binding CarryFlag}" />
-                    </Grid>
-                </Border>
+                            <TextBlock Grid.Column="7" Grid.Row="0" Text="C" ToolTip.Tip="Carry" />
+                            <avalonia:MaterialIcon Grid.Column="7" Grid.Row="1" ToolTip.Tip="Carry" Tag="{Binding CarryFlag}" />
+                        </Grid>
+                    </Border>
+                    <Border DataContext="{Binding Speccy.TheCpu.TheRegisters}"
+                            BorderThickness="1"
+                            BorderBrush="White"
+                            CornerRadius="6"
+                            Margin="4,16,0,16">
+                        <Grid ColumnDefinitions="Auto,Auto,12,Auto,Auto"
+                              Margin="8,4">
+                            <Grid.Styles>
+                                <Style Selector="TextBlock">
+                                    <Setter Property="Margin" Value="2"/>
+                                </Style>
+                                <Style Selector="avalonia|MaterialIcon[Tag=True]">
+                                    <Setter Property="Kind" Value="Tick"/>
+                                </Style>
+                                <Style Selector="avalonia|MaterialIcon[Tag=False]">
+                                    <Setter Property="Kind" Value="Close"/>
+                                    <Setter Property="Foreground" Value="DarkGray" />
+                                </Style>
+                            </Grid.Styles>
+                                
+                            <TextBlock Grid.Column="0" Text="IFF1"/>
+                            <avalonia:MaterialIcon Grid.Column="1" Tag="{Binding IFF1}"/>
+
+                            <TextBlock Grid.Column="3" Text="IFF2"/>
+                            <avalonia:MaterialIcon Grid.Column="4" Tag="{Binding IFF2}"/>
+                        </Grid>
+                    </Border>
+                </StackPanel>
 
                 <!-- Control buttons -->
                 <Grid Grid.Row="2" ColumnDefinitions="Auto,*" Margin="16,8">
