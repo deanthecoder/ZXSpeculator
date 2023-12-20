@@ -26,4 +26,8 @@
       </None>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\CSharp.Utils\CSharp.Utils.csproj" />
+    </ItemGroup>
+
 </Project>

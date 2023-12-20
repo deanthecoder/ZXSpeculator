@@ -13,7 +13,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 
-namespace Speculator.Extensions;
+namespace CSharp.Utils.Extensions;
 
 public static class ApplicationExtensions
 {

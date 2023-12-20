@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speculator", "Speculator\Sp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speculator.Core", "Speculator.Core\Speculator.Core.csproj", "{90E74FB5-A185-4DA4-B6D1-B93809FA3FBB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharp.Utils", "CSharp.Utils\CSharp.Utils.csproj", "{FAD6E5FB-2A94-4E53-A0B9-85BD36C0C8DD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{90E74FB5-A185-4DA4-B6D1-B93809FA3FBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90E74FB5-A185-4DA4-B6D1-B93809FA3FBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90E74FB5-A185-4DA4-B6D1-B93809FA3FBB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FAD6E5FB-2A94-4E53-A0B9-85BD36C0C8DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FAD6E5FB-2A94-4E53-A0B9-85BD36C0C8DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FAD6E5FB-2A94-4E53-A0B9-85BD36C0C8DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FAD6E5FB-2A94-4E53-A0B9-85BD36C0C8DD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

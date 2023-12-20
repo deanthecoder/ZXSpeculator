@@ -16,13 +16,8 @@ namespace Speculator.Core;
 public class Memory
 {
     private readonly ZxDisplay m_zxDisplay;
-    private int m_romSize;
-    
-    public int RomSize
-    {
-        get => m_romSize;
-        set => m_romSize = value;
-    }
+
+    public int RomSize { get; set; }
 
     public Memory(ZxDisplay zxDisplay)
     {

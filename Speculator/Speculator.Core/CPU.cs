@@ -12,11 +12,12 @@
 // todo - fix all the header comments.
 
 using System.Diagnostics;
+using CSharp.Utils.ViewModels;
 
 // ReSharper disable InconsistentNaming
 namespace Speculator.Core;
 
-public partial class CPU
+public partial class CPU : ViewModelBase
 {
     private readonly SoundHandler m_soundHandler;
     private Z80Instructions InstructionSet { get; }
@@ -42,16 +43,14 @@ public partial class CPU
         get => m_fullThrottle;
         set
         {
-            if (m_fullThrottle == value)
-                return;
-            m_fullThrottle = value;
-            ClockSync.Reset(ref m_TStatesSinceCpuStart);
+            if (SetField(ref m_fullThrottle, value))
+                ClockSync.Reset(ref m_TStatesSinceCpuStart);
         }
     }
 
     public void PowerOnAsync()
     {
-        TheRegisters.clear();
+        TheRegisters.Clear();
         m_cpuThread = new Thread(RunLoop) { Name = "Z80 CPU" };
         m_cpuThread.Start();
     }
@@ -70,12 +69,28 @@ public partial class CPU
     /// <summary>
     /// Triggers the event which allows the CPU to 'tick' to the next instruction.
     /// </summary>
-    public void DebuggerTick()
+    public void DebuggerStep()
     {
         m_debuggerTickEvent.Set();
+        RaiseAllPropertyChanged();
     }
 
-    public bool IsDebugging { get; set; }
+    /// <summary>
+    /// We pause the CPU when loading a new ROM/snapshot.
+    /// </summary>
+    public bool IsPaused { get; set; }
+
+    public bool IsDebugging
+    {
+        get => m_isDebugging;
+        set
+        {
+            if (!SetField(ref m_isDebugging, value))
+                return;
+            ClockSync.Reset(ref m_TStatesSinceCpuStart);
+            RaiseAllPropertyChanged();
+        }
+    }
 
     private bool m_isHalted;
 
@@ -90,20 +105,30 @@ public partial class CPU
         m_shutdownRequested = false;
         m_resetRequested = false;
         m_isHalted = false;
+        IsPaused = false;
 
         while (!m_shutdownRequested)
         {
+            if (IsPaused)
+            {
+                Thread.Sleep(100);
+                continue;
+            }
+            
             // Allow debugger to stall execution.
             if (IsDebugging)
             {
                 if (!m_debuggerTickEvent.WaitOne(TimeSpan.FromMilliseconds(100)))
                     continue; // Timed out.
             }
-
+            else
+            {
+                // Sync the clock speed.
+                if (!FullThrottle)
+                    ClockSync.SyncWithRealTime(() => m_TStatesSinceCpuStart);
+            }
+            
             // Execute instruction.
-            if (!FullThrottle)
-                ClockSync.SyncWithRealTime(() => m_TStatesSinceCpuStart);
-
             var TStates = ExecuteAtPC();
             m_TStatesSinceCpuStart += TStates;
             
@@ -167,6 +192,7 @@ public partial class CPU
 
     private readonly List<string> m_recentInstructionList = new List<string>();
     private bool m_fullThrottle;
+    private bool m_isDebugging;
     public ClockSync ClockSync { get; }
 
     private byte doIN_addrC()
@@ -354,17 +380,5 @@ public partial class CPU
         }
 
         return instruction.ByteCount;
-    }
-
-    public int RegisterValue(string regName)
-    {
-        switch (regName)
-        {
-            case "(HL)":
-                return MainMemory.Peek(TheRegisters.Main.HL);
-
-            default:
-                return TheRegisters.RegisterValue(regName);
-        }
     }
 }

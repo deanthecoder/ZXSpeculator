@@ -32,7 +32,12 @@ public class SoundHandler : IDisposable
     public SoundHandler()
     {
         m_thread = new Thread(() => m_soundDevice.SoundLoop(() => m_isDisposed)) { Name = "Sound thread" };
-        m_thread.Start();
+    }
+    
+    public void Start()
+    {
+        if (!m_thread.IsAlive)
+            m_thread.Start();
     }
 
     public void SetSpeakerState(bool soundBit)

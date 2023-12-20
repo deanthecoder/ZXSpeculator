@@ -30,6 +30,7 @@
 
 
     <ItemGroup>
+      <ProjectReference Include="..\CSharp.Utils\CSharp.Utils.csproj" />
       <ProjectReference Include="..\Speculator.Core\Speculator.Core.csproj" />
     </ItemGroup>
 

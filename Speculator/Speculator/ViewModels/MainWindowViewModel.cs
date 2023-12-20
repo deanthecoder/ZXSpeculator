@@ -11,9 +11,10 @@
 
 using System;
 using Avalonia;
+using CSharp.Utils.Extensions;
+using CSharp.Utils.ViewModels;
 using Speculator.Commands;
 using Speculator.Core;
-using Speculator.Extensions;
 
 namespace Speculator.ViewModels;
 
@@ -23,6 +24,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     public ZxDisplay Display { get; }
     public bool IsSoundEnabled { get; private set; } = true;
     public bool IsFullThrottle { get; private set; }
+    public bool IsDebuggingEnabled { get; private set; }
 
     public MainWindowViewModel()
     {
@@ -54,7 +56,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
             ToggleFullThrottle(); // Enabling sound turns off full throttle.
         
         OnPropertyChanged(nameof(IsSoundEnabled));
-        Speccy.SetSoundEnabled(IsSoundEnabled);
+        Speccy.SoundHandler.SetSoundEnabled(IsSoundEnabled);
     }
 
     public void ToggleFullThrottle()
@@ -66,6 +68,17 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         
         OnPropertyChanged(nameof(IsFullThrottle));
         Speccy.TheCpu.FullThrottle = IsFullThrottle;
+    }
+    
+    public void ToggleDebugging()
+    {
+        IsDebuggingEnabled = !IsDebuggingEnabled;
+        
+        if (IsDebuggingEnabled && IsSoundEnabled)
+            ToggleSound(); // Debugging turns off sound.
+        
+        OnPropertyChanged(nameof(IsDebuggingEnabled));
+        Speccy.TheCpu.IsDebugging = IsDebuggingEnabled;
     }
 
     public void Dispose() => Speccy.Dispose();

@@ -80,10 +80,7 @@ public class SoundDevice
         m_channelCount = outStream.Layout.ChannelCount;
 
         while (!isCancelled())
-        {
-            if (m_isSoundEnabled)
-                api.FlushEvents();
-        }
+            api.FlushEvents();
 
         outStream.Dispose();
         device.RemoveReference();
@@ -94,12 +91,13 @@ public class SoundDevice
     /// </summary>
     private void WriteCallback(SoundIOOutStream outStream, int frameCountMin, int frameCountMax)
     {
-        if (!m_isSoundEnabled)
-            return;
-        
         lock (m_soundBuffer)
         {
             var toWrite = frameCountMin;
+            
+            if (!m_isSoundEnabled)
+                m_soundBuffer.Clear();
+            
             if (m_soundBuffer.Count > toWrite)
                 toWrite = Math.Min(m_soundBuffer.Count, frameCountMax);
             
@@ -177,10 +175,5 @@ public class SoundDevice
     public void SetEnabled(bool isSoundEnabled)
     {
         m_isSoundEnabled = isSoundEnabled;
-        if (!isSoundEnabled)
-        {
-            lock (m_soundBuffer)
-                m_soundBuffer.Clear();
-        }
     }
 }

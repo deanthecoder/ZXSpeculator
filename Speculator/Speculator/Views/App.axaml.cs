@@ -10,6 +10,7 @@
 // or modifying this code.
 
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Speculator.ViewModels;
@@ -38,7 +39,9 @@ public partial class App : Application
             {
                 DataContext = viewModel
             };
-            viewModel.Speccy.PowerOnAsync();
+            
+            if (!Design.IsDesignMode)
+                viewModel.Speccy.PowerOnAsync();
         }
 
         base.OnFrameworkInitializationCompleted();

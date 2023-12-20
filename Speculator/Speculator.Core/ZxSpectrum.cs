@@ -22,6 +22,11 @@ public class ZxSpectrum : IDisposable
     private const int TStatesPerRenderFrame = 69888;
 
     private SoundHandler m_soundHandler;
+    private ZxDisplay TheDisplay { get; }
+
+    public CPU TheCpu { get; }
+    public ZxPortHandler PortHandler { get; }
+    public SoundHandler SoundHandler => m_soundHandler ??= new SoundHandler();
 
     public ZxSpectrum(ZxDisplay display)
     {
@@ -35,14 +40,7 @@ public class ZxSpectrum : IDisposable
 
         TheCpu.RenderCallbackEvent += TheCPU_RenderCallbackEvent;
     }
-
-    private SoundHandler SoundHandler => m_soundHandler ??= new SoundHandler();
-
-    public CPU TheCpu { get; }
-    private ZxDisplay TheDisplay { get; }
-
-    public ZxPortHandler PortHandler { get; }
-
+    
     public ZxSpectrum LoadBasicRom()
     {
         var systemRom = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? ".", "ROMs", "48.rom");
@@ -61,6 +59,7 @@ public class ZxSpectrum : IDisposable
     public ZxSpectrum PowerOnAsync()
     {
         TheCpu.PowerOnAsync();
+        SoundHandler.Start();
         return this;
     }
     
@@ -69,7 +68,4 @@ public class ZxSpectrum : IDisposable
         new ZxFileIo(TheCpu, TheDisplay).LoadFile(romFile);
         return this;
     }
-    
-    public void SetSoundEnabled(bool isSoundEnabled) =>
-        SoundHandler.SetSoundEnabled(isSoundEnabled);
 }

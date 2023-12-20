@@ -37,9 +37,9 @@ public class ZxFileIo
         var resetDebuggingFlag = false;
         try
         {
-            if (!m_cpu.IsDebugging)
+            if (!m_cpu.IsPaused)
             {
-                m_cpu.IsDebugging = true;
+                m_cpu.IsPaused = true;
                 resetDebuggingFlag = true;
                 Thread.Sleep(500);
             }
@@ -49,7 +49,7 @@ public class ZxFileIo
         finally
         {
             if (resetDebuggingFlag)
-                m_cpu.IsDebugging = false;
+                m_cpu.IsPaused = false;
             m_zxDisplay.IsScreenDirty = true;
         }
     }
@@ -85,7 +85,7 @@ public class ZxFileIo
     private void LoadZ80(FileInfo file)
     {
         using var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read);
-        m_cpu.TheRegisters.clear();
+        m_cpu.TheRegisters.Clear();
         m_cpu.TheRegisters.Main.A = (byte)stream.ReadByte();
         m_cpu.TheRegisters.Main.F = (byte)stream.ReadByte();
         m_cpu.TheRegisters.Main.BC = ReadSNAWord(stream);
@@ -175,9 +175,9 @@ public class ZxFileIo
         var resetDebuggingFlag = false;
         try
         {
-            if (!m_cpu.IsDebugging)
+            if (!m_cpu.IsPaused)
             {
-                m_cpu.IsDebugging = true;
+                m_cpu.IsPaused = true;
                 resetDebuggingFlag = true;
                 Thread.Sleep(500);
             }
@@ -192,7 +192,7 @@ public class ZxFileIo
         finally
         {
             if (resetDebuggingFlag)
-                m_cpu.IsDebugging = false;
+                m_cpu.IsPaused = false;
         }
     }
     
@@ -200,7 +200,7 @@ public class ZxFileIo
     {
         using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
         {
-            m_cpu.TheRegisters.clear();
+            m_cpu.TheRegisters.Clear();
             m_cpu.TheRegisters.I = (byte)stream.ReadByte();
             m_cpu.TheRegisters.Alt.HL = ReadSNAWord(stream);
             m_cpu.TheRegisters.Alt.DE = ReadSNAWord(stream);

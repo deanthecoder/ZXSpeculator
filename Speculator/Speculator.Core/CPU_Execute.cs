@@ -545,7 +545,7 @@ public partial class CPU
                 return instruction.TStateCount;
             }
             case Z80Instructions.InstructionID.EXX:
-                TheRegisters.exchangeRegisterSet();
+                TheRegisters.ExchangeRegisterSet();
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.EX_addrSP_HL:
             {

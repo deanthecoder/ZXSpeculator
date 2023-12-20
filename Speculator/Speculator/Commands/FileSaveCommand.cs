@@ -15,7 +15,7 @@ using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
-using Speculator.Extensions;
+using CSharp.Utils.Extensions;
 
 namespace Speculator.Commands;
 
