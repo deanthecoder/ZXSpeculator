@@ -12,6 +12,7 @@
 // todo - fix all the header comments.
 
 using System.Diagnostics;
+using System.Text;
 using CSharp.Utils.ViewModels;
 
 // ReSharper disable InconsistentNaming
@@ -335,7 +336,27 @@ public partial class CPU : ViewModelBase
         }
     }
 
-    public int Disassemble(ushort addr, ref string hexBytes, out string mnemonics)
+    public string Disassembly
+    {
+        get
+        {
+            var sb = new StringBuilder();
+            var pc = TheRegisters.PC;
+            for (var i = 0; i < 6; i++)
+            {
+                var hexBytes = string.Empty;
+                var pcOffset = Disassemble(pc, ref hexBytes, out var mnemonics);
+                sb.AppendLine($"{pc:X04}: {mnemonics,-12}  {hexBytes,-11}");
+                if (pcOffset == 0)
+                    break;
+                pc += pcOffset;
+            }
+
+            return sb.ToString();
+        }
+    }
+
+    private ushort Disassemble(ushort addr, ref string hexBytes, out string mnemonics)
     {
         var instruction = InstructionSet.findInstructionAtMemoryLocation(MainMemory, addr);
 
