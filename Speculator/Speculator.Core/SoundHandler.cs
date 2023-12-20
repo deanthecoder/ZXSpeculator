@@ -49,6 +49,9 @@ public class SoundHandler : IDisposable
 
     public void SampleSpeakerState(long tStateCount)
     {
+        if (!m_isSoundEnabled)
+            return;
+        
         // Update the count of on/off speaker states.
         m_speakerStates[m_speakerState ? 1 : 0]++;
 
@@ -65,7 +68,10 @@ public class SoundHandler : IDisposable
         // Append to the sample buffer.
         m_soundDevice.AddSample(m_isSoundEnabled ? sampleValue : 0.0);
     }
-    
-    public void SetSoundEnabled(bool isSoundEnabled) =>
+
+    public void SetSoundEnabled(bool isSoundEnabled)
+    {
         m_isSoundEnabled = isSoundEnabled;
+        m_soundDevice.SetEnabled(isSoundEnabled);
+    }
 }

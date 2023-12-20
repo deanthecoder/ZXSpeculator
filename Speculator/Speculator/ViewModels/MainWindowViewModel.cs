@@ -22,6 +22,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     public ZxSpectrum Speccy { get; }
     public ZxDisplay Display { get; }
     public bool IsSoundEnabled { get; private set; } = true;
+    public bool IsFullThrottle { get; private set; }
 
     public MainWindowViewModel()
     {
@@ -48,8 +49,23 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     public void ToggleSound()
     {
         IsSoundEnabled = !IsSoundEnabled;
+        
+        if (IsSoundEnabled && IsFullThrottle)
+            ToggleFullThrottle(); // Enabling sound turns off full throttle.
+        
         OnPropertyChanged(nameof(IsSoundEnabled));
         Speccy.SetSoundEnabled(IsSoundEnabled);
+    }
+
+    public void ToggleFullThrottle()
+    {
+        IsFullThrottle = !IsFullThrottle;
+        
+        if (IsFullThrottle && IsSoundEnabled)
+            ToggleSound(); // Full throttle turns off sound.
+        
+        OnPropertyChanged(nameof(IsFullThrottle));
+        Speccy.TheCpu.FullThrottle = IsFullThrottle;
     }
 
     public void Dispose() => Speccy.Dispose();

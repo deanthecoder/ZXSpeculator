@@ -37,7 +37,17 @@ public partial class CPU
         ClockSync = new ClockSync(TStatesPerSecond);
     }
 
-    public bool FullThrottle { get; set; }
+    public bool FullThrottle
+    {
+        get => m_fullThrottle;
+        set
+        {
+            if (m_fullThrottle == value)
+                return;
+            m_fullThrottle = value;
+            ClockSync.Reset(ref m_TStatesSinceCpuStart);
+        }
+    }
 
     public void PowerOnAsync()
     {
@@ -72,7 +82,6 @@ public partial class CPU
     private readonly AutoResetEvent m_debuggerTickEvent = new AutoResetEvent(false);
     private bool m_shutdownRequested;
     private bool m_resetRequested;
-    private int m_interruptCount;
 
     private void RunLoop()
     {
@@ -82,7 +91,6 @@ public partial class CPU
         m_resetRequested = false;
         m_isHalted = false;
 
-        var stopwatch = Stopwatch.StartNew();
         while (!m_shutdownRequested)
         {
             // Allow debugger to stall execution.
@@ -94,55 +102,46 @@ public partial class CPU
 
             // Execute instruction.
             if (!FullThrottle)
-                ClockSync.SyncWithRealTime(TStatesSinceCpuStart);
+                ClockSync.SyncWithRealTime(() => m_TStatesSinceCpuStart);
 
             var TStates = ExecuteAtPC();
-            TStatesSinceCpuStart += TStates;
+            m_TStatesSinceCpuStart += TStates;
             
             // Record speaker state.
-            m_soundHandler.SampleSpeakerState(TStatesSinceCpuStart);
+            m_soundHandler.SampleSpeakerState(m_TStatesSinceCpuStart);
 
             // Handle interrupts.
             m_TStatesSinceInterrupt += TStates;
-            if (TStatesPerInterrupt > 0 && m_TStatesSinceInterrupt >= TStatesPerInterrupt)
+            if (TStatesPerInterrupt == 0 || m_TStatesSinceInterrupt < TStatesPerInterrupt)
+                continue;
+            if (m_isHalted)
             {
-                if (m_interruptCount++ == 50)
+                m_isHalted = false;
+                TheRegisters.PC++;
+            }
+
+            // Screen refresh.
+            m_TStatesSinceInterrupt -= TStatesPerInterrupt;
+            RenderCallbackEvent?.Invoke(this);
+
+            // Handle MI interrupts.
+            if (TheRegisters.IFF1)
+            {
+                TheRegisters.IFF1 = TheRegisters.IFF2 = false;
+
+                switch (TheRegisters.IM)
                 {
-                    var elapsedTime = 1.0 * stopwatch.ElapsedTicks / Stopwatch.Frequency;
-                    EmulationFPS = 50.0 / elapsedTime;
-                    m_interruptCount = 0;
-                    stopwatch.Restart();
-                }
-
-                if (m_isHalted)
-                {
-                    m_isHalted = false;
-                    TheRegisters.PC++;
-                }
-
-                // Screen refresh.
-                m_TStatesSinceInterrupt -= TStatesPerInterrupt;
-                RenderCallbackEvent?.Invoke(this);
-
-                // Handle MI interrupts.
-                if (TheRegisters.IFF1)
-                {
-                    TheRegisters.IFF1 = TheRegisters.IFF2 = false;
-
-                    switch (TheRegisters.IM)
-                    {
-                        case 0:
-                        case 1:
-                            CallIfTrue(0x0038, true);
-                            break;
-                        case 2:
-                            //Debug.Fail("IM2 currently untested."); // todo
-                            CallIfTrue(MainMemory.PeekWord((ushort)((TheRegisters.I << 8) | 0xff)), true);
-                            break;
-                        default:
-                            Debug.Fail("Invalid interrupt mode.");
-                            break;
-                    }
+                    case 0:
+                    case 1:
+                        CallIfTrue(0x0038, true);
+                        break;
+                    case 2:
+                        //Debug.Fail("IM2 currently untested."); // todo
+                        CallIfTrue(MainMemory.PeekWord((ushort)((TheRegisters.I << 8) | 0xff)), true);
+                        break;
+                    default:
+                        Debug.Fail("Invalid interrupt mode.");
+                        break;
                 }
             }
         }
@@ -156,11 +155,8 @@ public partial class CPU
         m_shutdownRequested = false;
     }
 
-    public double EmulationFPS { get; private set; }
-
     private int m_TStatesSinceInterrupt;
-
-    private long TStatesSinceCpuStart { get; set; }
+    private long m_TStatesSinceCpuStart;
 
     public const double TStatesPerSecond = 3494400;
 
@@ -170,6 +166,7 @@ public partial class CPU
     public event RenderCallbackEventHandler RenderCallbackEvent;
 
     private readonly List<string> m_recentInstructionList = new List<string>();
+    private bool m_fullThrottle;
     public ClockSync ClockSync { get; }
 
     private byte doIN_addrC()

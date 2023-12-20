@@ -12,7 +12,8 @@ public class SoundDevice
     private readonly List<double> m_soundBuffer = new List<double>(4096);
     private double m_lastSample;
     private int m_channelCount;
-    
+    private bool m_isSoundEnabled = true;
+
     public SoundDevice(int sampleHz)
     {
         m_sampleHz = sampleHz;
@@ -79,7 +80,10 @@ public class SoundDevice
         m_channelCount = outStream.Layout.ChannelCount;
 
         while (!isCancelled())
-            api.FlushEvents();
+        {
+            if (m_isSoundEnabled)
+                api.FlushEvents();
+        }
 
         outStream.Dispose();
         device.RemoveReference();
@@ -90,6 +94,9 @@ public class SoundDevice
     /// </summary>
     private void WriteCallback(SoundIOOutStream outStream, int frameCountMin, int frameCountMax)
     {
+        if (!m_isSoundEnabled)
+            return;
+        
         lock (m_soundBuffer)
         {
             var toWrite = frameCountMin;
@@ -165,5 +172,15 @@ public class SoundDevice
     {
         lock (m_soundBuffer)
             m_soundBuffer.Add(sampleValue);
+    }
+    
+    public void SetEnabled(bool isSoundEnabled)
+    {
+        m_isSoundEnabled = isSoundEnabled;
+        if (!isSoundEnabled)
+        {
+            lock (m_soundBuffer)
+                m_soundBuffer.Clear();
+        }
     }
 }

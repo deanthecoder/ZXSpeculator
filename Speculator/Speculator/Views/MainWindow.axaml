@@ -36,6 +36,10 @@
                           IsVisible="{Binding !IsSoundEnabled}" />
                 <MenuItem Header="Disable _Sound" Command="{Binding ToggleSound}"
                           IsVisible="{Binding IsSoundEnabled}" />
+                <MenuItem Header="Full Speed" Command="{Binding ToggleFullThrottle}"
+                          IsVisible="{Binding !IsFullThrottle}" />
+                <MenuItem Header="Accurate Speed" Command="{Binding ToggleFullThrottle}"
+                          IsVisible="{Binding IsFullThrottle}" />
                 <MenuItem Header="_Reset Emulator" Command="{Binding ResetMachine}"
                           InputGesture="{OnPlatform 'escape'}"/>
             </MenuItem>

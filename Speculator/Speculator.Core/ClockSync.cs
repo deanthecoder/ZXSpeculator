@@ -28,18 +28,29 @@ public class ClockSync
     /// Operations external to emulation (such as loading a ROM) should pause
     /// emulated machine whilst they're 'busy'.
     /// </summary>
-    /// <returns></returns>
     public Pauser CreatePauser() => new Pauser(m_realTime);
 
-    public void SyncWithRealTime(long ticksSinceCpuStart)
+    public void SyncWithRealTime(Func<long> ticksSinceCpuStart)
     {
-        var emulatedUptimeSecs = ticksSinceCpuStart / m_emulatedTicksPerSecond;
-        var targetRealElapsedTicks = Stopwatch.Frequency * emulatedUptimeSecs;
-
-        while (m_realTime.ElapsedTicks < targetRealElapsedTicks)
+        lock (m_realTime)
         {
-            // Absolutely nothing.
-            Thread.Sleep(0);
+            var emulatedUptimeSecs = ticksSinceCpuStart() / m_emulatedTicksPerSecond;
+            var targetRealElapsedTicks = Stopwatch.Frequency * emulatedUptimeSecs;
+
+            while (m_realTime.ElapsedTicks < targetRealElapsedTicks)
+            {
+                // Absolutely nothing.
+                Thread.Sleep(0);
+            }
+        }
+    }
+
+    public void Reset(ref long ticksSinceCpuStart)
+    {
+        lock (m_realTime)
+        {
+            m_realTime.Restart();
+            ticksSinceCpuStart = 0;
         }
     }
 
