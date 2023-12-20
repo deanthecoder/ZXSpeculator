@@ -17,6 +17,11 @@ public class ClockSync
 {
     private readonly Stopwatch m_realTime;
     private readonly double m_emulatedTicksPerSecond;
+    
+    /// <summary>
+    /// Number of T states when this stopwatch was started.
+    /// </summary>
+    private long m_tStateCountAtStart;
 
     public ClockSync(double emulatedCpuMHz)
     {
@@ -34,7 +39,7 @@ public class ClockSync
     {
         lock (m_realTime)
         {
-            var emulatedUptimeSecs = ticksSinceCpuStart() / m_emulatedTicksPerSecond;
+            var emulatedUptimeSecs = (ticksSinceCpuStart() - m_tStateCountAtStart) / m_emulatedTicksPerSecond;
             var targetRealElapsedTicks = Stopwatch.Frequency * emulatedUptimeSecs;
 
             while (m_realTime.ElapsedTicks < targetRealElapsedTicks)
@@ -45,19 +50,20 @@ public class ClockSync
         }
     }
 
-    public void Reset(ref long ticksSinceCpuStart)
+    public void Reset(long ticksSinceCpuStart)
     {
         lock (m_realTime)
         {
             m_realTime.Restart();
-            ticksSinceCpuStart = 0;
+            m_tStateCountAtStart = ticksSinceCpuStart;
         }
     }
 
     public class Pauser : IDisposable
     {
         private readonly Stopwatch m_stopwatch;
-        public Pauser(Stopwatch stopwatch)
+        
+        public Pauser(Stopwatch stopwatch) // todo - Pause stopwatch, and set m_tStateCountAtStart?
         {
             m_stopwatch = stopwatch;
             stopwatch.Stop();

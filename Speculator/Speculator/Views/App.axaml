@@ -6,12 +6,17 @@
              xmlns:themes="clr-namespace:Material.Styles.Themes;assembly=Material.Styles"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:dialogHostAvalonia="clr-namespace:DialogHostAvalonia;assembly=DialogHost.Avalonia"
+             xmlns:converters="clr-namespace:CSharp.Utils.Converters;assembly=CSharp.Utils"
              RequestedThemeVariant="Default"
              x:DataType="viewModels:AppViewModel">
 
     <Application.DataTemplates>
         <local:ViewLocator />
     </Application.DataTemplates>
+
+    <Application.Resources>
+        <converters:MarkdownToInlinesConverter x:Key="MarkdownToInlinesConverter" />
+    </Application.Resources>
 
     <Application.Styles>
         <FluentTheme />

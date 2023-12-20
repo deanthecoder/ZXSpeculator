@@ -45,7 +45,7 @@ public partial class CPU : ViewModelBase
         set
         {
             if (SetField(ref m_fullThrottle, value))
-                ClockSync.Reset(ref m_TStatesSinceCpuStart);
+                ClockSync.Reset(m_TStatesSinceCpuStart);
         }
     }
 
@@ -88,7 +88,7 @@ public partial class CPU : ViewModelBase
         {
             if (!SetField(ref m_isDebugging, value))
                 return;
-            ClockSync.Reset(ref m_TStatesSinceCpuStart);
+            ClockSync.Reset(m_TStatesSinceCpuStart);
             RaiseAllPropertyChanged();
         }
     }
@@ -346,7 +346,8 @@ public partial class CPU : ViewModelBase
             {
                 var hexBytes = string.Empty;
                 var pcOffset = Disassemble(pc, ref hexBytes, out var mnemonics);
-                sb.AppendLine($"{pc:X04}: {mnemonics,-12}  {hexBytes,-11}");
+                mnemonics = $"*{mnemonics}*";
+                sb.AppendLine($"{pc:X04}: {mnemonics,-14}  {hexBytes,-11}");
                 if (pcOffset == 0)
                     break;
                 pc += pcOffset;
@@ -355,6 +356,8 @@ public partial class CPU : ViewModelBase
             return sb.ToString();
         }
     }
+
+    public double UpTime => m_TStatesSinceCpuStart / TStatesPerSecond;
 
     private ushort Disassemble(ushort addr, ref string hexBytes, out string mnemonics)
     {
