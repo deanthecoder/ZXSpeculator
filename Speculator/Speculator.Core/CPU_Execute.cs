@@ -31,7 +31,7 @@ public partial class CPU
         var instruction = InstructionSet.findInstructionAtMemoryLocation(MainMemory, TheRegisters.PC);
         if (instruction != null)
             return ExecuteInstruction(instruction);
-        
+
         var opcode = MainMemory.Peek(TheRegisters.PC);
         switch (opcode)
         {
@@ -40,19 +40,17 @@ public partial class CPU
                 // These prefixes mean 'treat HL in next instruction as IX/IY'.
                 // z80-documented-v0.91.pdf says we can treat this opcode prefix as a NOP
                 // and process the next opcode as normal.
-                var nop = InstructionSet.InstructionFromID(Z80Instructions.InstructionID.NOP);
                 Console.WriteLine("Warning: Ignoring {0:X2} prefix for opcode {1}...", opcode, MainMemory.ReadAsHexString(TheRegisters.PC, 4));
-                return ExecuteInstruction(nop) + ExecuteAtPC();
+                return ExecuteInstruction(InstructionSet.Nop) + ExecuteAtPC();
 
             case 0xED:
                 // 'Zilog Z80 CPU Specifications by Sean Young' says if an EDxx instruction
                 // is not listed then treat as two NOPs.
-                Console.WriteLine("Warning: Ignoring {0:X2} prefix for opcode {1}...", opcode, MainMemory.ReadAsHexString(TheRegisters.PC, 4));
-                var nopnop = InstructionSet.InstructionFromID(Z80Instructions.InstructionID.NOPNOP);
-                return ExecuteInstruction(nopnop);
+                Console.WriteLine("Warning: Ignoring ED prefix for opcode {1}...", MainMemory.ReadAsHexString(TheRegisters.PC, 4));
+                return ExecuteInstruction(InstructionSet.NopNop);
 
             default:
-                throw new UnsupportedInstruction(this, instruction);
+                throw new UnsupportedInstruction(this);
         }
     }
 
@@ -2653,6 +2651,14 @@ public partial class CPU
             case Z80Instructions.InstructionID.XOR_IYL:
                 TheAlu.Xor(TheRegisters.IYL);
                 return instruction.TStateCount;
+
+            case Z80Instructions.InstructionID.INI:
+            {
+                MainMemory.Poke(TheRegisters.Main.HL, ThePortHandler.In(TheRegisters.Main.C));
+                TheRegisters.Main.HL++;
+                TheRegisters.Main.B = TheAlu.DecAndSetFlags(TheRegisters.Main.B);
+                return instruction.TStateCount;
+            }
 
             default:
                 throw new UnsupportedInstruction(this, instruction);

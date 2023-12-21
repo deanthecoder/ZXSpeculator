@@ -17,6 +17,19 @@ namespace Speculator.Core;
 
 public partial class Z80Instructions
 {
+    private Instruction[] m_instructionSubSetDDCB;
+    private Instruction[] InstructionSubSetDDCB =>
+        m_instructionSubSetDDCB ??= Instructions.Where(o => o.HexTemplate.Replace(" ", string.Empty).StartsWith("DDCB")).ToArray();
+    private Instruction[] m_instructionSubSetFDCB;
+    private Instruction m_nop;
+    private Instruction m_nopnop;
+
+    private Instruction[] InstructionSubSetFDCB =>
+        m_instructionSubSetFDCB ??= Instructions.Where(o => o.HexTemplate.Replace(" ", string.Empty).StartsWith("FDCB")).ToArray();
+
+    public Instruction Nop => m_nop ??= Instructions.First(t => t.Id == InstructionID.NOP);
+    public Instruction NopNop => m_nopnop ??= Instructions.First(t => t.Id == InstructionID.NOPNOP);
+    
     public Z80Instructions()
     {
         InitList();
@@ -24,21 +37,8 @@ public partial class Z80Instructions
 
     private List<Instruction> Instructions { get; set; }
 
-    internal Instruction InstructionFromID(InstructionID id)
-    {
-        for (var i = 0; i < Instructions.Count; i++)
-        {
-            if (Instructions[i].Id == id)
-                return Instructions[i];
-        }
-        
-        return null;
-    }
-
     public Instruction findInstructionAtMemoryLocation(Memory mainMemory, ushort addr)
     {
-        #region Auto-generated code.
-
         switch (mainMemory.Peek(addr))
         {
             case 0x00: // NOP
@@ -563,7 +563,6 @@ public partial class Z80Instructions
         
         return null;
 
-        #endregion
     }
     
     private bool HandleFDPrefix(Memory mainMemory, ushort addr, out Instruction instr)
@@ -2281,14 +2280,4 @@ public partial class Z80Instructions
                 Instructions[721]
         };
     }
-
-    #region Auto-generated code.
-    private Instruction[] m_instructionSubSetDDCB;
-    private Instruction[] InstructionSubSetDDCB =>
-        m_instructionSubSetDDCB ??= Instructions.Where(o => o.HexTemplate.Replace(" ", string.Empty).StartsWith("DDCB")).ToArray();
-    private Instruction[] m_instructionSubSetFDCB;
-    private Instruction[] InstructionSubSetFDCB =>
-        m_instructionSubSetFDCB ??= Instructions.Where(o => o.HexTemplate.Replace(" ", string.Empty).StartsWith("FDCB")).ToArray();
-
-    #endregion
 }
