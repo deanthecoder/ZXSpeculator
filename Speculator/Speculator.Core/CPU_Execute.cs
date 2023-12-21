@@ -2653,10 +2653,16 @@ public partial class CPU
                 return instruction.TStateCount;
 
             case Z80Instructions.InstructionID.INI:
+            MainMemory.Poke(TheRegisters.Main.HL, ThePortHandler.In(TheRegisters.Main.C));
+            TheRegisters.Main.HL++;
+            TheRegisters.Main.B = TheAlu.DecAndSetFlags(TheRegisters.Main.B);
+            return instruction.TStateCount;
+
+            case Z80Instructions.InstructionID.OUTI:
             {
-                MainMemory.Poke(TheRegisters.Main.HL, ThePortHandler.In(TheRegisters.Main.C));
-                TheRegisters.Main.HL++;
                 TheRegisters.Main.B = TheAlu.DecAndSetFlags(TheRegisters.Main.B);
+                ThePortHandler.Out(TheRegisters.Main.C, MainMemory.Peek(TheRegisters.Main.HL));
+                TheRegisters.Main.HL++;
                 return instruction.TStateCount;
             }
 
