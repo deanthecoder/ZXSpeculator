@@ -2673,6 +2673,15 @@ public partial class CPU
                 TheRegisters.Main.B = TheAlu.DecAndSetFlags(TheRegisters.Main.B);
                 return instruction.TStateCount;
 
+            case Z80Instructions.InstructionID.INDR:
+                // Looping version if IND.
+                MainMemory.Poke(TheRegisters.Main.HL, ThePortHandler.In(TheRegisters.Main.C));
+                TheRegisters.Main.HL--;
+                TheRegisters.Main.B = TheAlu.DecAndSetFlags(TheRegisters.Main.B);
+                if (TheRegisters.Main.B != 0)
+                    TheRegisters.PC -= 2; // Repeat.
+                return instruction.TStateCount;
+
             case Z80Instructions.InstructionID.OUTI:
                 TheRegisters.Main.B = TheAlu.DecAndSetFlags(TheRegisters.Main.B);
                 ThePortHandler.Out(TheRegisters.Main.C, MainMemory.Peek(TheRegisters.Main.HL));
