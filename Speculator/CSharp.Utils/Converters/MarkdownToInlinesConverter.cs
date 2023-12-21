@@ -46,7 +46,39 @@ public class MarkdownToInlinesConverter : IValueConverter
             });
         }
 
-        return inlines;
+        // Colorize addresses in ROM.
+        var colorizedRuns = new InlineCollection();
+        foreach (var inline in inlines)
+        {
+            // Find a leading ABCD: hex prefix.
+            if (inline is not Run { Text.Length: >= 4 } run || !run.Text.Take(4).All(char.IsAsciiHexDigit))
+            {
+                // Not hex.
+                colorizedRuns.Add(inline);
+                continue;
+            }
+
+            // See if the address maps to the ROM region.
+            var hexString = run.Text.Substring(0, 4);
+            if (!int.TryParse(hexString, NumberStyles.HexNumber, null, out var hexValue) || hexValue >= 16384)
+            {
+                // Not in ROM.
+                colorizedRuns.Add(inline);
+                continue;
+            }
+            
+            // We're in the ROM - colorize the address.
+            var coloredRun = new Run(hexString)
+            {
+                Foreground = Brushes.Cyan
+            };
+            run.Text = run.Text.Substring(4);
+
+            colorizedRuns.Add(coloredRun);
+            colorizedRuns.Add(run);
+        }
+
+        return colorizedRuns;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

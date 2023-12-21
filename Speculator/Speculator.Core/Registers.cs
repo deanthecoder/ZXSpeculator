@@ -91,7 +91,11 @@ public class Registers : ViewModelBase
     public byte I { get; set; }
     public byte R { get; set; }
 
+    /// <summary>
+    /// True if interrupts are enabled.
+    /// </summary>
     public bool IFF1 { get; set; }
+    
     public bool IFF2 { get; set; }
     
     public byte IM { get; set; }

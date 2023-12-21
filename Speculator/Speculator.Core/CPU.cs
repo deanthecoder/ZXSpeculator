@@ -22,11 +22,16 @@ public partial class CPU : ViewModelBase
 {
     private readonly SoundHandler m_soundHandler;
     private Z80Instructions InstructionSet { get; }
-    public Registers TheRegisters { get; }
-    public Memory MainMemory { get; }
     private Alu TheAlu { get; }
     private IPortHandler ThePortHandler { get; }
     private Thread m_cpuThread;
+    private bool m_isHalted;
+    private readonly AutoResetEvent m_debuggerTickEvent = new AutoResetEvent(false);
+    private bool m_shutdownRequested;
+    private bool m_resetRequested;
+
+    public Registers TheRegisters { get; }
+    public Memory MainMemory { get; }
 
     public CPU(Memory mainMemory, IPortHandler portHandler = null, SoundHandler soundHandler = null)
     {
@@ -79,7 +84,17 @@ public partial class CPU : ViewModelBase
     /// <summary>
     /// We pause the CPU when loading a new ROM/snapshot.
     /// </summary>
-    public bool IsPaused { get; set; }
+    public bool IsPaused
+    {
+        get => m_isPaused;
+        set
+        {
+            if (m_isPaused == value)
+                return;
+            m_isPaused = value;
+            RaiseAllPropertyChanged();
+        }
+    }
 
     public bool IsDebugging
     {
@@ -92,13 +107,7 @@ public partial class CPU : ViewModelBase
             RaiseAllPropertyChanged();
         }
     }
-
-    private bool m_isHalted;
-
-    private readonly AutoResetEvent m_debuggerTickEvent = new AutoResetEvent(false);
-    private bool m_shutdownRequested;
-    private bool m_resetRequested;
-
+    
     private void RunLoop()
     {
         m_TStatesSinceInterrupt = 0;
@@ -154,7 +163,7 @@ public partial class CPU : ViewModelBase
             if (TheRegisters.IFF1)
             {
                 TheRegisters.IFF1 = TheRegisters.IFF2 = false;
-
+                
                 switch (TheRegisters.IM)
                 {
                     case 0:
@@ -162,7 +171,6 @@ public partial class CPU : ViewModelBase
                         CallIfTrue(0x0038, true);
                         break;
                     case 2:
-                        //Debug.Fail("IM2 currently untested."); // todo
                         CallIfTrue(MainMemory.PeekWord((ushort)((TheRegisters.I << 8) | 0xff)), true);
                         break;
                     default:
@@ -186,7 +194,7 @@ public partial class CPU : ViewModelBase
 
     public const double TStatesPerSecond = 3494400;
 
-    public int TStatesPerInterrupt { private get; set; }
+    public int TStatesPerInterrupt { private get; init; }
     public delegate void RenderCallbackEventHandler(CPU sender);
 
     public event RenderCallbackEventHandler RenderCallbackEvent;
@@ -194,6 +202,7 @@ public partial class CPU : ViewModelBase
     private readonly List<string> m_recentInstructionList = new List<string>();
     private bool m_fullThrottle;
     private bool m_isDebugging;
+    private bool m_isPaused;
     public ClockSync ClockSync { get; }
 
     private byte doIN_addrC()
@@ -227,6 +236,9 @@ public partial class CPU : ViewModelBase
         return b;
     }
 
+    /// <summary>
+    /// Push PC onto stack and jump to 'addr'.
+    /// </summary>
     private bool CallIfTrue(ushort addr, bool b)
     {
         if (b)

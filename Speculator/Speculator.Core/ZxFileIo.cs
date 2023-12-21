@@ -114,9 +114,7 @@ public class ZxFileIo
         m_cpu.TheRegisters.IX = ReadSNAWord(stream);
         m_cpu.TheRegisters.IFF1 = stream.ReadByte() != 0;
         m_cpu.TheRegisters.IFF2 = stream.ReadByte() != 0;
-
-        var byte29 = (byte)stream.ReadByte();
-        m_cpu.TheRegisters.IM = (byte) (byte29 & 0x03);
+        m_cpu.TheRegisters.IM = (byte)(stream.ReadByte() & 0x03);
 
         Debug.Assert(stream.Position == 30);
 
