@@ -54,188 +54,189 @@
         <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
             <Image Source="{Binding Display.Bitmap}" Loaded="OnScreenBitmapLoaded" />
             
-            <StackPanel Grid.Column="1"
-                  Background="#10ffffff"
-                  IsVisible="{Binding IsDebuggingEnabled}">
-                <StackPanel.Styles>
-                    <Style Selector="TextBlock">
-                        <Setter Property="HorizontalAlignment" Value="Right"/>
-                        <Setter Property="VerticalAlignment" Value="Center"/>
-                        <Setter Property="Margin" Value="0,0,8,0"/>
-                    </Style>
-                    <Style Selector="TextBox">
-                        <Setter Property="FontFamily" Value="Courier New"/>
-                        <Setter Property="IsReadOnly" Value="True"/>
-                        <Setter Property="MinWidth" Value="50"/>
-                        <Setter Property="TextAlignment" Value="Center"/>
-                        <Setter Property="VerticalAlignment" Value="Center"/>
-                        <Setter Property="Height" Value="30"/>
-                        <Setter Property="Margin" Value="0,2"/>
-                        <Setter Property="Background" Value="#3F000000"/>
-                    </Style>
-                    <Style Selector="Button > TextBlock">
-                        <Setter Property="Margin" Value="0"/>
-                    </Style>
-                </StackPanel.Styles>
-                
-                <!-- Registers -->
-                <Grid ColumnDefinitions="Auto,Auto,32,Auto,Auto,*"
-                      RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto"
-                      HorizontalAlignment="Center"
-                      Margin="0,8,0,0"
-                      DataContext="{Binding Speccy.TheCpu.TheRegisters}">
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="PC" FontWeight="Bold"/>
-                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding PC, StringFormat={}{0:X4}, Mode=OneWay}"/>
-                    <TextBlock Grid.Row="0" Grid.Column="3" Text="SP" FontWeight="Bold" />
-                    <TextBox Grid.Row="0" Grid.Column="4" Text="{Binding SP, StringFormat={}{0:X4}, Mode=OneWay}"/>
+            <ScrollViewer Grid.Column="1">
+                <StackPanel Background="#10ffffff"
+                            IsVisible="{Binding IsDebuggingEnabled}">
+                    <StackPanel.Styles>
+                        <Style Selector="TextBlock">
+                            <Setter Property="HorizontalAlignment" Value="Right"/>
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                            <Setter Property="Margin" Value="0,0,8,0"/>
+                        </Style>
+                        <Style Selector="TextBox">
+                            <Setter Property="FontFamily" Value="Courier New"/>
+                            <Setter Property="IsReadOnly" Value="True"/>
+                            <Setter Property="MinWidth" Value="50"/>
+                            <Setter Property="TextAlignment" Value="Center"/>
+                            <Setter Property="VerticalAlignment" Value="Center"/>
+                            <Setter Property="Height" Value="30"/>
+                            <Setter Property="Margin" Value="0,2"/>
+                            <Setter Property="Background" Value="#3F000000"/>
+                        </Style>
+                        <Style Selector="Button > TextBlock">
+                            <Setter Property="Margin" Value="0"/>
+                        </Style>
+                    </StackPanel.Styles>
+                    
+                    <!-- Registers -->
+                    <Grid ColumnDefinitions="Auto,Auto,32,Auto,Auto,*"
+                          RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+                          HorizontalAlignment="Center"
+                          Margin="0,8,0,0"
+                          DataContext="{Binding Speccy.TheCpu.TheRegisters}">
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="PC" FontWeight="Bold"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding PC, StringFormat={}{0:X4}, Mode=OneWay}"/>
+                        <TextBlock Grid.Row="0" Grid.Column="3" Text="SP" FontWeight="Bold" />
+                        <TextBox Grid.Row="0" Grid.Column="4" Text="{Binding SP, StringFormat={}{0:X4}, Mode=OneWay}"/>
 
-                    <TextBlock Grid.Row="1" Grid.Column="0" Text="AF" FontWeight="Bold" />
-                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Main.AF, StringFormat={}{0:X4}, Mode=OneWay}"/>
-                    <TextBlock Grid.Row="1" Grid.Column="3" Text="'AF" FontWeight="Bold" />
-                    <TextBox Grid.Row="1" Grid.Column="4" Text="{Binding Alt.AF, StringFormat={}{0:X4}, Mode=OneWay}"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="AF" FontWeight="Bold" />
+                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Main.AF, StringFormat={}{0:X4}, Mode=OneWay}"/>
+                        <TextBlock Grid.Row="1" Grid.Column="3" Text="'AF" FontWeight="Bold" />
+                        <TextBox Grid.Row="1" Grid.Column="4" Text="{Binding Alt.AF, StringFormat={}{0:X4}, Mode=OneWay}"/>
 
-                    <TextBlock Grid.Row="2" Grid.Column="0" Text="BC" FontWeight="Bold" />
-                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Main.BC, StringFormat={}{0:X4}, Mode=OneWay}"/>
-                    <TextBlock Grid.Row="2" Grid.Column="3" Text="'BC" FontWeight="Bold" />
-                    <TextBox Grid.Row="2" Grid.Column="4" Text="{Binding Alt.BC, StringFormat={}{0:X4}, Mode=OneWay}"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="BC" FontWeight="Bold" />
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Main.BC, StringFormat={}{0:X4}, Mode=OneWay}"/>
+                        <TextBlock Grid.Row="2" Grid.Column="3" Text="'BC" FontWeight="Bold" />
+                        <TextBox Grid.Row="2" Grid.Column="4" Text="{Binding Alt.BC, StringFormat={}{0:X4}, Mode=OneWay}"/>
 
-                    <TextBlock Grid.Row="3" Grid.Column="0" Text="DE" FontWeight="Bold" />
-                    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Main.DE, StringFormat={}{0:X4}, Mode=OneWay}"/>
-                    <TextBlock Grid.Row="3" Grid.Column="3" Text="'DE" FontWeight="Bold" />
-                    <TextBox Grid.Row="3" Grid.Column="4" Text="{Binding Alt.DE, StringFormat={}{0:X4}, Mode=OneWay}"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="DE" FontWeight="Bold" />
+                        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Main.DE, StringFormat={}{0:X4}, Mode=OneWay}"/>
+                        <TextBlock Grid.Row="3" Grid.Column="3" Text="'DE" FontWeight="Bold" />
+                        <TextBox Grid.Row="3" Grid.Column="4" Text="{Binding Alt.DE, StringFormat={}{0:X4}, Mode=OneWay}"/>
 
-                    <TextBlock Grid.Row="4" Grid.Column="0" Text="HL" FontWeight="Bold" />
-                    <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding Main.HL, StringFormat={}{0:X4}, Mode=OneWay}"/>
-                    <TextBlock Grid.Row="4" Grid.Column="3" Text="'HL" FontWeight="Bold" />
-                    <TextBox Grid.Row="4" Grid.Column="4" Text="{Binding Alt.HL, StringFormat={}{0:X4}, Mode=OneWay}"/>
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="HL" FontWeight="Bold" />
+                        <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding Main.HL, StringFormat={}{0:X4}, Mode=OneWay}"/>
+                        <TextBlock Grid.Row="4" Grid.Column="3" Text="'HL" FontWeight="Bold" />
+                        <TextBox Grid.Row="4" Grid.Column="4" Text="{Binding Alt.HL, StringFormat={}{0:X4}, Mode=OneWay}"/>
 
-                    <TextBlock Grid.Row="5" Grid.Column="0" Text="IX" FontWeight="Bold" />
-                    <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding IX, StringFormat={}{0:X4}, Mode=OneWay}"/>
-                    <TextBlock Grid.Row="5" Grid.Column="3" Text="'IY" FontWeight="Bold" />
-                    <TextBox Grid.Row="5" Grid.Column="4" Text="{Binding IY, StringFormat={}{0:X4}, Mode=OneWay}"/>
+                        <TextBlock Grid.Row="5" Grid.Column="0" Text="IX" FontWeight="Bold" />
+                        <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding IX, StringFormat={}{0:X4}, Mode=OneWay}"/>
+                        <TextBlock Grid.Row="5" Grid.Column="3" Text="'IY" FontWeight="Bold" />
+                        <TextBox Grid.Row="5" Grid.Column="4" Text="{Binding IY, StringFormat={}{0:X4}, Mode=OneWay}"/>
 
-                    <TextBlock Grid.Row="6" Grid.Column="0" Text="I" FontWeight="Bold" />
-                    <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding I, StringFormat={}{0:X2}, Mode=OneWay}"/>
-                    <TextBlock Grid.Row="6" Grid.Column="3" Text="R" FontWeight="Bold" />
-                    <TextBox Grid.Row="6" Grid.Column="4" Text="{Binding R, StringFormat={}{0:X2}, Mode=OneWay}"/>
-                </Grid>
+                        <TextBlock Grid.Row="6" Grid.Column="0" Text="I" FontWeight="Bold" />
+                        <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding I, StringFormat={}{0:X2}, Mode=OneWay}"/>
+                        <TextBlock Grid.Row="6" Grid.Column="3" Text="R" FontWeight="Bold" />
+                        <TextBox Grid.Row="6" Grid.Column="4" Text="{Binding R, StringFormat={}{0:X2}, Mode=OneWay}"/>
+                    </Grid>
 
-                <!-- Flags -->
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <Border DataContext="{Binding Speccy.TheCpu.TheRegisters}"
-                            BorderThickness="1"
-                            BorderBrush="White"
-                            CornerRadius="6"
-                            Margin="0,16">
-                        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
-                              RowDefinitions="Auto,Auto"
-                              Margin="8,4">
-                            <Grid.Styles>
-                                <Style Selector="TextBlock">
-                                    <Setter Property="HorizontalAlignment" Value="Center"/>
-                                    <Setter Property="Margin" Value="0"/>
-                                </Style>
-                                <Style Selector="avalonia|MaterialIcon[Tag=True]">
-                                    <Setter Property="Kind" Value="Tick"/>
-                                </Style>
-                                <Style Selector="avalonia|MaterialIcon[Tag=False]">
-                                    <Setter Property="Kind" Value="Close"/>
-                                    <Setter Property="Foreground" Value="DarkGray" />
-                                </Style>
-                            </Grid.Styles>
-                                
-                            <TextBlock Grid.Column="0" Grid.Row="0" Text="S" ToolTip.Tip="Sign"/>
-                            <avalonia:MaterialIcon Grid.Column="0" Grid.Row="1" ToolTip.Tip="Sign" Tag="{Binding SignFlag}"/>
+                    <!-- Flags -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Border DataContext="{Binding Speccy.TheCpu.TheRegisters}"
+                                BorderThickness="1"
+                                BorderBrush="White"
+                                CornerRadius="6"
+                                Margin="0,16">
+                            <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+                                  RowDefinitions="Auto,Auto"
+                                  Margin="8,4">
+                                <Grid.Styles>
+                                    <Style Selector="TextBlock">
+                                        <Setter Property="HorizontalAlignment" Value="Center"/>
+                                        <Setter Property="Margin" Value="0"/>
+                                    </Style>
+                                    <Style Selector="avalonia|MaterialIcon[Tag=True]">
+                                        <Setter Property="Kind" Value="Tick"/>
+                                    </Style>
+                                    <Style Selector="avalonia|MaterialIcon[Tag=False]">
+                                        <Setter Property="Kind" Value="Close"/>
+                                        <Setter Property="Foreground" Value="DarkGray" />
+                                    </Style>
+                                </Grid.Styles>
+                                    
+                                <TextBlock Grid.Column="0" Grid.Row="0" Text="S" ToolTip.Tip="Sign"/>
+                                <avalonia:MaterialIcon Grid.Column="0" Grid.Row="1" ToolTip.Tip="Sign" Tag="{Binding SignFlag}"/>
 
-                            <TextBlock Grid.Column="1" Grid.Row="0" Text="Z" ToolTip.Tip="Zero" />
-                            <avalonia:MaterialIcon Grid.Column="1" Grid.Row="1" ToolTip.Tip="Zero" Tag="{Binding ZeroFlag}" />
+                                <TextBlock Grid.Column="1" Grid.Row="0" Text="Z" ToolTip.Tip="Zero" />
+                                <avalonia:MaterialIcon Grid.Column="1" Grid.Row="1" ToolTip.Tip="Zero" Tag="{Binding ZeroFlag}" />
 
-                            <TextBlock Grid.Column="2" Grid.Row="0" Text="5" ToolTip.Tip="F5" />
-                            <avalonia:MaterialIcon Grid.Column="2" Grid.Row="1" ToolTip.Tip="F5" Tag="{Binding Flag5}" />
+                                <TextBlock Grid.Column="2" Grid.Row="0" Text="5" ToolTip.Tip="F5" />
+                                <avalonia:MaterialIcon Grid.Column="2" Grid.Row="1" ToolTip.Tip="F5" Tag="{Binding Flag5}" />
 
-                            <TextBlock Grid.Column="3" Grid.Row="0" Text="H" ToolTip.Tip="Half Carry" />
-                            <avalonia:MaterialIcon Grid.Column="3" Grid.Row="1" ToolTip.Tip="Half Carry" Tag="{Binding HalfCarryFlag}" />
+                                <TextBlock Grid.Column="3" Grid.Row="0" Text="H" ToolTip.Tip="Half Carry" />
+                                <avalonia:MaterialIcon Grid.Column="3" Grid.Row="1" ToolTip.Tip="Half Carry" Tag="{Binding HalfCarryFlag}" />
 
-                            <TextBlock Grid.Column="4" Grid.Row="0" Text="3" ToolTip.Tip="F3" />
-                            <avalonia:MaterialIcon Grid.Column="4" Grid.Row="1" ToolTip.Tip="F3" Tag="{Binding Flag3}" />
+                                <TextBlock Grid.Column="4" Grid.Row="0" Text="3" ToolTip.Tip="F3" />
+                                <avalonia:MaterialIcon Grid.Column="4" Grid.Row="1" ToolTip.Tip="F3" Tag="{Binding Flag3}" />
 
-                            <TextBlock Grid.Column="5" Grid.Row="0" Text="P" ToolTip.Tip="Parity/Overflow" />
-                            <avalonia:MaterialIcon Grid.Column="5" Grid.Row="1" ToolTip.Tip="Parity/Overflow" Tag="{Binding ParityFlag}" />
+                                <TextBlock Grid.Column="5" Grid.Row="0" Text="P" ToolTip.Tip="Parity/Overflow" />
+                                <avalonia:MaterialIcon Grid.Column="5" Grid.Row="1" ToolTip.Tip="Parity/Overflow" Tag="{Binding ParityFlag}" />
 
-                            <TextBlock Grid.Column="6" Grid.Row="0" Text="N" ToolTip.Tip="Subtract" />
-                            <avalonia:MaterialIcon Grid.Column="6" Grid.Row="1" ToolTip.Tip="Subtract" Tag="{Binding SubtractFlag}" />
+                                <TextBlock Grid.Column="6" Grid.Row="0" Text="N" ToolTip.Tip="Subtract" />
+                                <avalonia:MaterialIcon Grid.Column="6" Grid.Row="1" ToolTip.Tip="Subtract" Tag="{Binding SubtractFlag}" />
 
-                            <TextBlock Grid.Column="7" Grid.Row="0" Text="C" ToolTip.Tip="Carry" />
-                            <avalonia:MaterialIcon Grid.Column="7" Grid.Row="1" ToolTip.Tip="Carry" Tag="{Binding CarryFlag}" />
-                        </Grid>
-                    </Border>
-                    <Border DataContext="{Binding Speccy.TheCpu.TheRegisters}"
-                            BorderThickness="1"
-                            BorderBrush="White"
-                            CornerRadius="6"
-                            Margin="4,16,0,16">
-                        <Grid ColumnDefinitions="Auto,Auto,12,Auto,Auto"
-                              Margin="8,4">
-                            <Grid.Styles>
-                                <Style Selector="TextBlock">
-                                    <Setter Property="Margin" Value="2"/>
-                                </Style>
-                                <Style Selector="avalonia|MaterialIcon[Tag=True]">
-                                    <Setter Property="Kind" Value="Tick"/>
-                                </Style>
-                                <Style Selector="avalonia|MaterialIcon[Tag=False]">
-                                    <Setter Property="Kind" Value="Close"/>
-                                    <Setter Property="Foreground" Value="DarkGray" />
-                                </Style>
-                            </Grid.Styles>
-                                
-                            <TextBlock Grid.Column="0" Text="IFF1"/>
-                            <avalonia:MaterialIcon Grid.Column="1" Tag="{Binding IFF1}"/>
+                                <TextBlock Grid.Column="7" Grid.Row="0" Text="C" ToolTip.Tip="Carry" />
+                                <avalonia:MaterialIcon Grid.Column="7" Grid.Row="1" ToolTip.Tip="Carry" Tag="{Binding CarryFlag}" />
+                            </Grid>
+                        </Border>
+                        <Border DataContext="{Binding Speccy.TheCpu.TheRegisters}"
+                                BorderThickness="1"
+                                BorderBrush="White"
+                                CornerRadius="6"
+                                Margin="4,16,0,16">
+                            <Grid ColumnDefinitions="Auto,Auto,12,Auto,Auto"
+                                  Margin="8,4">
+                                <Grid.Styles>
+                                    <Style Selector="TextBlock">
+                                        <Setter Property="Margin" Value="2"/>
+                                    </Style>
+                                    <Style Selector="avalonia|MaterialIcon[Tag=True]">
+                                        <Setter Property="Kind" Value="Tick"/>
+                                    </Style>
+                                    <Style Selector="avalonia|MaterialIcon[Tag=False]">
+                                        <Setter Property="Kind" Value="Close"/>
+                                        <Setter Property="Foreground" Value="DarkGray" />
+                                    </Style>
+                                </Grid.Styles>
+                                    
+                                <TextBlock Grid.Column="0" Text="IFF1"/>
+                                <avalonia:MaterialIcon Grid.Column="1" Tag="{Binding IFF1}"/>
 
-                            <TextBlock Grid.Column="3" Text="IFF2"/>
-                            <avalonia:MaterialIcon Grid.Column="4" Tag="{Binding IFF2}"/>
-                        </Grid>
-                    </Border>
+                                <TextBlock Grid.Column="3" Text="IFF2"/>
+                                <avalonia:MaterialIcon Grid.Column="4" Tag="{Binding IFF2}"/>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+
+                    <!-- Control buttons -->
+                    <Grid ColumnDefinitions="Auto,*" Margin="16,8">
+                        <Button ToolTip.Tip="Step"
+                                ToolTip.Placement="RightEdgeAlignedBottom"
+                                Command="{Binding Speccy.TheCpu.DebuggerStep}"
+                                Foreground="White">
+                            <avalonia:MaterialIcon Width="20" Height="20" Kind="DebugStepOver"/>
+                        </Button>
+                        <Button Grid.Column="1"
+                                ToolTip.Tip="Run"
+                                Command="{Binding ToggleDebugging}"
+                                Foreground="White"
+                                HorizontalAlignment="Right">
+                            <avalonia:MaterialIcon Width="20" Height="20" Kind="Play"/>
+                        </Button>
+                    </Grid>
+                    
+                    <!-- Disassembly -->
+                    <Grid Background="#3F000000" Margin="4,0">
+                        <Border Background="MediumPurple" Height="16"
+                                VerticalAlignment="Top"
+                                CornerRadius="4"
+                                Margin="0,7,0,0"/>
+                        <TextBlock FontFamily="Courier New"
+                                   HorizontalAlignment="Left"
+                                   Padding="8"
+                                   Margin="16,0">
+                            <TextBlock.Inlines>
+                                <Binding Path="Speccy.TheCpu.Disassembly" Converter="{StaticResource MarkdownToInlinesConverter}" />
+                            </TextBlock.Inlines>
+                        </TextBlock>
+                    </Grid>
+
+                    <!-- Uptime -->
+                    <TextBlock Text="{Binding Speccy.TheCpu.UpTime, StringFormat='Uptime: {0:F5}s'}"
+                               Margin="8,16,0,0"
+                               HorizontalAlignment="Left"/>
                 </StackPanel>
-
-                <!-- Control buttons -->
-                <Grid ColumnDefinitions="Auto,*" Margin="16,8">
-                    <Button ToolTip.Tip="Step"
-                            ToolTip.Placement="RightEdgeAlignedBottom"
-                            Command="{Binding Speccy.TheCpu.DebuggerStep}"
-                            Foreground="White">
-                        <avalonia:MaterialIcon Width="20" Height="20" Kind="DebugStepOver"/>
-                    </Button>
-                    <Button Grid.Column="1"
-                            ToolTip.Tip="Run"
-                            Command="{Binding ToggleDebugging}"
-                            Foreground="White"
-                            HorizontalAlignment="Right">
-                        <avalonia:MaterialIcon Width="20" Height="20" Kind="Play"/>
-                    </Button>
-                </Grid>
-                
-                <!-- Disassembly -->
-                <Grid Background="#3F000000" Margin="4,0">
-                    <Border Background="MediumPurple" Height="16"
-                            VerticalAlignment="Top"
-                            CornerRadius="4"
-                            Margin="0,7,0,0"/>
-                    <TextBlock FontFamily="Courier New"
-                               HorizontalAlignment="Left"
-                               Padding="8"
-                               Margin="16,0">
-                        <TextBlock.Inlines>
-                            <Binding Path="Speccy.TheCpu.Disassembly" Converter="{StaticResource MarkdownToInlinesConverter}" />
-                        </TextBlock.Inlines>
-                    </TextBlock>
-                </Grid>
-
-                <!-- Uptime -->
-                <TextBlock Text="{Binding Speccy.TheCpu.UpTime, StringFormat='Uptime: {0:F5}s'}"
-                           Margin="8,16,0,0"
-                           HorizontalAlignment="Left"/>
-            </StackPanel>
+            </ScrollViewer>
         </Grid>
     </Grid>
 </Window>

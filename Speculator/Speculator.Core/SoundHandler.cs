@@ -24,20 +24,31 @@ public class SoundHandler : IDisposable
     private const int TicksPerSample = (int)(CPU.TStatesPerSecond / SampleHz);
     private long m_lastTStateCount;
     private readonly int[] m_speakerStates = new int[2];
-    private readonly SoundDevice m_soundDevice = new SoundDevice(SampleHz);
+    private readonly SoundDevice m_soundDevice;
     private bool m_isDisposed;
     private readonly Thread m_thread;
     private bool m_isSoundEnabled = true;
 
     public SoundHandler()
     {
-        m_thread = new Thread(() => m_soundDevice.SoundLoop(() => m_isDisposed)) { Name = "Sound thread" };
+        try
+        {
+            m_soundDevice = new SoundDevice(SampleHz);
+            m_thread = new Thread(() => m_soundDevice.SoundLoop(() => m_isDisposed))
+            {
+                Name = "Sound thread"
+            };
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Failed to initialize host sound device: {e.Message}");
+        }
     }
     
     public void Start()
     {
-        if (!m_thread.IsAlive)
-            m_thread.Start();
+        if (m_thread?.IsAlive != true)
+            m_thread?.Start();
     }
 
     public void SetSpeakerState(bool soundBit)
@@ -49,7 +60,7 @@ public class SoundHandler : IDisposable
     {
         // Wait for the sound thread to exit.
         m_isDisposed = true;
-        m_thread.Join();
+        m_thread?.Join();
     }
 
     public void SampleSpeakerState(long tStateCount)

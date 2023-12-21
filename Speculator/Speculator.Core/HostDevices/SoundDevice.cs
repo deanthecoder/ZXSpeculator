@@ -1,4 +1,6 @@
-﻿using SoundIOSharp;
+﻿#if !WINDOWS
+using System.Collections.Concurrent;
+using SoundIOSharp;
 
 namespace Speculator.Core.HostDevices;
 
@@ -9,7 +11,7 @@ public class SoundDevice
 {
     private readonly int m_sampleHz;
     private Action<IntPtr, double> m_writeSampleFunc;
-    private readonly List<double> m_soundBuffer = new List<double>(4096);
+    private readonly ConcurrentQueue<double> m_soundBuffer = new ConcurrentQueue<double>();
     private double m_lastSample;
     private int m_channelCount;
     private bool m_isSoundEnabled = true;
@@ -91,37 +93,34 @@ public class SoundDevice
     /// </summary>
     private void WriteCallback(SoundIOOutStream outStream, int frameCountMin, int frameCountMax)
     {
-        lock (m_soundBuffer)
+        var toWrite = frameCountMin;
+
+        if (!m_isSoundEnabled)
+            m_soundBuffer.Clear();
+
+        if (m_soundBuffer.Count > toWrite)
+            toWrite = Math.Min(m_soundBuffer.Count, frameCountMax);
+
+        // Prepare to stream the buffer samples.
+        var results = outStream.BeginWrite(ref toWrite);
+
+        // Write real sample data.
+        var toWriteFromBuffer = Math.Min(toWrite, m_soundBuffer.Count);
+        int written;
+        for (written = 0; written < toWriteFromBuffer; written++)
         {
-            var toWrite = frameCountMin;
-            
-            if (!m_isSoundEnabled)
-                m_soundBuffer.Clear();
-            
-            if (m_soundBuffer.Count > toWrite)
-                toWrite = Math.Min(m_soundBuffer.Count, frameCountMax);
-            
-            // Prepare to stream the buffer samples.
-            var results = outStream.BeginWrite(ref toWrite);
-
-            // Write real sample data.
-            var toWriteFromBuffer = Math.Min(toWrite, m_soundBuffer.Count);
-            int written;
-            for (written = 0; written < toWriteFromBuffer; written++)
-                WriteSample(results, m_soundBuffer[written]);
-
-            // If there's a shortfall, pad by reusing the last known sample.
-            while (written < toWrite)
-            {
-                WriteSample(results, m_lastSample);
-                written++;
-            }
-
-            outStream.EndWrite();
-
-            // Remove the 'sent' samples from the front of the sound buffer.
-            m_soundBuffer.RemoveRange(0, toWriteFromBuffer);
+            if (m_soundBuffer.TryDequeue(out var sample))
+                WriteSample(results, sample);
         }
+
+        // If there's a shortfall, pad by reusing the last known sample.
+        while (written < toWrite)
+        {
+            WriteSample(results, m_lastSample);
+            written++;
+        }
+
+        outStream.EndWrite();
     }
     
     private void WriteSample(SoundIOChannelAreas channelAreas, double sample)
@@ -168,8 +167,7 @@ public class SoundDevice
     /// </summary>
     public void AddSample(double sampleValue)
     {
-        lock (m_soundBuffer)
-            m_soundBuffer.Add(sampleValue);
+        m_soundBuffer.Enqueue(sampleValue);
     }
     
     public void SetEnabled(bool isSoundEnabled)
@@ -177,3 +175,4 @@ public class SoundDevice
         m_isSoundEnabled = isSoundEnabled;
     }
 }
+#endif

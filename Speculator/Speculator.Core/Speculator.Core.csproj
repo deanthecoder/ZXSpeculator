@@ -8,10 +8,15 @@
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+        <DefineConstants>WINDOWS</DefineConstants>
+    </PropertyGroup>
+    
     <ItemGroup>
       <PackageReference Include="Avalonia" Version="11.0.6" />
       <PackageReference Include="DotNetZip" Version="1.16.0" />
       <PackageReference Include="libsoundio-sharp-net" Version="1.0.0" />
+      <PackageReference Condition="'$(OS)' == 'Windows_NT'" Include="NAudio" Version="2.2.1" />
     </ItemGroup>
 
     <ItemGroup>
