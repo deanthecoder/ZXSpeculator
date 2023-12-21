@@ -2679,6 +2679,15 @@ public partial class CPU
                 TheRegisters.Main.HL++;
                 return instruction.TStateCount;
 
+            case Z80Instructions.InstructionID.OTIR:
+                // Looping version of OUTI.
+                TheRegisters.Main.B = TheAlu.DecAndSetFlags(TheRegisters.Main.B);
+                ThePortHandler.Out(TheRegisters.Main.C, MainMemory.Peek(TheRegisters.Main.HL));
+                TheRegisters.Main.HL++;
+                if (TheRegisters.Main.B != 0)
+                    TheRegisters.PC -= 2; // Repeat.
+                return instruction.TStateCount;
+
             case Z80Instructions.InstructionID.OUTD:
                 TheRegisters.Main.B = TheAlu.DecAndSetFlags(TheRegisters.Main.B);
                 ThePortHandler.Out(TheRegisters.Main.C, MainMemory.Peek(TheRegisters.Main.HL));
