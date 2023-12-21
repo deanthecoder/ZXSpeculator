@@ -2670,6 +2670,12 @@ public partial class CPU
             TheRegisters.Main.HL++;
             return instruction.TStateCount;
 
+            case Z80Instructions.InstructionID.OUTD:
+            TheRegisters.Main.B = TheAlu.DecAndSetFlags(TheRegisters.Main.B);
+            ThePortHandler.Out(TheRegisters.Main.C, MainMemory.Peek(TheRegisters.Main.HL));
+            TheRegisters.Main.HL--;
+            return instruction.TStateCount;
+
             default:
                 throw new UnsupportedInstruction(this, instruction);
         }
