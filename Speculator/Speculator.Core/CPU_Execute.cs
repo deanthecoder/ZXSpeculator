@@ -20,6 +20,14 @@ public partial class CPU
     /// <returns>The number of TStates used by the instruction.</returns>
     public virtual int ExecuteAtPC()
     {
+        var opcodeByte = MainMemory.Peek(TheRegisters.PC);
+        var hasOpcodePrefix = opcodeByte == 0xDD || opcodeByte == 0xFD || opcodeByte == 0xED || opcodeByte == 0xCB;
+        if (hasOpcodePrefix)
+        {
+            // R increased each time an opcode is read - The prefix is a 'bonus' +1.
+            TheRegisters.R++;
+        }
+        
         var instruction = InstructionSet.findInstructionAtMemoryLocation(MainMemory, TheRegisters.PC);
         if (instruction != null)
             return ExecuteInstruction(instruction);
@@ -59,9 +67,7 @@ public partial class CPU
         TheRegisters.PC += instruction.ByteCount;
         var valueAddress = (ushort)(instructionAddress + instruction.ValueByteOffset);
 
-        // Just increment the R register, instead of the 'correct' way of addition based
-        // on the opcode being executed. Hopefully this will be sufficient...
-        // todo : Increase once per opcode or opcode prefix.
+        // R increased each time an opcode is read.
         TheRegisters.R++;
 
         switch (instruction.Id)
