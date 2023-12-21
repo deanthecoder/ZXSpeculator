@@ -9,8 +9,6 @@
 // We do not accept any liability for damage caused by executing
 // or modifying this code.
 
-using System.Diagnostics;
-
 namespace Speculator.Core;
 
 public partial class CPU
@@ -35,18 +33,18 @@ public partial class CPU
                 // z80-documented-v0.91.pdf says we can treat this opcode prefix as a NOP
                 // and process the next opcode as normal.
                 var nop = InstructionSet.InstructionFromID(Z80Instructions.InstructionID.NOP);
-                Debug.WriteLine("Warning: Ignoring {0:X2} prefix for opcode {1}...", opcode, MainMemory.ReadAsHexString(TheRegisters.PC, 4));
+                Console.WriteLine("Warning: Ignoring {0:X2} prefix for opcode {1}...", opcode, MainMemory.ReadAsHexString(TheRegisters.PC, 4));
                 return ExecuteInstruction(nop) + ExecuteAtPC();
 
             case 0xED:
                 // 'Zilog Z80 CPU Specifications by Sean Young' says if an EDxx instruction
                 // is not listed then treat as two NOPs.
-                Debug.WriteLine("Warning: Ignoring {0:X2} prefix for opcode {1}...", opcode, MainMemory.ReadAsHexString(TheRegisters.PC, 4));
+                Console.WriteLine("Warning: Ignoring {0:X2} prefix for opcode {1}...", opcode, MainMemory.ReadAsHexString(TheRegisters.PC, 4));
                 var nopnop = InstructionSet.InstructionFromID(Z80Instructions.InstructionID.NOPNOP);
                 return ExecuteInstruction(nopnop);
 
             default:
-                throw new UnsupportedInstruction(this);
+                throw new UnsupportedInstruction(this, instruction);
         }
     }
 
@@ -2651,7 +2649,7 @@ public partial class CPU
                 return instruction.TStateCount;
 
             default:
-                throw new UnsupportedInstruction(this);
+                throw new UnsupportedInstruction(this, instruction);
         }
     }
 }

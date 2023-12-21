@@ -337,17 +337,6 @@ public partial class CPU : ViewModelBase
         }
     }
 
-    private class UnsupportedInstruction : Exception
-    {
-        public UnsupportedInstruction(CPU cpu)
-            : base($"An invalid/unsupported emulated instruction was encountered: ({cpu.TheRegisters.PC:X4}: {cpu.MainMemory.ReadAsHexString(cpu.TheRegisters.PC, 4)}...)")
-        {
-            var message = base.Message;
-            message = cpu.m_recentInstructionList.Aggregate(message, (current, s) => current + "\n  " + s);
-            Debug.WriteLine(message);
-        }
-    }
-
     public string Disassembly
     {
         get

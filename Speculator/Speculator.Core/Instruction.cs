@@ -13,7 +13,6 @@ using System.Diagnostics;
 
 namespace Speculator.Core;
 
-[DebuggerDisplay("{MnemonicTemplate} ({HexTemplate})")]
 public class Instruction
 {
     private string m_flagModifiers;
@@ -23,8 +22,6 @@ public class Instruction
         get => m_flagModifiers;
         set
         {
-            Debug.Assert(string.IsNullOrEmpty(m_flagModifiers), "FlagModifiers already set.");
-            Debug.Assert(value.Length == 6);
             m_flagModifiers = value;
         }
     }
@@ -110,10 +107,6 @@ public class Instruction
 
         return true;
     }
-    
-    public void SetFlagModifiers(string flags, string resultRegName = null)
-    {
-        FlagModifiers = flags;
-        ResultRegName = resultRegName;
-    }
+
+    public override string ToString() => $"{MnemonicTemplate} ({HexTemplate})";
 }

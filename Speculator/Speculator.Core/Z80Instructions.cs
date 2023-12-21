@@ -20,7 +20,6 @@ public partial class Z80Instructions
     public Z80Instructions()
     {
         InitList();
-        InitFlagModifiers();
     }
 
     private List<Instruction> Instructions { get; set; }
