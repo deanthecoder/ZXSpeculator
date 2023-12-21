@@ -41,7 +41,7 @@ public partial class CPU : ViewModelBase
         TheRegisters = new Registers();
         TheAlu = new Alu(TheRegisters);
         ThePortHandler = portHandler;
-        ClockSync = new ClockSync(TStatesPerSecond);
+        ClockSync = new ClockSync(TStatesPerSecond, () => m_TStatesSinceCpuStart);
     }
 
     public bool FullThrottle
@@ -135,7 +135,7 @@ public partial class CPU : ViewModelBase
             {
                 // Sync the clock speed.
                 if (!FullThrottle)
-                    ClockSync.SyncWithRealTime(() => m_TStatesSinceCpuStart);
+                    ClockSync.SyncWithRealTime();
             }
             
             // Execute instruction.
