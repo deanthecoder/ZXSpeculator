@@ -2658,13 +2658,17 @@ public partial class CPU
             TheRegisters.Main.B = TheAlu.DecAndSetFlags(TheRegisters.Main.B);
             return instruction.TStateCount;
 
+            case Z80Instructions.InstructionID.IND:
+            MainMemory.Poke(TheRegisters.Main.HL, ThePortHandler.In(TheRegisters.Main.C));
+            TheRegisters.Main.HL--;
+            TheRegisters.Main.B = TheAlu.DecAndSetFlags(TheRegisters.Main.B);
+            return instruction.TStateCount;
+
             case Z80Instructions.InstructionID.OUTI:
-            {
-                TheRegisters.Main.B = TheAlu.DecAndSetFlags(TheRegisters.Main.B);
-                ThePortHandler.Out(TheRegisters.Main.C, MainMemory.Peek(TheRegisters.Main.HL));
-                TheRegisters.Main.HL++;
-                return instruction.TStateCount;
-            }
+            TheRegisters.Main.B = TheAlu.DecAndSetFlags(TheRegisters.Main.B);
+            ThePortHandler.Out(TheRegisters.Main.C, MainMemory.Peek(TheRegisters.Main.HL));
+            TheRegisters.Main.HL++;
+            return instruction.TStateCount;
 
             default:
                 throw new UnsupportedInstruction(this, instruction);
