@@ -171,9 +171,4 @@ public class ZxPortHandler : IPortHandler
                 m_pressedKeys.Remove(speccyKey);
         }
     }
-
-    public void ClearKeys()
-    {
-        m_pressedKeys.Clear();
-    }
 }

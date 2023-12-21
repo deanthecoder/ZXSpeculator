@@ -15,19 +15,6 @@ namespace Speculator.Core;
 
 public class Instruction
 {
-    private string m_flagModifiers;
-
-    internal string FlagModifiers
-    {
-        get => m_flagModifiers;
-        set
-        {
-            m_flagModifiers = value;
-        }
-    }
-
-    private string ResultRegName { get; set; }
-
     public Instruction(Z80Instructions.InstructionID id, string mnemonicTemplate, string hexTemplate, int TStateCount = 0)
     {
         Id = id;

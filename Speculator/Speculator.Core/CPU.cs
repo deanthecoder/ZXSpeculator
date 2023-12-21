@@ -199,7 +199,6 @@ public partial class CPU : ViewModelBase
 
     public event RenderCallbackEventHandler RenderCallbackEvent;
 
-    private readonly List<string> m_recentInstructionList = new List<string>();
     private bool m_fullThrottle;
     private bool m_isDebugging;
     private bool m_isPaused;
