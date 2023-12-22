@@ -64,25 +64,7 @@ public class Instruction
     
     public bool StartsWithOpcodeBytes(Memory mainMemory, ushort addr)
     {
-        if (m_opcodeBytes == null)
-        {
-            // Retrieve opcode byte sequence.
-            var opcodes = HexTemplate.Split(new[] { ' ' });
-            Debug.Assert(opcodes.Length >= 1, "Opcode must consist of at least one byte.");
-
-            m_opcodeBytes = new byte?[opcodes.Length];
-
-            var i = 0;
-            foreach (var opcode in opcodes)
-            {
-                if (opcode.IndexOfAny(new[] { 'n', 'd' }) < 0)
-                    m_opcodeBytes[i] = Convert.ToByte(opcode, 16);
-                else
-                    m_opcodeBytes[i] = null;
-
-                i++;
-            }
-        }
+        m_opcodeBytes ??= InitOpcodeBytesLookup();
 
         // Now try to match all bytes.
         foreach (var opcodeByte in m_opcodeBytes)
@@ -93,6 +75,28 @@ public class Instruction
         }
 
         return true;
+    }
+    
+    private byte?[] InitOpcodeBytesLookup()
+    {
+        // Retrieve opcode byte sequence.
+        var opcodes = HexTemplate.Split(new[] { ' ' });
+        Debug.Assert(opcodes.Length >= 1, "Opcode must consist of at least one byte.");
+
+        var opcodeBytes = new byte?[opcodes.Length];
+
+        var i = 0;
+        foreach (var opcode in opcodes)
+        {
+            if (opcode.IndexOfAny(new[] { 'n', 'd' }) < 0)
+                opcodeBytes[i] = Convert.ToByte(opcode, 16);
+            else
+                opcodeBytes[i] = null;
+
+            i++;
+        }
+
+        return opcodeBytes;
     }
 
     public override string ToString() => $"{MnemonicTemplate} ({HexTemplate})";

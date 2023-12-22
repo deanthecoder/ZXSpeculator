@@ -13,6 +13,8 @@ namespace Speculator.Core;
 
 public partial class CPU
 {
+    private bool m_opcodeWarningIssued;
+
     /// <summary>
     /// Execute the instruction at the current (program counter) address.
     /// </summary>
@@ -21,7 +23,7 @@ public partial class CPU
     public virtual int ExecuteAtPC()
     {
         var opcodeByte = MainMemory.Peek(TheRegisters.PC);
-        var hasOpcodePrefix = opcodeByte == 0xDD || opcodeByte == 0xFD || opcodeByte == 0xED || opcodeByte == 0xCB;
+        var hasOpcodePrefix = opcodeByte is 0xDD or 0xFD or 0xED or 0xCB;
         if (hasOpcodePrefix)
         {
             // R increased each time an opcode is read - The prefix is a 'bonus' +1.
@@ -32,25 +34,34 @@ public partial class CPU
         if (instruction != null)
             return ExecuteInstruction(instruction);
 
-        var opcode = MainMemory.Peek(TheRegisters.PC);
-        switch (opcode)
+        try
         {
-            case 0xDD:
-            case 0xFD:
-                // These prefixes mean 'treat HL in next instruction as IX/IY'.
-                // z80-documented-v0.91.pdf says we can treat this opcode prefix as a NOP
-                // and process the next opcode as normal.
-                Console.WriteLine("Warning: Ignoring {0:X2} prefix for opcode {1}...", opcode, MainMemory.ReadAsHexString(TheRegisters.PC, 4));
-                return ExecuteInstruction(InstructionSet.Nop) + ExecuteAtPC();
+            var opcode = MainMemory.Peek(TheRegisters.PC);
+            switch (opcode)
+            {
+                case 0xDD:
+                case 0xFD:
+                    // These prefixes mean 'treat HL in next instruction as IX/IY'.
+                    // z80-documented-v0.91.pdf says we can treat this opcode prefix as a NOP
+                    // and process the next opcode as normal.
+                    if (!m_opcodeWarningIssued)
+                        Console.WriteLine("Warning: Ignoring {0:X2} prefix for opcode {1} (Disabling future warnings).", opcode, MainMemory.ReadAsHexString(TheRegisters.PC, 4));
+                    return ExecuteInstruction(InstructionSet.Nop) + ExecuteAtPC();
 
-            case 0xED:
-                // 'Zilog Z80 CPU Specifications by Sean Young' says if an EDxx instruction
-                // is not listed then treat as two NOPs.
-                Console.WriteLine("Warning: Ignoring ED prefix for opcode {1}...", MainMemory.ReadAsHexString(TheRegisters.PC, 4));
-                return ExecuteInstruction(InstructionSet.NopNop);
+                case 0xED:
+                    // 'Zilog Z80 CPU Specifications by Sean Young' says if an EDxx instruction
+                    // is not listed then treat as two NOPs.
+                    if (!m_opcodeWarningIssued)
+                        Console.WriteLine("Warning: Ignoring ED prefix for opcode {1} (Disabling future warnings).", MainMemory.ReadAsHexString(TheRegisters.PC, 4));
+                    return ExecuteInstruction(InstructionSet.NopNop);
 
-            default:
-                throw new UnsupportedInstruction(this);
+                default:
+                    throw new UnsupportedInstruction(this);
+            }
+        }
+        finally
+        {
+            m_opcodeWarningIssued = true;
         }
     }
 
@@ -462,22 +473,22 @@ public partial class CPU
                 TheRegisters.SP = MainMemory.PeekWord(MainMemory.PeekWord(valueAddress));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.LD_addr_BC:
-                MainMemory.PokeWord(MainMemory.PeekWord(valueAddress), TheRegisters.Main.BC);
+                MainMemory.Poke(MainMemory.PeekWord(valueAddress), TheRegisters.Main.BC);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.LD_addr_DE:
-                MainMemory.PokeWord(MainMemory.PeekWord(valueAddress), TheRegisters.Main.DE);
+                MainMemory.Poke(MainMemory.PeekWord(valueAddress), TheRegisters.Main.DE);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.LD_addrHL:
-                MainMemory.PokeWord(MainMemory.PeekWord(valueAddress), TheRegisters.Main.HL);
+                MainMemory.Poke(MainMemory.PeekWord(valueAddress), TheRegisters.Main.HL);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.LD_addr_SP:
-                MainMemory.PokeWord(MainMemory.PeekWord(valueAddress), TheRegisters.SP);
+                MainMemory.Poke(MainMemory.PeekWord(valueAddress), TheRegisters.SP);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.LD_addr_IX:
-                MainMemory.PokeWord(MainMemory.PeekWord(valueAddress), TheRegisters.IX);
+                MainMemory.Poke(MainMemory.PeekWord(valueAddress), TheRegisters.IX);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.LD_addr_IY:
-                MainMemory.PokeWord(MainMemory.PeekWord(valueAddress), TheRegisters.IY);
+                MainMemory.Poke(MainMemory.PeekWord(valueAddress), TheRegisters.IY);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.LD_SP_HL:
                 TheRegisters.SP = TheRegisters.Main.HL;
@@ -490,27 +501,27 @@ public partial class CPU
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.PUSH_AF:
                 TheRegisters.SP -= 2;
-                MainMemory.PokeWord(TheRegisters.SP, TheRegisters.Main.AF);
+                MainMemory.Poke(TheRegisters.SP, TheRegisters.Main.AF);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.PUSH_BC:
                 TheRegisters.SP -= 2;
-                MainMemory.PokeWord(TheRegisters.SP, TheRegisters.Main.BC);
+                MainMemory.Poke(TheRegisters.SP, TheRegisters.Main.BC);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.PUSH_DE:
                 TheRegisters.SP -= 2;
-                MainMemory.PokeWord(TheRegisters.SP, TheRegisters.Main.DE);
+                MainMemory.Poke(TheRegisters.SP, TheRegisters.Main.DE);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.PUSH_HL:
                 TheRegisters.SP -= 2;
-                MainMemory.PokeWord(TheRegisters.SP, TheRegisters.Main.HL);
+                MainMemory.Poke(TheRegisters.SP, TheRegisters.Main.HL);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.PUSH_IX:
                 TheRegisters.SP -= 2;
-                MainMemory.PokeWord(TheRegisters.SP, TheRegisters.IX);
+                MainMemory.Poke(TheRegisters.SP, TheRegisters.IX);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.PUSH_IY:
                 TheRegisters.SP -= 2;
-                MainMemory.PokeWord(TheRegisters.SP, TheRegisters.IY);
+                MainMemory.Poke(TheRegisters.SP, TheRegisters.IY);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.POP_AF:
                 TheRegisters.Main.AF = MainMemory.PeekWord(TheRegisters.SP);
@@ -553,21 +564,21 @@ public partial class CPU
             {
                 var v = TheRegisters.Main.HL;
                 TheRegisters.Main.HL = MainMemory.PeekWord(TheRegisters.SP);
-                MainMemory.PokeWord(TheRegisters.SP, v);
+                MainMemory.Poke(TheRegisters.SP, v);
                 return instruction.TStateCount;
             }
             case Z80Instructions.InstructionID.EX_addrSP_IX:
             {
                 var v = TheRegisters.IX;
                 TheRegisters.IX = MainMemory.PeekWord(TheRegisters.SP);
-                MainMemory.PokeWord(TheRegisters.SP, v);
+                MainMemory.Poke(TheRegisters.SP, v);
                 return instruction.TStateCount;
             }
             case Z80Instructions.InstructionID.EX_addrSP_IY:
             {
                 var v = TheRegisters.IY;
                 TheRegisters.IY = MainMemory.PeekWord(TheRegisters.SP);
-                MainMemory.PokeWord(TheRegisters.SP, v);
+                MainMemory.Poke(TheRegisters.SP, v);
                 return instruction.TStateCount;
             }
             case Z80Instructions.InstructionID.LDD:
@@ -1089,7 +1100,7 @@ public partial class CPU
                 TheRegisters.IFF1 = TheRegisters.IFF2 = false;
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.HALT:
-                m_isHalted = true;
+                IsHalted = true;
                 TheRegisters.PC--;
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.IM0:
@@ -2259,42 +2270,42 @@ public partial class CPU
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RST_00:
                 TheRegisters.SP -= 2;
-                MainMemory.PokeWord(TheRegisters.SP, TheRegisters.PC);
+                MainMemory.Poke(TheRegisters.SP, TheRegisters.PC);
                 TheRegisters.PC = 0x0000;
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RST_08:
                 TheRegisters.SP -= 2;
-                MainMemory.PokeWord(TheRegisters.SP, TheRegisters.PC);
+                MainMemory.Poke(TheRegisters.SP, TheRegisters.PC);
                 TheRegisters.PC = 0x0008;
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RST_10:
                 TheRegisters.SP -= 2;
-                MainMemory.PokeWord(TheRegisters.SP, TheRegisters.PC);
+                MainMemory.Poke(TheRegisters.SP, TheRegisters.PC);
                 TheRegisters.PC = 0x0010;
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RST_18:
                 TheRegisters.SP -= 2;
-                MainMemory.PokeWord(TheRegisters.SP, TheRegisters.PC);
+                MainMemory.Poke(TheRegisters.SP, TheRegisters.PC);
                 TheRegisters.PC = 0x0018;
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RST_20:
                 TheRegisters.SP -= 2;
-                MainMemory.PokeWord(TheRegisters.SP, TheRegisters.PC);
+                MainMemory.Poke(TheRegisters.SP, TheRegisters.PC);
                 TheRegisters.PC = 0x0020;
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RST_28:
                 TheRegisters.SP -= 2;
-                MainMemory.PokeWord(TheRegisters.SP, TheRegisters.PC);
+                MainMemory.Poke(TheRegisters.SP, TheRegisters.PC);
                 TheRegisters.PC = 0x0028;
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RST_30:
                 TheRegisters.SP -= 2;
-                MainMemory.PokeWord(TheRegisters.SP, TheRegisters.PC);
+                MainMemory.Poke(TheRegisters.SP, TheRegisters.PC);
                 TheRegisters.PC = 0x0030;
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RST_38:
                 TheRegisters.SP -= 2;
-                MainMemory.PokeWord(TheRegisters.SP, TheRegisters.PC);
+                MainMemory.Poke(TheRegisters.SP, TheRegisters.PC);
                 TheRegisters.PC = 0x0038;
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RLD:

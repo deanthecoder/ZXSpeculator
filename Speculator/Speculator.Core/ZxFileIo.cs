@@ -240,7 +240,7 @@ public class ZxFileIo
         try
         {
             m_cpu.TheRegisters.SP -= 2;
-            m_cpu.MainMemory.PokeWord(m_cpu.TheRegisters.SP, m_cpu.TheRegisters.PC);
+            m_cpu.MainMemory.Poke(m_cpu.TheRegisters.SP, m_cpu.TheRegisters.PC);
 
             stream.WriteByte(m_cpu.TheRegisters.I);
             WriteSNAWord(stream, m_cpu.TheRegisters.Alt.HL);

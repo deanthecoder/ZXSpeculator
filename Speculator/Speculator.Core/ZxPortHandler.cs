@@ -144,7 +144,8 @@ public class ZxPortHandler : IPortHandler
         m_soundHandler?.SetSpeakerState(bit4);
         
         // Lower 3 bits will set the border color.
-        m_theDisplay.BorderAttr = b;
+        if (m_theDisplay != null)
+            m_theDisplay.BorderAttr = b;
     }
 
     private bool IsKeyPressed(Key key) => m_pressedKeys.ContainsKey(key);

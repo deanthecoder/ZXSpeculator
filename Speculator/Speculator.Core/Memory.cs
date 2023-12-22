@@ -10,19 +10,19 @@
 // or modifying this code.
 
 using System.Diagnostics;
+using CSharp.Utils.Extensions;
 
 namespace Speculator.Core;
 
 public class Memory
 {
-    private readonly ZxDisplay m_zxDisplay;
+    private readonly ZxDisplay m_theDisplay;
+    private int m_romSize;
 
-    public int RomSize { get; set; }
-
-    public Memory(ZxDisplay zxDisplay)
+    public Memory(ZxDisplay theDisplay)
     {
-        m_zxDisplay = zxDisplay;
-        RomSize = 0;
+        m_theDisplay = theDisplay;
+        m_romSize = 0;
         Data = new byte[0x10000];
     }
 
@@ -30,26 +30,43 @@ public class Memory
 
     public void ClearAll()
     {
-        RomSize = 0;
+        m_romSize = 0;
         for (var i = 0; i < Data.Length; i++)
             Poke((ushort)i, 0);
     }
 
     public void Poke(ushort addr, byte value)
     {
-        if (addr < RomSize)
+        if (addr < m_romSize)
             return; // Can't write to ROM.
 
         if (Data[addr] == value)
             return; // No change.
 
         // Write to pixel or color area?
-        m_zxDisplay.OnMemoryWrite(addr);
+        m_theDisplay?.OnMemoryWrite(addr);
         
         Data[addr] = value;
     }
 
+    public void Poke(ushort addr, ushort v)
+    {
+        Poke(addr, (byte)(v & 0x00ff));
+        Poke((ushort)(addr + 1), (byte)(v >> 8));
+    }
+
+    public void Poke(ushort addr, IEnumerable<byte> bytes)
+    {
+        foreach (var b in bytes)
+            Poke(addr++, b);
+    }
+
     public byte Peek(ushort addr) => Data[addr];
+    
+    public ushort PeekWord(ushort addr)
+    {
+        return (ushort)(Data[(ushort)(addr + 1)] << 8 | Data[addr]);
+    }
 
     public string ReadAsHexString(ushort addr, ushort byteCount, bool wantSpaces = false)
     {
@@ -66,31 +83,19 @@ public class Memory
         return result.Trim();
     }
 
-    public ushort PeekWord(ushort addr)
+    public void LoadRom(string systemRom)
     {
-        return (ushort)(Data[(ushort)(addr + 1)] << 8 | Data[addr]);
-    }
+        Debug.WriteLine($"Loading ROM '{systemRom}'.");
 
-    public void PokeWord(ushort addr, int v)
-    {
-        Poke(addr, (byte)(v & 0x00ff));
-        Poke((ushort)(addr + 1), (byte)(v >> 8));
-    }
+        Debug.Assert(File.Exists(systemRom), "ROM file does not exist: " + systemRom);
 
-    public void LoadBasicROM(string systemROM)
-    {
-        Debug.WriteLine($"Loading ROM '{systemROM}'.");
-
-        Debug.Assert(File.Exists(systemROM), "BASIC ROM file does not exist: " + systemROM);
-
-        var fileStream = File.OpenRead(systemROM);
+        var fileStream = File.OpenRead(systemRom);
         Debug.WriteLine("ROM size: {0} bytes.", fileStream.Length);
-        Debug.Assert(fileStream.Length < 0xffff, "ROM is too large to fit in memory.");
+        Debug.Assert(fileStream.Length <= 0xffff, "ROM is too large to fit in memory.");
 
         ClearAll();
-        for (var i = 0; i < fileStream.Length; i++)
-            Data[i] = (byte)fileStream.ReadByte();
-            
-        RomSize = (int)fileStream.Length;
+        var romBytes = new FileInfo(systemRom).ReadAllBytes();
+        Poke(0x0000, romBytes);
+        m_romSize = romBytes.Length;
     }
 }

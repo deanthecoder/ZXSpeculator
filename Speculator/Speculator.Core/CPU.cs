@@ -25,13 +25,13 @@ public partial class CPU : ViewModelBase
     private Alu TheAlu { get; }
     private IPortHandler ThePortHandler { get; }
     private Thread m_cpuThread;
-    private bool m_isHalted;
     private readonly AutoResetEvent m_debuggerTickEvent = new AutoResetEvent(false);
     private bool m_shutdownRequested;
     private bool m_resetRequested;
 
     public Registers TheRegisters { get; }
     public Memory MainMemory { get; }
+    public bool IsHalted { get; set; }
 
     public CPU(Memory mainMemory, IPortHandler portHandler = null, SoundHandler soundHandler = null)
     {
@@ -114,7 +114,7 @@ public partial class CPU : ViewModelBase
 
         m_shutdownRequested = false;
         m_resetRequested = false;
-        m_isHalted = false;
+        IsHalted = false;
         IsPaused = false;
 
         while (!m_shutdownRequested)
@@ -138,46 +138,7 @@ public partial class CPU : ViewModelBase
                     ClockSync.SyncWithRealTime();
             }
             
-            // Execute instruction.
-            var TStates = ExecuteAtPC();
-            m_TStatesSinceCpuStart += TStates;
-            
-            // Record speaker state.
-            m_soundHandler.SampleSpeakerState(m_TStatesSinceCpuStart);
-
-            // Handle interrupts.
-            m_TStatesSinceInterrupt += TStates;
-            if (TStatesPerInterrupt == 0 || m_TStatesSinceInterrupt < TStatesPerInterrupt)
-                continue;
-            if (m_isHalted)
-            {
-                m_isHalted = false;
-                TheRegisters.PC++;
-            }
-
-            // Screen refresh.
-            m_TStatesSinceInterrupt -= TStatesPerInterrupt;
-            RenderCallbackEvent?.Invoke(this);
-
-            // Handle MI interrupts.
-            if (TheRegisters.IFF1)
-            {
-                TheRegisters.IFF1 = TheRegisters.IFF2 = false;
-                
-                switch (TheRegisters.IM)
-                {
-                    case 0:
-                    case 1:
-                        CallIfTrue(0x0038, true);
-                        break;
-                    case 2:
-                        CallIfTrue(MainMemory.PeekWord((ushort)((TheRegisters.I << 8) | 0xff)), true);
-                        break;
-                    default:
-                        Debug.Fail("Invalid interrupt mode.");
-                        break;
-                }
-            }
+            Step();
         }
 
         if (m_resetRequested)
@@ -187,6 +148,52 @@ public partial class CPU : ViewModelBase
         }
 
         m_shutdownRequested = false;
+    }
+    
+    /// <summary>
+    /// Run the instruction at the current PC, and handle any interrupt state.
+    /// </summary>
+    public void Step()
+    {
+        // Execute instruction.
+        var TStates = ExecuteAtPC();
+        m_TStatesSinceCpuStart += TStates;
+            
+        // Record speaker state.
+        m_soundHandler?.SampleSpeakerState(m_TStatesSinceCpuStart);
+
+        // Handle interrupts.
+        m_TStatesSinceInterrupt += TStates;
+        if (TStatesPerInterrupt == 0 || m_TStatesSinceInterrupt < TStatesPerInterrupt)
+            return;
+        if (IsHalted)
+        {
+            IsHalted = false;
+            TheRegisters.PC++;
+        }
+
+        // Screen refresh.
+        m_TStatesSinceInterrupt -= TStatesPerInterrupt;
+        RenderCallbackEvent?.Invoke(this);
+
+        // Handle MI interrupts.
+        if (!TheRegisters.IFF1)
+            return; // Interrupts are disabled.
+        
+        TheRegisters.IFF1 = TheRegisters.IFF2 = false;
+        switch (TheRegisters.IM)
+        {
+            case 0:
+            case 1:
+                CallIfTrue(0x0038, true);
+                break;
+            case 2:
+                CallIfTrue(MainMemory.PeekWord((ushort)((TheRegisters.I << 8) | 0xff)), true);
+                break;
+            default:
+                Debug.Fail("Invalid interrupt mode.");
+                break;
+        }
     }
 
     private int m_TStatesSinceInterrupt;
@@ -243,7 +250,7 @@ public partial class CPU : ViewModelBase
         if (b)
         {
             TheRegisters.SP -= 2;
-            MainMemory.PokeWord(TheRegisters.SP, TheRegisters.PC);
+            MainMemory.Poke(TheRegisters.SP, TheRegisters.PC);
             TheRegisters.PC = addr;
         }
 
@@ -327,13 +334,6 @@ public partial class CPU : ViewModelBase
         TheRegisters.HalfCarryFlag = false;
         TheRegisters.ParityFlag = TheRegisters.Main.BC != 0;
         TheRegisters.SubtractFlag = false;
-    }
-
-    private class PCHitMemoryLimit : Exception
-    {
-        public PCHitMemoryLimit() : base("Program counter exceeded the available memory.")
-        {
-        }
     }
 
     public string Disassembly
