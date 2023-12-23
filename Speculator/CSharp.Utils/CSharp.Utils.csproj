@@ -4,6 +4,7 @@
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>disable</Nullable>
+        <Company>Dean Edis (DeanTheCoder)</Company>
     </PropertyGroup>
 
     <ItemGroup>
