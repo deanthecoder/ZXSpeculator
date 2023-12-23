@@ -39,9 +39,15 @@ public partial class App : Application
             {
                 DataContext = viewModel
             };
-            
+
+            desktop.MainWindow.Activated += (sender, args) => viewModel.Speccy.PortHandler.HandleKeyEvents = true;
+            desktop.MainWindow.Deactivated += (sender, args) => viewModel.Speccy.PortHandler.HandleKeyEvents = false;
+
             if (!Design.IsDesignMode)
+            {
+                viewModel.Speccy.PortHandler.StartKeyboardHook();
                 viewModel.Speccy.PowerOnAsync();
+            }
         }
 
         base.OnFrameworkInitializationCompleted();

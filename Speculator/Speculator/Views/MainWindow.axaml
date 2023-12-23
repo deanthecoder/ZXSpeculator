@@ -11,9 +11,7 @@
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/app.ico"
         Title="ZX Speculator"
-        Width="1000"
-        KeyDown="OnKeyDown"
-        KeyUp="OnKeyUp">
+        Width="1000">
 
     <Design.DataContext>
         <vm:MainWindowViewModel />

@@ -36,7 +36,6 @@ public class ZxSpectrum : IDisposable
         {
             TStatesPerInterrupt = TStatesPerRenderFrame
         };
-        PortHandler.MainMemory = TheCpu.MainMemory;
 
         TheCpu.RenderCallbackEvent += TheCPU_RenderCallbackEvent;
     }
@@ -53,6 +52,7 @@ public class ZxSpectrum : IDisposable
     public void Dispose()
     {
         m_soundHandler?.Dispose();
+        PortHandler?.Dispose();
         TheCpu?.PowerOffAsync();
     }
     

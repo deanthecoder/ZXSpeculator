@@ -53,7 +53,8 @@ public class ZexDocTests
         Assert.That(zexDocBin, Does.Exist);
 
         // Create the CPU.
-        var cpu = new CPU(new Memory(null), new ZxPortHandler(null, null))
+        using var portHandler = new ZxPortHandler(null, null);
+        var cpu = new CPU(new Memory(null), portHandler)
         {
             TheRegisters =
             {

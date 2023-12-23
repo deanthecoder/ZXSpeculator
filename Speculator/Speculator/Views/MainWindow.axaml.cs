@@ -11,7 +11,6 @@
 
 using System;
 using Avalonia.Controls;
-using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
 using Speculator.ViewModels;
@@ -39,15 +38,4 @@ public partial class MainWindow : Window
         var action = new Action(() => (sender as Image)?.InvalidateVisual());
         ViewModel.Display.Refreshed += (_, _) => Dispatcher.UIThread.InvokeAsync(action);
     }
-    
-    private void OnKeyDown(object sender, KeyEventArgs e)
-    {
-        if (e.KeyModifiers.HasFlag(KeyModifiers.Meta))
-            return; // No need need to report these.
-        
-        ViewModel.Speccy.PortHandler.SetKeyDown(e.Key, e.KeyModifiers);
-    }
-
-    private void OnKeyUp(object sender, KeyEventArgs e) =>
-        ViewModel.Speccy.PortHandler.SetKeyUp(e.Key);
 }

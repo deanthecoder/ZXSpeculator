@@ -9,44 +9,75 @@
 // We do not accept any liability for damage caused by executing
 // or modifying this code.
 
-using Avalonia.Input;
+using SharpHook;
+using SharpHook.Native;
 
 namespace Speculator.Core;
 
 /// <summary>
 /// Detects key presses and speaker state changes, and feeds port info back to the emulator.
 /// </summary>
-public class ZxPortHandler : IPortHandler
+public class ZxPortHandler : IPortHandler, IDisposable
 {
     private readonly SoundHandler m_soundHandler;
     private readonly ZxDisplay m_theDisplay;
-    private readonly Dictionary<Key, bool> m_pressedKeys = new Dictionary<Key, bool>();
-    private readonly Dictionary<KeyId, List<Key>> m_pcToSpectrumKeyMap;
+    private readonly List<KeyCode> m_realKeysPressed = new List<KeyCode>();
+    private readonly Dictionary<KeyCode[], KeyCode[]> m_pcToSpectrumKeyMap;
+    private readonly SimpleGlobalHook m_keyboardHook;
 
-    public Memory MainMemory { get; set; }
+    /// <summary>
+    /// The keyboard hooks work regardless of whether the app has focus.
+    /// This flag ensures we ignore events we don't want.
+    /// </summary>
+    public bool HandleKeyEvents { get; set; }
 
     public ZxPortHandler(SoundHandler soundHandler, ZxDisplay theDisplay)
     {
         m_soundHandler = soundHandler;
         m_theDisplay = theDisplay;
 
-        m_pcToSpectrumKeyMap = new Dictionary<KeyId, List<Key>>
+        // Map PC key to a sequence of emulated Speccy keys.
+        m_pcToSpectrumKeyMap = new Dictionary<KeyCode[], KeyCode[]>
         {
-            // Map PC key to a sequence of emulated Speccy keys.
-            [Key.Back] = new List<Key> { Key.LeftShift, Key.D0 },
-            [Key.OemComma] = new List<Key> { Key.RightShift, Key.N },
-            [Key.OemPeriod] = new List<Key> { Key.RightShift, Key.M },
-            [Key.OemPlus] = new List<Key> { Key.RightShift, Key.L },
-            [new KeyId(Key.OemPlus, KeyModifiers.Shift)] = new List<Key> { Key.RightShift, Key.K },
-            [Key.OemMinus] = new List<Key> { Key.RightShift, Key.J },
-            [Key.OemQuestion] = new List<Key> { Key.RightShift, Key.C },
-            [Key.OemQuotes] = new List<Key> { Key.RightShift, Key.D7 },
-            [new KeyId(Key.OemQuotes, KeyModifiers.Shift)] = new List<Key> { Key.RightShift, Key.P },
-            [Key.OemSemicolon] = new List<Key> { Key.RightShift, Key.O },
-            [new KeyId(Key.OemSemicolon, KeyModifiers.Shift)] = new List<Key> { Key.RightShift, Key.Z },
-            [new KeyId(Key.LeftCtrl, KeyModifiers.Control)] = new List<Key> { Key.LeftShift, Key.RightShift },
+            [K(KeyCode.VcBackspace)] = K(KeyCode.VcLeftShift,  KeyCode.Vc0),
+            [K(KeyCode.VcComma)] = K(KeyCode.VcRightShift, KeyCode.VcN),
+            [K(KeyCode.VcComma, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.VcR),
+            [K(KeyCode.VcPeriod)] = K(KeyCode.VcRightShift, KeyCode.VcM),
+            [K(KeyCode.VcPeriod, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.VcT),
+            [K(KeyCode.VcEquals)] = K(KeyCode.VcRightShift, KeyCode.VcL),
+            [K(KeyCode.VcEquals, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.VcK),
+            [K(KeyCode.VcMinus)] = K(KeyCode.VcRightShift, KeyCode.VcJ),
+            [K(KeyCode.VcMinus, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.Vc0),
+            [K(KeyCode.VcSlash)] = K(KeyCode.VcRightShift, KeyCode.VcV),
+            [K(KeyCode.VcSlash, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.VcC),
+            [K(KeyCode.VcQuote)] = K(KeyCode.VcRightShift,  KeyCode.Vc7),
+            [K(KeyCode.VcQuote, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.VcP),
+            [K(KeyCode.VcSemicolon)] = K(KeyCode.VcRightShift, KeyCode.VcO),
+            [K(KeyCode.VcSemicolon, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.VcZ),
+            [K(KeyCode.VcLeftAlt)] = K(KeyCode.VcLeftShift, KeyCode.VcRightShift),
+            [K(KeyCode.Vc7, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.Vc6),
+            [K(KeyCode.Vc8, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.VcB),
+            [K(KeyCode.Vc9, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.Vc8),
+            [K(KeyCode.Vc0, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.Vc9),
         };
+        
+        // Make right-shift mirror left shift.
+        m_pcToSpectrumKeyMap
+            .Where(o => o.Key.Length == 2 && o.Key[1] == KeyCode.VcLeftShift)
+            .ToList()
+            .ForEach(o => m_pcToSpectrumKeyMap.Add(K(o.Key[0], KeyCode.VcRightShift), o.Value));
+
+        m_keyboardHook = new SimpleGlobalHook();
+        m_keyboardHook.KeyPressed += (_, args) => SetKeyDown(args.Data.KeyCode);
+        m_keyboardHook.KeyReleased += (_, args) => SetKeyUp(args.Data.KeyCode);
     }
+
+    public void StartKeyboardHook()
+    {
+        m_keyboardHook.RunAsync();
+    }
+
+    private static KeyCode[] K(params KeyCode[] keyCodes) => keyCodes;
 
     public byte In(ushort portAddress)
     {
@@ -62,20 +93,20 @@ public class ZxPortHandler : IPortHandler
     }
     private byte ReadJoystickPort()
     {
-
         byte b = 0x00;
-        if (IsKeyPressed(Key.OemTilde))
+        if (IsZxKeyPressed(KeyCode.VcBackQuote)) // todo - test
             b = (byte)(b | 0x10); // Fire.
-        if (IsKeyPressed(Key.Up))
+        if (IsZxKeyPressed(KeyCode.VcUp))
             b = (byte)(b | 0x8);
-        if (IsKeyPressed(Key.Down))
+        if (IsZxKeyPressed(KeyCode.VcDown))
             b = (byte)(b | 0x4);
-        if (IsKeyPressed(Key.Left))
+        if (IsZxKeyPressed(KeyCode.VcLeft))
             b = (byte)(b | 0x2);
-        if (IsKeyPressed(Key.Right))
+        if (IsZxKeyPressed(KeyCode.VcRight))
             b = (byte)(b | 0x1);
         return b;
     }
+    
     private byte ReadKeyboardPort(ushort portAddress)
     {
         byte result = 0x00;
@@ -84,74 +115,74 @@ public class ZxPortHandler : IPortHandler
 
         if ((hi & 0x80) == 0)
         {
-            if (IsKeyPressed(Key.B)) result |= 1 << 4;
-            if (IsKeyPressed(Key.N)) result |= 1 << 3;
-            if (IsKeyPressed(Key.M)) result |= 1 << 2;
-            if (IsKeyPressed(Key.RightShift)) result |= 1 << 1;
-            if (IsKeyPressed(Key.Space)) result |= 1 << 0;
+            if (IsZxKeyPressed(KeyCode.VcB)) result |= 1 << 4;
+            if (IsZxKeyPressed(KeyCode.VcN)) result |= 1 << 3;
+            if (IsZxKeyPressed(KeyCode.VcM)) result |= 1 << 2;
+            if (IsZxKeyPressed(KeyCode.VcRightShift)) result |= 1 << 1;
+            if (IsZxKeyPressed(KeyCode.VcSpace)) result |= 1 << 0;
         } 
 
         if ((hi & 0x08) == 0)
         {
-            if (IsKeyPressed(Key.D1)) result |= 1 << 0;
-            if (IsKeyPressed(Key.D2)) result |= 1 << 1;
-            if (IsKeyPressed(Key.D3)) result |= 1 << 2;
-            if (IsKeyPressed(Key.D4)) result |= 1 << 3;
-            if (IsKeyPressed(Key.D5)) result |= 1 << 4;
+            if (IsZxKeyPressed(KeyCode.Vc1)) result |= 1 << 0;
+            if (IsZxKeyPressed(KeyCode.Vc2)) result |= 1 << 1;
+            if (IsZxKeyPressed(KeyCode.Vc3)) result |= 1 << 2;
+            if (IsZxKeyPressed(KeyCode.Vc4)) result |= 1 << 3;
+            if (IsZxKeyPressed(KeyCode.Vc5)) result |= 1 << 4;
         }
 
         if ((hi & 0x10) == 0)
         {
-            if (IsKeyPressed(Key.D6)) result |= 1 << 4;
-            if (IsKeyPressed(Key.D7)) result |= 1 << 3;
-            if (IsKeyPressed(Key.D8)) result |= 1 << 2;
-            if (IsKeyPressed(Key.D9)) result |= 1 << 1;
-            if (IsKeyPressed(Key.D0)) result |= 1 << 0;
+            if (IsZxKeyPressed(KeyCode.Vc6)) result |= 1 << 4;
+            if (IsZxKeyPressed(KeyCode.Vc7)) result |= 1 << 3;
+            if (IsZxKeyPressed(KeyCode.Vc8)) result |= 1 << 2;
+            if (IsZxKeyPressed(KeyCode.Vc9)) result |= 1 << 1;
+            if (IsZxKeyPressed(KeyCode.Vc0)) result |= 1 << 0;
         }
 
         if ((hi & 0x04) == 0)
         {
-            if (IsKeyPressed(Key.Q)) result |= 1 << 0;
-            if (IsKeyPressed(Key.W)) result |= 1 << 1;
-            if (IsKeyPressed(Key.E)) result |= 1 << 2;
-            if (IsKeyPressed(Key.R)) result |= 1 << 3;
-            if (IsKeyPressed(Key.T)) result |= 1 << 4;
+            if (IsZxKeyPressed(KeyCode.VcQ)) result |= 1 << 0;
+            if (IsZxKeyPressed(KeyCode.VcW)) result |= 1 << 1;
+            if (IsZxKeyPressed(KeyCode.VcE)) result |= 1 << 2;
+            if (IsZxKeyPressed(KeyCode.VcR)) result |= 1 << 3;
+            if (IsZxKeyPressed(KeyCode.VcT)) result |= 1 << 4;
         }
 
         if ((hi & 0x20) == 0)
         {
-            if (IsKeyPressed(Key.Y)) result |= 1 << 4;
-            if (IsKeyPressed(Key.U)) result |= 1 << 3;
-            if (IsKeyPressed(Key.I)) result |= 1 << 2;
-            if (IsKeyPressed(Key.O)) result |= 1 << 1;
-            if (IsKeyPressed(Key.P)) result |= 1 << 0;
+            if (IsZxKeyPressed(KeyCode.VcY)) result |= 1 << 4;
+            if (IsZxKeyPressed(KeyCode.VcU)) result |= 1 << 3;
+            if (IsZxKeyPressed(KeyCode.VcI)) result |= 1 << 2;
+            if (IsZxKeyPressed(KeyCode.VcO)) result |= 1 << 1;
+            if (IsZxKeyPressed(KeyCode.VcP)) result |= 1 << 0;
         }
 
         if ((hi & 0x02) == 0)
         {
-            if (IsKeyPressed(Key.A)) result |= 1 << 0;
-            if (IsKeyPressed(Key.S)) result |= 1 << 1;
-            if (IsKeyPressed(Key.D)) result |= 1 << 2;
-            if (IsKeyPressed(Key.F)) result |= 1 << 3;
-            if (IsKeyPressed(Key.G)) result |= 1 << 4;
+            if (IsZxKeyPressed(KeyCode.VcA)) result |= 1 << 0;
+            if (IsZxKeyPressed(KeyCode.VcS)) result |= 1 << 1;
+            if (IsZxKeyPressed(KeyCode.VcD)) result |= 1 << 2;
+            if (IsZxKeyPressed(KeyCode.VcF)) result |= 1 << 3;
+            if (IsZxKeyPressed(KeyCode.VcG)) result |= 1 << 4;
         }
 
         if ((hi & 0x40) == 0)
         {
-            if (IsKeyPressed(Key.H)) result |= 1 << 4;
-            if (IsKeyPressed(Key.J)) result |= 1 << 3;
-            if (IsKeyPressed(Key.K)) result |= 1 << 2;
-            if (IsKeyPressed(Key.L)) result |= 1 << 1;
-            if (IsKeyPressed(Key.Return)) result |= 1 << 0;
+            if (IsZxKeyPressed(KeyCode.VcH)) result |= 1 << 4;
+            if (IsZxKeyPressed(KeyCode.VcJ)) result |= 1 << 3;
+            if (IsZxKeyPressed(KeyCode.VcK)) result |= 1 << 2;
+            if (IsZxKeyPressed(KeyCode.VcL)) result |= 1 << 1;
+            if (IsZxKeyPressed(KeyCode.VcEnter)) result |= 1 << 0;// todo - test
         }
 
         if ((hi & 0x01) == 0)
         {
-            if (IsKeyPressed(Key.LeftShift)) result |= 1 << 0;
-            if (IsKeyPressed(Key.Z)) result |= 1 << 1;
-            if (IsKeyPressed(Key.X)) result |= 1 << 2;
-            if (IsKeyPressed(Key.C)) result |= 1 << 3;
-            if (IsKeyPressed(Key.V)) result |= 1 << 4;
+            if (IsZxKeyPressed(KeyCode.VcLeftShift)) result |= 1 << 0;
+            if (IsZxKeyPressed(KeyCode.VcZ)) result |= 1 << 1;
+            if (IsZxKeyPressed(KeyCode.VcX)) result |= 1 << 2;
+            if (IsZxKeyPressed(KeyCode.VcC)) result |= 1 << 3;
+            if (IsZxKeyPressed(KeyCode.VcV)) result |= 1 << 4;
         }
 
         return (byte)~result;
@@ -172,28 +203,37 @@ public class ZxPortHandler : IPortHandler
             m_theDisplay.BorderAttr = b;
     }
 
-    private bool IsKeyPressed(Key key) => m_pressedKeys.ContainsKey(key);
-
-    public void SetKeyDown(Key key, KeyModifiers modifiers)
+    private bool IsZxKeyPressed(KeyCode key)
     {
-        var keyId = new KeyId(key, modifiers);
-        if (m_pcToSpectrumKeyMap.TryGetValue(keyId, out var speccyKeys))
-        {
-            foreach (var speccyKey in speccyKeys)
-                m_pressedKeys[speccyKey] = true;
-        }
+        if (!HandleKeyEvents)
+            return false;
         
-        m_pressedKeys[key] = true;
+        var zxPressed = m_realKeysPressed.ToList();
+        foreach (var keyMap in m_pcToSpectrumKeyMap)
+        {
+            if (keyMap.Key.All(o => m_realKeysPressed.Contains(o)))
+            {
+                zxPressed.Remove(key);
+                zxPressed.AddRange(keyMap.Value);
+            }
+        }
+
+        return zxPressed.Contains(key);
     }
 
-    public void SetKeyUp(Key key)
+    private void SetKeyDown(KeyCode keyCode)
     {
-        m_pressedKeys.Remove(key);
+        if (!m_realKeysPressed.Contains(keyCode))
+            m_realKeysPressed.Add(keyCode);
+    }
 
-        foreach (var keyId in m_pcToSpectrumKeyMap.Keys.Where(o => o.Key == key))
-        {
-            foreach (var speccyKey in m_pcToSpectrumKeyMap[keyId])
-                m_pressedKeys.Remove(speccyKey);
-        }
+    private void SetKeyUp(KeyCode keyCode)
+    {
+        m_realKeysPressed.Remove(keyCode);
+    }
+    
+    public void Dispose()
+    {
+        m_keyboardHook?.Dispose();
     }
 }

@@ -18,6 +18,7 @@
       <PackageReference Include="DotNetZip" Version="1.16.0" />
       <PackageReference Include="libsoundio-sharp-net" Version="1.0.0" />
       <PackageReference Condition="'$(OS)' == 'Windows_NT'" Include="NAudio" Version="2.2.1" />
+      <PackageReference Include="SharpHook" Version="5.2.0" />
     </ItemGroup>
 
     <ItemGroup>
