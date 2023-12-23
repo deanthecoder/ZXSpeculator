@@ -10,6 +10,7 @@
 // or modifying this code.
 
 using System.Diagnostics;
+using CSharp.Utils.Extensions;
 using Speculator.Core.Utils;
 
 namespace Speculator.Core;
@@ -98,7 +99,8 @@ public class ZxFileIo
         var byte12 = (byte)stream.ReadByte();
         if (byte12 == 0xFF)
             byte12 = 0x01; // Version 1
-        m_cpu.TheRegisters.R |= (byte)((byte12 & 0x01) << 7);
+        if ((byte12 & 0x01) != 0)
+            m_cpu.TheRegisters.R |= 0x80;
 
         m_zxDisplay.BorderAttr = (byte)((byte12 & 0x0e) >> 1);
         
@@ -165,7 +167,7 @@ public class ZxFileIo
 
     private void LoadSCR(FileInfo file)
     {
-        File.ReadAllBytes(file.FullName).CopyTo(m_cpu.MainMemory.Data, ZxDisplay.ScreenBase);
+        file.ReadAllBytes().CopyTo(m_cpu.MainMemory.Data, ZxDisplay.ScreenBase);
     }
 
     public void SaveFile(FileInfo file)
@@ -257,7 +259,7 @@ public class ZxFileIo
             WriteSNAWord(stream, m_cpu.TheRegisters.Main.AF);
             WriteSNAWord(stream, m_cpu.TheRegisters.SP);
             stream.WriteByte(m_cpu.TheRegisters.IM);
-            stream.WriteByte(0x07); // Border color.
+            stream.WriteByte(m_zxDisplay.BorderAttr);
             for (var i = 16384; i <= 65535; i++)
                 stream.WriteByte(m_cpu.MainMemory.Peek((ushort)i));
 
@@ -270,10 +272,7 @@ public class ZxFileIo
 
     private void LoadBIN(FileInfo file)
     {
-        using var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read);
-        var length = stream.Length;
-        for (var i = 0; i < length; i++)
-            m_cpu.MainMemory.Poke((ushort)(0x8000 + i), (byte)stream.ReadByte());
+        file.ReadAllBytes().CopyTo(m_cpu.MainMemory.Data, 0x8000);
         m_cpu.TheRegisters.PC = 0x8000;
     }
 }
