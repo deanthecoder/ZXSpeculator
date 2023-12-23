@@ -59,7 +59,6 @@ public class ZxSpectrum : IDisposable
     public ZxSpectrum PowerOnAsync()
     {
         TheCpu.PowerOnAsync();
-        SoundHandler.Start();
         return this;
     }
     

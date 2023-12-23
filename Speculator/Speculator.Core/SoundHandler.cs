@@ -36,7 +36,8 @@ public class SoundHandler : IDisposable
             m_soundDevice = new SoundDevice(SampleHz);
             m_thread = new Thread(() => m_soundDevice.SoundLoop(() => m_isDisposed))
             {
-                Name = "Sound thread"
+                Name = "Sound thread",
+                Priority = ThreadPriority.AboveNormal
             };
         }
         catch (Exception e)

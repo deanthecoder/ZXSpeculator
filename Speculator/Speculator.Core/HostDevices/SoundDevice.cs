@@ -45,7 +45,7 @@ public class SoundDevice
         outStream.WriteCallback = (min, max) => WriteCallback(outStream, min, max);
         outStream.SampleRate = m_sampleHz;
         outStream.ErrorCallback += () => Console.WriteLine("Sound error.");
-        outStream.UnderflowCallback += () => Console.WriteLine("Sound underflow.");
+        outStream.UnderflowCallback += () => Console.WriteLine("Sound buffer underflow.");
 
         if (device.SupportsFormat(SoundIODevice.Float32NE))
         {

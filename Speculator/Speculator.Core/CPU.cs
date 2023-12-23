@@ -116,6 +116,8 @@ public partial class CPU : ViewModelBase
         m_resetRequested = false;
         IsHalted = false;
         IsPaused = false;
+        
+        m_soundHandler?.Start();
 
         while (!m_shutdownRequested)
         {
