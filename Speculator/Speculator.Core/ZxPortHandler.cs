@@ -207,6 +207,9 @@ public class ZxPortHandler : IPortHandler, IDisposable
     {
         if (!HandleKeyEvents)
             return false;
+
+        if (m_realKeysPressed.Contains(KeyCode.VcLeftMeta) || m_realKeysPressed.Contains(KeyCode.VcRightMeta))
+            return false; // Mac user probably triggering a menu item.
         
         var zxPressed = m_realKeysPressed.ToList();
         foreach (var keyMap in m_pcToSpectrumKeyMap)
