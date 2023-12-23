@@ -20,7 +20,7 @@ public partial class CPU
     /// </summary>
     /// <remarks>The program counter will automatically be incremented.</remarks>
     /// <returns>The number of TStates used by the instruction.</returns>
-    public virtual int ExecuteAtPC()
+    private int ExecuteAtPC()
     {
         var opcodeByte = MainMemory.Peek(TheRegisters.PC);
         var hasOpcodePrefix = opcodeByte is 0xDD or 0xFD or 0xED or 0xCB;
@@ -2366,7 +2366,10 @@ public partial class CPU
 
             case Z80Instructions.InstructionID.IN_A_addr_n:
                 if (ThePortHandler != null)
-                    TheRegisters.Main.A = ThePortHandler.In((TheRegisters.Main.A << 8) + MainMemory.Peek(valueAddress));
+                {
+                    var portAddress = (TheRegisters.Main.A << 8) + MainMemory.Peek(valueAddress);
+                    TheRegisters.Main.A = ThePortHandler.In((ushort)portAddress);
+                }
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.IN_A_addr_C:
                 TheRegisters.Main.A = doIN_addrC();

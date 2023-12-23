@@ -48,12 +48,36 @@ public class ZxPortHandler : IPortHandler
         };
     }
 
-    public byte In(int portAddress)
+    public byte In(ushort portAddress)
     {
-        // We only support reading from the keyboard.
-        if ((portAddress & 0x00FF) != 0xFE)
-            return 0xFF; // Floating bus value.
+        if ((portAddress & 0x00FF) == 0xFE)
+            return ReadKeyboardPort(portAddress);
 
+        if ((portAddress & 0x001F) == 0x1F)
+            return ReadJoystickPort();
+
+        // Floating bus value.
+        return 0xFF;
+
+    }
+    private byte ReadJoystickPort()
+    {
+
+        byte b = 0x00;
+        if (IsKeyPressed(Key.OemTilde))
+            b = (byte)(b | 0x10); // Fire.
+        if (IsKeyPressed(Key.Up))
+            b = (byte)(b | 0x8);
+        if (IsKeyPressed(Key.Down))
+            b = (byte)(b | 0x4);
+        if (IsKeyPressed(Key.Left))
+            b = (byte)(b | 0x2);
+        if (IsKeyPressed(Key.Right))
+            b = (byte)(b | 0x1);
+        return b;
+    }
+    private byte ReadKeyboardPort(ushort portAddress)
+    {
         byte result = 0x00;
 
         var hi = (byte)(portAddress >> 8);

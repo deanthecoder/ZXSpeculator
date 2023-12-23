@@ -215,7 +215,8 @@ public partial class CPU : ViewModelBase
 
     private byte doIN_addrC()
     {
-        var b = ThePortHandler?.In((TheRegisters.Main.B << 8) + TheRegisters.Main.C) ?? 0x00;
+        var portAddress = (TheRegisters.Main.B << 8) + TheRegisters.Main.C;
+        var b = ThePortHandler?.In((ushort)portAddress) ?? 0x00;
         TheRegisters.SignFlag = !Alu.IsBytePositive(b);
         TheRegisters.ZeroFlag = b == 0;
         TheRegisters.HalfCarryFlag = false;
