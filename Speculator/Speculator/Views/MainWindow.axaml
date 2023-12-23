@@ -16,6 +16,12 @@
     <Design.DataContext>
         <vm:MainWindowViewModel />
     </Design.DataContext>
+    
+    <Window.Styles>
+        <Style Selector="Button">
+            <Setter Property="Focusable" Value="False"/>
+        </Style>
+    </Window.Styles>
 
     <Window.KeyBindings>
         <KeyBinding Command="{Binding LoadRom}" Gesture="{OnPlatform 'ctrl+o', macOS='⌘+o'}" />

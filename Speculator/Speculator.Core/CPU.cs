@@ -168,8 +168,10 @@ public partial class CPU : ViewModelBase
         m_TStatesSinceInterrupt += TStates;
         if (TStatesPerInterrupt == 0 || m_TStatesSinceInterrupt < TStatesPerInterrupt)
             return;
+        
         if (IsHalted)
         {
+            // The CPU was halted earlier, which ends when an interrupt is triggered.
             IsHalted = false;
             TheRegisters.PC++;
         }

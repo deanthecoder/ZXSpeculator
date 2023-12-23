@@ -17,4 +17,10 @@ public static class FileInfoExtensions
         File.WriteAllText(file.FullName, s);
         return file;
     }
+
+    public static bool ReallyExists(this FileInfo file)
+    {
+        file.Refresh();
+        return file.Exists;
+    }
 }
