@@ -586,59 +586,42 @@ public partial class CPU
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.LDDR:
             {
-                var tstates = 0;
-                do
-                {
-                    // TODO - These loops should be interruptible.
-                    doLDD();
-                    tstates += TheRegisters.Main.BC != 0 ? 21 : 16;
-                }
-                while (TheRegisters.Main.BC != 0);
-                return tstates;
+                doLDD();
+                if (TheRegisters.Main.BC != 0)
+                    TheRegisters.PC -= 2;
+                return TheRegisters.Main.BC != 0 ? 21 : 16;
             }
             case Z80Instructions.InstructionID.LDI:
                 doLDI();
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.LDIR:
             {
-                var tstates = 0;
-                do
-                {
-                    doLDI();
-                    tstates += TheRegisters.Main.BC != 0 ? 21 : 16;
-                }
-                while (TheRegisters.Main.BC != 0);
-                return tstates;
+                doLDI();
+                if (TheRegisters.Main.BC != 0)
+                    TheRegisters.PC -= 2;
+                return TheRegisters.Main.BC != 0 ? 21 : 16;
             }
             case Z80Instructions.InstructionID.CPD:
                 doCPD();
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.CPDR:
             {
-                var tstates = 0;
-                do
-                {
-                    doCPD();
-                    tstates += TheRegisters.Main.BC != 0 ? 21 : 16;
-                }
-                while (!TheRegisters.ZeroFlag && TheRegisters.Main.BC != 0);
+                doCPD();
+                if (!TheRegisters.ZeroFlag && TheRegisters.Main.BC != 0)
+                    TheRegisters.PC -= 2;
                 TheRegisters.ParityFlag = TheRegisters.Main.BC != 0;
-                return tstates;
+                return TheRegisters.Main.BC != 0 ? 21 : 16;
             }
             case Z80Instructions.InstructionID.CPI:
                 doCPI();
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.CPIR:
             {
-                var tstates = 0;
-                do
-                {
-                    doCPI();
-                    tstates += TheRegisters.Main.BC != 0 ? 21 : 16;
-                }
-                while (!TheRegisters.ZeroFlag && TheRegisters.Main.BC != 0);
+                doCPI();
+                if (!TheRegisters.ZeroFlag && TheRegisters.Main.BC != 0)
+                    TheRegisters.PC -= 2;
                 TheRegisters.ParityFlag = TheRegisters.Main.BC != 0;
-                return tstates;
+                return TheRegisters.Main.BC != 0 ? 21 : 16;
             }
             case Z80Instructions.InstructionID.ADC_A_n:
                 TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(valueAddress), true);
