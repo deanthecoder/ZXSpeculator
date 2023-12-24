@@ -174,13 +174,6 @@ public partial class CPU : ViewModelBase
         if (TStatesPerInterrupt == 0 || m_TStatesSinceInterrupt < TStatesPerInterrupt)
             return;
         
-        if (IsHalted)
-        {
-            // The CPU was halted earlier, which ends when an interrupt is triggered.
-            IsHalted = false;
-            TheRegisters.PC++;
-        }
-
         // Screen refresh.
         RenderCallbackEvent?.Invoke(this);
 
@@ -191,7 +184,14 @@ public partial class CPU : ViewModelBase
         m_TStatesSinceInterrupt -= TStatesPerInterrupt;
         if (!TheRegisters.IFF1)
             return; // Interrupts are disabled.
-        
+
+        if (IsHalted)
+        {
+            // The CPU was halted earlier, which ends when an interrupt is triggered.
+            IsHalted = false;
+            TheRegisters.PC++;
+        }
+
         TheRegisters.IFF1 = TheRegisters.IFF2 = false;
         switch (TheRegisters.IM)
         {
