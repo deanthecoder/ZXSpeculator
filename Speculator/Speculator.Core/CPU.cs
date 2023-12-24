@@ -195,9 +195,13 @@ public partial class CPU : ViewModelBase
             case 0:
             case 1:
                 CallIfTrue(0x0038, true);
+                m_TStatesSinceCpuStart += 17;
+                m_TStatesSinceInterrupt += 17;
                 break;
             case 2:
                 CallIfTrue(MainMemory.PeekWord((ushort)((TheRegisters.I << 8) | 0xff)), true);
+                m_TStatesSinceCpuStart += 19;
+                m_TStatesSinceInterrupt += 19;
                 break;
             default:
                 Debug.Fail("Invalid interrupt mode.");
