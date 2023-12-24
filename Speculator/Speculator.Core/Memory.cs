@@ -28,11 +28,11 @@ public class Memory
 
     public byte[] Data { get; }
 
-    public void ClearAll()
+    private void ClearAll()
     {
         m_romSize = 0;
         for (var i = 0; i < Data.Length; i++)
-            Poke((ushort)i, 0);
+            Poke((ushort)i, 0); // Don't optimize - This ensures the screen refreshes.
     }
 
     public void Poke(ushort addr, byte value)

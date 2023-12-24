@@ -31,7 +31,7 @@ public partial class CPU : ViewModelBase
 
     public Registers TheRegisters { get; }
     public Memory MainMemory { get; }
-    public bool IsHalted { get; set; }
+    public bool IsHalted { get; private set; }
 
     public CPU(Memory mainMemory, IPortHandler portHandler = null, SoundHandler soundHandler = null)
     {
@@ -78,6 +78,9 @@ public partial class CPU : ViewModelBase
     public void DebuggerStep()
     {
         m_debuggerTickEvent.Set();
+        var unused = String.Empty;
+        Disassemble(TheRegisters.PC, ref unused, out var mnemonics);
+        Console.WriteLine($"{TheRegisters.PC:X04}: {mnemonics}");
         RaiseAllPropertyChanged();
     }
 

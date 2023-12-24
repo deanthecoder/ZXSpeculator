@@ -13,7 +13,7 @@ namespace Speculator.Core;
 
 public partial class Z80Instructions
 {
-    internal void InitList()
+    private void InitList()
     {
         Instructions = new()
         {
