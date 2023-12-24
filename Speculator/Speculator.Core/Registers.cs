@@ -152,6 +152,7 @@ public class Registers : ViewModelBase
         SP = IX = IY = 0xFFFF;
         IFF1 = IFF2 = false;
         IM = 0;
+        I = R = 0;
 
         Main.Clear();
         Alt.Clear();

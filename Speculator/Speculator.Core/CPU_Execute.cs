@@ -52,7 +52,7 @@ public partial class CPU
                     // 'Zilog Z80 CPU Specifications by Sean Young' says if an EDxx instruction
                     // is not listed then treat as two NOPs.
                     if (!m_opcodeWarningIssued)
-                        Console.WriteLine("Warning: Ignoring ED prefix for opcode {1} (Disabling future warnings).", MainMemory.ReadAsHexString(TheRegisters.PC, 4));
+                        Console.WriteLine($"Warning: Ignoring ED prefix for opcode {MainMemory.ReadAsHexString(TheRegisters.PC, 4)} (Disabling future warnings).");
                     return ExecuteInstruction(InstructionSet.NopNop);
 
                 default:
