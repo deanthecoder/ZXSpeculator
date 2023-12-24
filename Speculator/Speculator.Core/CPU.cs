@@ -157,6 +157,8 @@ public partial class CPU : ViewModelBase
     /// </summary>
     public void Step()
     {
+        var oldIFF = TheRegisters.IFF1;
+        
         // Execute instruction.
         var TStates = ExecuteAtPC();
         m_TStatesSinceCpuStart += TStates;
@@ -164,7 +166,7 @@ public partial class CPU : ViewModelBase
         // Record speaker state.
         m_soundHandler?.SampleSpeakerState(m_TStatesSinceCpuStart);
 
-        // Handle interrupts.
+        // Time to handle interrupts?
         m_TStatesSinceInterrupt += TStates;
         if (TStatesPerInterrupt == 0 || m_TStatesSinceInterrupt < TStatesPerInterrupt)
             return;
@@ -177,10 +179,13 @@ public partial class CPU : ViewModelBase
         }
 
         // Screen refresh.
-        m_TStatesSinceInterrupt -= TStatesPerInterrupt;
         RenderCallbackEvent?.Invoke(this);
 
         // Handle MI interrupts.
+        if (TheRegisters.IFF1 && !oldIFF)
+            return; // This instruction is EI, so wait one instruction.
+        
+        m_TStatesSinceInterrupt -= TStatesPerInterrupt;
         if (!TheRegisters.IFF1)
             return; // Interrupts are disabled.
         
