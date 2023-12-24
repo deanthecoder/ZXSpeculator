@@ -17,6 +17,7 @@ namespace Speculator.Core;
 public class Registers : ViewModelBase
 {
     private readonly StorageRegisters[] m_storageRegisters = new StorageRegisters[2];
+    private byte m_r;
 
     private int MainRegIndex { get; set; }
 
@@ -89,7 +90,12 @@ public class Registers : ViewModelBase
 
     // Hardware control.
     public byte I { get; set; }
-    public byte R { get; set; }
+    
+    public byte R
+    {
+        get => m_r;
+        set => m_r = (byte)(value & 0x7f); // Highest bit is never changed.
+    }
 
     /// <summary>
     /// True if interrupts are enabled.
