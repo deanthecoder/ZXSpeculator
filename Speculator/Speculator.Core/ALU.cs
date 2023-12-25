@@ -539,7 +539,7 @@ public class Alu
     }
 
     /// <summary>
-    /// Rotate register left circular.
+    /// Rotate register right circular.
     /// </summary>
     /// <remarks>
     /// Bit 0 goes to carry flag and bit 7.
