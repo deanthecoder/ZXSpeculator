@@ -30,31 +30,18 @@ public class ZxFileIo // todo - Implement .tap loading to support https://github
     public void LoadFile(FileInfo fileInfo)
     {
         using var _ = m_cpu.ClockSync.CreatePauser();
-        
+
         fileInfo.Refresh();
         if (!fileInfo.Exists)
             throw new FileNotFoundException(fileInfo.FullName);
-        
-        var resetDebuggingFlag = false;
-        try
-        {
-            if (!m_cpu.IsPaused)
-            {
-                m_cpu.IsPaused = true;
-                resetDebuggingFlag = true;
-                Thread.Sleep(500);
-            }
 
-            LoadFileInternal(fileInfo);
-        }
-        finally
+        lock (m_cpu.CpuStepLock)
         {
-            if (resetDebuggingFlag)
-                m_cpu.IsPaused = false;
+            LoadFileInternal(fileInfo);
             m_zxDisplay.IsScreenDirty = true;
         }
     }
-    
+
     private void LoadFileInternal(FileInfo fileInfo)
     {
         switch (fileInfo.Extension)
@@ -89,10 +76,10 @@ public class ZxFileIo // todo - Implement .tap loading to support https://github
         m_cpu.TheRegisters.Clear();
         m_cpu.TheRegisters.Main.A = (byte)stream.ReadByte();
         m_cpu.TheRegisters.Main.F = (byte)stream.ReadByte();
-        m_cpu.TheRegisters.Main.BC = ReadSNAWord(stream);
-        m_cpu.TheRegisters.Main.HL = ReadSNAWord(stream);
-        m_cpu.TheRegisters.PC = ReadSNAWord(stream);
-        m_cpu.TheRegisters.SP = ReadSNAWord(stream);
+        m_cpu.TheRegisters.Main.BC = ReadZxWord(stream);
+        m_cpu.TheRegisters.Main.HL = ReadZxWord(stream);
+        m_cpu.TheRegisters.PC = ReadZxWord(stream);
+        m_cpu.TheRegisters.SP = ReadZxWord(stream);
         m_cpu.TheRegisters.I = (byte)stream.ReadByte();
         m_cpu.TheRegisters.R = (byte)(stream.ReadByte() & 0x7F);
 
@@ -102,18 +89,19 @@ public class ZxFileIo // todo - Implement .tap loading to support https://github
         if ((byte12 & 0x01) != 0)
             m_cpu.TheRegisters.R |= 0x80;
 
-        m_zxDisplay.BorderAttr = (byte)((byte12 & 0x0e) >> 1);
-        
+        if (m_zxDisplay != null)
+            m_zxDisplay.BorderAttr = (byte)((byte12 & 0x0e) >> 1);
+
         var isDataCompressed = (byte12 & 0x20) != 0;
 
-        m_cpu.TheRegisters.Main.DE = ReadSNAWord(stream);
-        m_cpu.TheRegisters.Alt.BC = ReadSNAWord(stream);
-        m_cpu.TheRegisters.Alt.DE = ReadSNAWord(stream);
-        m_cpu.TheRegisters.Alt.HL = ReadSNAWord(stream);
+        m_cpu.TheRegisters.Main.DE = ReadZxWord(stream);
+        m_cpu.TheRegisters.Alt.BC = ReadZxWord(stream);
+        m_cpu.TheRegisters.Alt.DE = ReadZxWord(stream);
+        m_cpu.TheRegisters.Alt.HL = ReadZxWord(stream);
         m_cpu.TheRegisters.Alt.A = (byte)stream.ReadByte();
         m_cpu.TheRegisters.Alt.F = (byte)stream.ReadByte();
-        m_cpu.TheRegisters.IY = ReadSNAWord(stream);
-        m_cpu.TheRegisters.IX = ReadSNAWord(stream);
+        m_cpu.TheRegisters.IY = ReadZxWord(stream);
+        m_cpu.TheRegisters.IX = ReadZxWord(stream);
         m_cpu.TheRegisters.IFF1 = stream.ReadByte() != 0;
         m_cpu.TheRegisters.IFF2 = stream.ReadByte() != 0;
         m_cpu.TheRegisters.IM = (byte)(stream.ReadByte() & 0x03);
@@ -172,27 +160,15 @@ public class ZxFileIo // todo - Implement .tap loading to support https://github
 
     public void SaveFile(FileInfo file)
     {
-        var resetDebuggingFlag = false;
-        try
+        using var _ = m_cpu.ClockSync.CreatePauser();
+        lock (m_cpu.CpuStepLock)
         {
-            if (!m_cpu.IsPaused)
-            {
-                m_cpu.IsPaused = true;
-                resetDebuggingFlag = true;
-                Thread.Sleep(500);
-            }
-
             switch (file.Extension)
             {
                 case ".sna":
                     SaveSNA(file);
                     return;
             }
-        }
-        finally
-        {
-            if (resetDebuggingFlag)
-                m_cpu.IsPaused = false;
         }
     }
     
@@ -202,20 +178,20 @@ public class ZxFileIo // todo - Implement .tap loading to support https://github
         {
             m_cpu.TheRegisters.Clear();
             m_cpu.TheRegisters.I = (byte)stream.ReadByte();
-            m_cpu.TheRegisters.Alt.HL = ReadSNAWord(stream);
-            m_cpu.TheRegisters.Alt.DE = ReadSNAWord(stream);
-            m_cpu.TheRegisters.Alt.BC = ReadSNAWord(stream);
-            m_cpu.TheRegisters.Alt.AF = ReadSNAWord(stream);
-            m_cpu.TheRegisters.Main.HL = ReadSNAWord(stream);
-            m_cpu.TheRegisters.Main.DE = ReadSNAWord(stream);
-            m_cpu.TheRegisters.Main.BC = ReadSNAWord(stream);
-            m_cpu.TheRegisters.IY = ReadSNAWord(stream);
-            m_cpu.TheRegisters.IX = ReadSNAWord(stream);
+            m_cpu.TheRegisters.Alt.HL = ReadZxWord(stream);
+            m_cpu.TheRegisters.Alt.DE = ReadZxWord(stream);
+            m_cpu.TheRegisters.Alt.BC = ReadZxWord(stream);
+            m_cpu.TheRegisters.Alt.AF = ReadZxWord(stream);
+            m_cpu.TheRegisters.Main.HL = ReadZxWord(stream);
+            m_cpu.TheRegisters.Main.DE = ReadZxWord(stream);
+            m_cpu.TheRegisters.Main.BC = ReadZxWord(stream);
+            m_cpu.TheRegisters.IY = ReadZxWord(stream);
+            m_cpu.TheRegisters.IX = ReadZxWord(stream);
             var IFF = (byte)stream.ReadByte();
             m_cpu.TheRegisters.IFF1 = m_cpu.TheRegisters.IFF2 = (IFF & 0x02) != 0;
             m_cpu.TheRegisters.R = (byte)stream.ReadByte();
-            m_cpu.TheRegisters.Main.AF = ReadSNAWord(stream);
-            m_cpu.TheRegisters.SP = ReadSNAWord(stream);
+            m_cpu.TheRegisters.Main.AF = ReadZxWord(stream);
+            m_cpu.TheRegisters.SP = ReadZxWord(stream);
             m_cpu.TheRegisters.IM = (byte)stream.ReadByte();
             m_zxDisplay.BorderAttr = (byte)stream.ReadByte();
             for (var i = 16384; i <= 65535; i++)
@@ -225,7 +201,7 @@ public class ZxFileIo // todo - Implement .tap loading to support https://github
         m_cpu.RETN();
     }
 
-    private static ushort ReadSNAWord(Stream stream)
+    private static ushort ReadZxWord(Stream stream)
     {
         return (ushort)(stream.ReadByte() + (stream.ReadByte() << 8));
     }

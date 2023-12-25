@@ -33,6 +33,8 @@ public partial class CPU : ViewModelBase
     public Memory MainMemory { get; }
     public bool IsHalted { get; private set; }
 
+    public object CpuStepLock { get; } = new object();
+
     public CPU(Memory mainMemory, IPortHandler portHandler = null, SoundHandler soundHandler = null)
     {
         m_soundHandler = soundHandler;
@@ -50,7 +52,7 @@ public partial class CPU : ViewModelBase
         set
         {
             if (SetField(ref m_fullThrottle, value))
-                ClockSync.Reset(m_TStatesSinceCpuStart);
+                ClockSync.Reset();
         }
     }
 
@@ -106,7 +108,7 @@ public partial class CPU : ViewModelBase
         {
             if (!SetField(ref m_isDebugging, value))
                 return;
-            ClockSync.Reset(m_TStatesSinceCpuStart);
+            ClockSync.Reset();
             RaiseAllPropertyChanged();
         }
     }
@@ -133,8 +135,7 @@ public partial class CPU : ViewModelBase
             // Allow debugger to stall execution.
             if (IsDebugging)
             {
-                if (!m_debuggerTickEvent.WaitOne(TimeSpan.FromMilliseconds(100)))
-                    continue; // Timed out.
+                m_debuggerTickEvent.WaitOne();
             }
             else
             {
@@ -143,7 +144,8 @@ public partial class CPU : ViewModelBase
                     ClockSync.SyncWithRealTime();
             }
             
-            Step();
+            lock (CpuStepLock)
+                Step();
         }
 
         if (m_resetRequested)

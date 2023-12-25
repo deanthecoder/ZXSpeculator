@@ -52,12 +52,12 @@ public class ClockSync
         }
     }
 
-    public void Reset(long ticksSinceCpuStart)
+    public void Reset()
     {
         lock (m_realTime)
         {
             m_realTime.Restart();
-            m_tStateCountAtStart = ticksSinceCpuStart;
+            m_tStateCountAtStart = m_ticksSinceCpuStart();
         }
     }
 
