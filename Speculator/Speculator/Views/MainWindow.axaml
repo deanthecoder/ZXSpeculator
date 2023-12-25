@@ -115,7 +115,7 @@
 
                         <TextBlock Grid.Row="5" Grid.Column="0" Text="IX" FontWeight="Bold" />
                         <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding IX, StringFormat={}{0:X4}, Mode=OneWay}"/>
-                        <TextBlock Grid.Row="5" Grid.Column="3" Text="'IY" FontWeight="Bold" />
+                        <TextBlock Grid.Row="5" Grid.Column="3" Text="IY" FontWeight="Bold" />
                         <TextBox Grid.Row="5" Grid.Column="4" Text="{Binding IY, StringFormat={}{0:X4}, Mode=OneWay}"/>
 
                         <TextBlock Grid.Row="6" Grid.Column="0" Text="I" FontWeight="Bold" />
