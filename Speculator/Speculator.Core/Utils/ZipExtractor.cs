@@ -1,3 +1,4 @@
+using CSharp.Utils;
 using Ionic.Zip;
 
 namespace Speculator.Core.Utils;
@@ -12,7 +13,7 @@ public static class ZipExtractor
 
         if (entry == null)
         {
-            Console.WriteLine("No matching file found in the zip archive.");
+            Logger.Instance.Warn("No supported files found in the zip archive.");
             return null;
         }
 

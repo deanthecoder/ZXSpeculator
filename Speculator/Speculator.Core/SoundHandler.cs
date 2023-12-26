@@ -9,6 +9,7 @@
 // We do not accept any liability for damage caused by executing
 // or modifying this code.
 
+using CSharp.Utils;
 using Speculator.Core.HostDevices;
 
 namespace Speculator.Core;
@@ -42,7 +43,7 @@ public class SoundHandler : IDisposable
         }
         catch (Exception e)
         {
-            Console.WriteLine($"Failed to initialize host sound device: {e.Message}");
+            Logger.Instance.Error($"Failed to initialize host sound device: {e.Message}");
         }
     }
     

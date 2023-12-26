@@ -1,5 +1,6 @@
 ﻿#if !WINDOWS
 using System.Collections.Concurrent;
+using CSharp.Utils;
 using SoundIOSharp;
 
 namespace Speculator.Core.HostDevices;
@@ -30,13 +31,13 @@ public class SoundDevice
         var device = api.GetOutputDevice(api.DefaultOutputDeviceIndex);
         if (device == null)
         {
-            Console.Error.WriteLine("Output sound device not found.");
+            Logger.Instance.Error("Output sound device not found.");
             return;
         }
 
         if (device.ProbeError != 0)
         {
-            Console.Error.WriteLine("Cannot probe sound device.");
+            Logger.Instance.Error("Cannot probe sound device.");
             return;
         }
 
@@ -44,8 +45,8 @@ public class SoundDevice
 
         outStream.WriteCallback = (min, max) => WriteCallback(outStream, min, max);
         outStream.SampleRate = m_sampleHz;
-        outStream.ErrorCallback += () => Console.WriteLine("Sound error.");
-        outStream.UnderflowCallback += () => Console.WriteLine("Sound buffer underflow.");
+        outStream.ErrorCallback += () => Logger.Instance.Error("Sound device error.");
+        outStream.UnderflowCallback += () => Logger.Instance.Warn("Sound buffer underflow.");
 
         if (device.SupportsFormat(SoundIODevice.Float32NE))
         {
@@ -69,14 +70,14 @@ public class SoundDevice
         }
         else
         {
-            Console.Error.WriteLine("No suitable sound format available.");
+            Logger.Instance.Error("No suitable sound format available.");
             return;
         }
 
         outStream.Open();
             
         if (outStream.LayoutErrorMessage != null)
-            Console.Error.WriteLine("Unable to set sound channel layout: " + outStream.LayoutErrorMessage);
+            Logger.Instance.Error("Unable to set sound channel layout: " + outStream.LayoutErrorMessage);
 
         outStream.Start();
         m_channelCount = outStream.Layout.ChannelCount;

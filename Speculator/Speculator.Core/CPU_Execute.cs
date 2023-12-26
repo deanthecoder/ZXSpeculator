@@ -9,6 +9,8 @@
 // We do not accept any liability for damage caused by executing
 // or modifying this code.
 
+using CSharp.Utils;
+
 namespace Speculator.Core;
 
 public partial class CPU
@@ -45,7 +47,7 @@ public partial class CPU
                     // z80-documented-v0.91.pdf says we can treat this opcode prefix as a NOP
                     // and process the next opcode as normal.
                     if (!m_opcodeWarningIssued)
-                        Console.WriteLine("Warning: Ignoring {0:X2} prefix for opcode {1} (Disabling future warnings).", opcode, MainMemory.ReadAsHexString(TheRegisters.PC, 4));
+                        Logger.Instance.Warn($"Ignoring {opcode:X2} prefix for opcode {MainMemory.ReadAsHexString(TheRegisters.PC, 4, true)} (Disabling future warnings).");
                     var nop = ExecuteInstruction(InstructionSet.Nop);
                     
                     // todo - The above statement is not implemented.  Not used in any games I care, but causes test failures.
@@ -56,7 +58,7 @@ public partial class CPU
                     // 'Zilog Z80 CPU Specifications by Sean Young' says if an EDxx instruction
                     // is not listed then treat as two NOPs.
                     if (!m_opcodeWarningIssued)
-                        Console.WriteLine($"Warning: Ignoring ED prefix for opcode {MainMemory.ReadAsHexString(TheRegisters.PC, 4)} (Disabling future warnings).");
+                        Logger.Instance.Warn($"Ignoring ED prefix for opcode {MainMemory.ReadAsHexString(TheRegisters.PC, 4, true)} (Disabling future warnings).");
                     return ExecuteInstruction(InstructionSet.NopNop);
 
                 default:

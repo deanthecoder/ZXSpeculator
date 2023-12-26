@@ -10,6 +10,7 @@
 // or modifying this code.
 
 using System.Diagnostics;
+using CSharp.Utils;
 using CSharp.Utils.Extensions;
 using Speculator.Core.Utils;
 
@@ -111,8 +112,7 @@ public class ZxFileIo // todo - Implement .tap loading to support https://github
         var isVersion1 = m_cpu.TheRegisters.PC != 0x0000;
         if (!isVersion1)
         {
-            // todo - pop up a message.
-            Console.WriteLine("Unsupported Z80 version (Only v1 implemented).");
+            Logger.Instance.Warn("Unsupported Z80 version (Only v1 implemented).");
             return;
         }
         

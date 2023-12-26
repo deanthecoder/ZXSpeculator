@@ -13,6 +13,7 @@
 
 using System.Diagnostics;
 using System.Text;
+using CSharp.Utils;
 using CSharp.Utils.ViewModels;
 
 // ReSharper disable InconsistentNaming
@@ -82,7 +83,7 @@ public partial class CPU : ViewModelBase
         m_debuggerTickEvent.Set();
         var unused = String.Empty;
         Disassemble(TheRegisters.PC, ref unused, out var mnemonics);
-        Console.WriteLine($"{TheRegisters.PC:X04}: {mnemonics}");
+        Logger.Instance.Info($"{TheRegisters.PC:X04}: {mnemonics}");
         RaiseAllPropertyChanged();
     }
 
