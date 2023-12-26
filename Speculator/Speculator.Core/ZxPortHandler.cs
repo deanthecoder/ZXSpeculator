@@ -25,6 +25,7 @@ public class ZxPortHandler : IPortHandler, IDisposable
     private readonly Dictionary<KeyCode[], KeyCode[]> m_pcToSpectrumKeyMap;
     private readonly SimpleGlobalHook m_keyboardHook;
     private bool m_oldBit5 = true; // Prevents initial 'click' when booting.
+    private bool m_bit4;
 
     /// <summary>
     /// The keyboard hooks work regardless of whether the app has focus.
@@ -82,17 +83,23 @@ public class ZxPortHandler : IPortHandler, IDisposable
 
     public byte In(ushort portAddress)
     {
+        var result = (byte)0xFF; // 'floating' bux value.
+        
         if ((portAddress & 0x00FF) == 0xFE)
         {
             lock (m_realKeysPressed)
-                return ReadKeyboardPort(portAddress);
-        }
+                result = ReadKeyboardPort(portAddress);
 
-        if ((portAddress & 0x001F) == 0x1F)
-            return ReadJoystickPort();
+            // The docs say 'Bit 6 of IN-Port 0xfe is the EAR input bit.'
+            // ...as set by an OUT instruction.
+            // Not sure it makes a difference, but we can emulate it.
+            if (m_bit4)
+                result = (byte)(result | 0x40);
+        } 
+        else if ((portAddress & 0x001F) == 0x1F)
+            result = ReadJoystickPort();
 
-        // Floating bus value.
-        return 0xFF;
+        return result;
     }
     
     private byte ReadJoystickPort()
@@ -198,9 +205,9 @@ public class ZxPortHandler : IPortHandler, IDisposable
             return;
         
         // Sounds.
-        var bit4 = (b & 0x10) != 0; // Speaker on/off.
+        m_bit4 = (b & 0x10) != 0; // Speaker on/off.
         var bit5 = (b & 0x08) == 0; // Mic (Inverted, and used when saving)
-        m_soundHandler?.SetSpeakerState(bit4 || (bit5 && !m_oldBit5));
+        m_soundHandler?.SetSpeakerState(m_bit4 || (bit5 && !m_oldBit5));
         m_oldBit5 = bit5;
         
         // Lower 3 bits will set the border color.
