@@ -9,15 +9,12 @@
 //  </summary>
 // -----------------------------------------------------------------------
 
-using System;
-using System.IO;
-using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using CSharp.Utils.Extensions;
 
-namespace Speculator.Commands;
+namespace CSharp.Utils.Commands;
 
 public class FileOpenCommand : CommandBase
 {

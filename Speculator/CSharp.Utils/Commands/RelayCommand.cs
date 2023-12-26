@@ -9,9 +9,7 @@
 //  </summary>
 // -----------------------------------------------------------------------
 
-using System;
-
-namespace Speculator.Commands;
+namespace CSharp.Utils.Commands;
 
 public class RelayCommand : CommandBase
 {

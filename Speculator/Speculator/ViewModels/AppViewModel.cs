@@ -11,9 +11,9 @@
 
 using System.Windows.Input;
 using Avalonia;
+using CSharp.Utils.Commands;
 using CSharp.Utils.Extensions;
 using ReactiveUI;
-using Speculator.Commands;
 using Speculator.Views;
 
 namespace Speculator.ViewModels;

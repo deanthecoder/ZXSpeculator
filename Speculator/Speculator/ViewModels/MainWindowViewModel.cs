@@ -11,9 +11,9 @@
 
 using System;
 using Avalonia;
+using CSharp.Utils.Commands;
 using CSharp.Utils.Extensions;
 using CSharp.Utils.ViewModels;
-using Speculator.Commands;
 using Speculator.Core;
 
 namespace Speculator.ViewModels;

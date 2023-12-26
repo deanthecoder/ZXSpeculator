@@ -9,10 +9,9 @@
 //  </summary>
 // -----------------------------------------------------------------------
 
-using System;
 using System.Windows.Input;
 
-namespace Speculator.Commands;
+namespace CSharp.Utils.Commands;
 
 public abstract class CommandBase : ICommand
 {
