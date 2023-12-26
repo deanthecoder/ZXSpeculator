@@ -6,13 +6,13 @@
         xmlns:views="clr-namespace:Speculator.Views"
         mc:Ignorable="d"
         d:DesignWidth="600"
-        d:DesignHeight="600"
+        d:DesignHeight="650"
         x:Class="Speculator.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/app.ico"
         Title="ZX Speculator"
-        Width="1000">
-
+        Width="1000"
+        Height="575">
     <Design.DataContext>
         <vm:MainWindowViewModel />
     </Design.DataContext>
@@ -28,8 +28,8 @@
         <KeyBinding Command="{Binding ResetMachine}" Gesture="{OnPlatform 'escape'}" />
     </Window.KeyBindings>
 
-    <Grid RowDefinitions="Auto,*">
-        <Menu Grid.Row="0">
+    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,*">
+        <Menu>
             <MenuItem Header="_File">
                 <MenuItem Header="_Load ROM" Command="{Binding LoadRom}"
                           InputGesture="{OnPlatform 'ctrl+o', macOS='⌘+o'}"/>
@@ -55,12 +55,10 @@
             </MenuItem>
         </Menu>
 
-        <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
-            <Image Source="{Binding Display.Bitmap}" Loaded="OnScreenBitmapLoaded" />
-            
-            <ScrollViewer Grid.Column="1">
-                <views:DebugPane IsVisible="{Binding IsDebuggingEnabled}" />
-            </ScrollViewer>
-        </Grid>
+        <Image Grid.Row="1" Grid.Column="0"
+               Source="{Binding Display.Bitmap}" Loaded="OnScreenBitmapLoaded" />
+
+        <views:DebugPane Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" 
+                         IsVisible="{Binding IsDebuggingEnabled}" />
     </Grid>
 </Window>

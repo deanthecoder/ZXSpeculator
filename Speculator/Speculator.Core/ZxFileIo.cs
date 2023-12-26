@@ -146,14 +146,11 @@ public class ZxFileIo // todo - Implement .tap loading to support https://github
         }
 
         Debug.Assert(data.Count <= 48 * 1024);
-
-        data.CopyTo(m_cpu.MainMemory.Data, 0x4000);
+        m_cpu.MainMemory.LoadData(data, 0x4000);
     }
 
-    private void LoadSCR(FileInfo file)
-    {
-        file.ReadAllBytes().CopyTo(m_cpu.MainMemory.Data, ZxDisplay.ScreenBase);
-    }
+    private void LoadSCR(FileInfo file) =>
+        m_cpu.MainMemory.LoadData(file.ReadAllBytes(), ZxDisplay.ScreenBase);
 
     public void SaveFile(FileInfo file)
     {
@@ -245,7 +242,7 @@ public class ZxFileIo // todo - Implement .tap loading to support https://github
 
     private void LoadBIN(FileInfo file)
     {
-        file.ReadAllBytes().CopyTo(m_cpu.MainMemory.Data, 0x8000);
+        m_cpu.MainMemory.LoadData(file.ReadAllBytes(), 0x8000);
         m_cpu.TheRegisters.PC = 0x8000;
     }
 }

@@ -25,11 +25,13 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     public bool IsSoundEnabled { get; private set; } = true;
     public bool IsFullThrottle { get; private set; }
     public bool IsDebuggingEnabled { get; private set; }
+    public MemoryDumpViewModel MemoryDump { get; }
 
     public MainWindowViewModel()
     {
         Display = new ZxDisplay();
         Speccy = new ZxSpectrum(Display).LoadBasicRom();
+        MemoryDump = new MemoryDumpViewModel(Speccy.TheCpu.MainMemory);
     }
 
     public void LoadRom()

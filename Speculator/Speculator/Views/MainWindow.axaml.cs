@@ -36,6 +36,6 @@ public partial class MainWindow : Window
         
         // Kick the UI to update the screen when the emulator updates it.
         var action = new Action(() => (sender as Image)?.InvalidateVisual());
-        ViewModel.Display.Refreshed += (_, _) => Dispatcher.UIThread.InvokeAsync(action);
+        ViewModel.Display.Refreshed += (_, _) => Dispatcher.UIThread.Invoke(action);
     }
 }

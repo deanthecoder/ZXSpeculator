@@ -64,7 +64,7 @@ public class ZexDocTests
         };
 
         // Load the ZexDoc image.
-        cpu.MainMemory.Poke(cpu.TheRegisters.PC, zexDocBin.ReadAllBytes());
+        cpu.MainMemory.LoadData(zexDocBin.ReadAllBytes(), cpu.TheRegisters.PC);
 
         var baseMemorySnapshot = cpu.MainMemory.Data.ToArray();
         var restoredFromSnapshot = false;

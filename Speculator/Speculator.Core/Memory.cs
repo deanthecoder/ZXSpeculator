@@ -18,17 +18,16 @@ public class Memory
 {
     private int m_romSize;
 
-    public byte[] Data { get; } = new byte[0x10000];
+    /// <summary>
+    /// Raised when a large chunk of data is loaded from an external source (I.e. Disk).
+    /// </summary>
+    public event EventHandler DataLoaded;
 
-    private void ClearAll()
-    {
-        m_romSize = 0;
-        Array.Clear(Data);
-    }
+    public byte[] Data { get; } = new byte[0x10000];
 
     public void Poke(ushort addr, byte value)
     {
-        if (addr < m_romSize)
+        if (IsRom(addr))
             return; // Can't write to ROM.
         Data[addr] = value;
     }
@@ -37,12 +36,6 @@ public class Memory
     {
         Poke(addr, (byte)(v & 0x00ff));
         Poke((ushort)(addr + 1), (byte)(v >> 8));
-    }
-
-    public void Poke(ushort addr, IEnumerable<byte> bytes)
-    {
-        foreach (var b in bytes)
-            Poke(addr++, b);
     }
 
     public byte Peek(ushort addr) => Data[addr];
@@ -57,7 +50,7 @@ public class Memory
         Debug.Assert(byteCount > 0, "byteCount must be positive.");
 
         var result = string.Empty;
-        for (var i = 0; i < byteCount && addr + i < 0xffff; i++)
+        for (var i = 0; i < byteCount && addr + i <= 0xffff; i++)
         {
             result += Peek((ushort)(addr + i)).ToString("X2");
             if (wantSpaces)
@@ -77,9 +70,20 @@ public class Memory
         Debug.WriteLine("ROM size: {0} bytes.", fileStream.Length);
         Debug.Assert(fileStream.Length <= 0xffff, "ROM is too large to fit in memory.");
 
-        ClearAll();
+        Array.Clear(Data);
         var romBytes = new FileInfo(systemRom).ReadAllBytes();
-        Poke(0x0000, romBytes);
         m_romSize = romBytes.Length;
+        LoadData(romBytes, 0x0000);
+    }
+    
+    public bool IsRom(ushort addr) => addr < m_romSize;
+    
+    /// <summary>
+    /// Bulk load data into memory (such as from disk).
+    /// </summary>
+    public void LoadData(IList<byte> data, int addr)
+    {
+        data.CopyTo(Data, addr);
+        DataLoaded?.Invoke(this, EventArgs.Empty);
     }
 }
