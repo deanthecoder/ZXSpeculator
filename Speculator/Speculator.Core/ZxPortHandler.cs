@@ -24,6 +24,7 @@ public class ZxPortHandler : IPortHandler, IDisposable
     private readonly List<KeyCode> m_realKeysPressed = new List<KeyCode>();
     private readonly Dictionary<KeyCode[], KeyCode[]> m_pcToSpectrumKeyMap;
     private readonly SimpleGlobalHook m_keyboardHook;
+    private bool m_oldBit5 = true; // Prevents initial 'click' when booting.
 
     /// <summary>
     /// The keyboard hooks work regardless of whether the app has focus.
@@ -92,7 +93,6 @@ public class ZxPortHandler : IPortHandler, IDisposable
 
         // Floating bus value.
         return 0xFF;
-
     }
     
     private byte ReadJoystickPort()
@@ -197,13 +197,15 @@ public class ZxPortHandler : IPortHandler, IDisposable
         if (port != 0xFE)
             return;
         
-        // Bit 4 is the speaker on/off bit.
-        var bit4 = (b & (1 << 4)) != 0;
-        m_soundHandler?.SetSpeakerState(bit4);
+        // Sounds.
+        var bit4 = (b & 0x10) != 0; // Speaker on/off.
+        var bit5 = (b & 0x08) == 0; // Mic (Inverted, and used when saving)
+        m_soundHandler?.SetSpeakerState(bit4 || (bit5 && !m_oldBit5));
+        m_oldBit5 = bit5;
         
         // Lower 3 bits will set the border color.
         if (m_theDisplay != null)
-            m_theDisplay.BorderAttr = b;
+            m_theDisplay.BorderAttr = (byte)(b & 0x07);
     }
 
     private bool IsZxKeyPressed(KeyCode key)
