@@ -8,6 +8,7 @@
              xmlns:dialogHostAvalonia="clr-namespace:DialogHostAvalonia;assembly=DialogHost.Avalonia"
              xmlns:converters="clr-namespace:CSharp.Utils.Converters;assembly=CSharp.Utils"
              RequestedThemeVariant="Default"
+             Name="ZX Speculator"
              x:DataType="viewModels:AppViewModel">
 
     <Application.DataTemplates>
