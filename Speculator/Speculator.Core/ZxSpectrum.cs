@@ -32,12 +32,12 @@ public class ZxSpectrum : IDisposable
     {
         TheDisplay = display;
         PortHandler = new ZxPortHandler(SoundHandler, TheDisplay);
-        TheCpu = new CPU(new Memory(display), PortHandler, SoundHandler)
+        TheCpu = new CPU(new Memory(), PortHandler, SoundHandler)
         {
             TStatesPerInterrupt = TStatesPerRenderFrame
         };
 
-        TheCpu.RenderCallbackEvent += TheCPU_RenderCallbackEvent;
+        TheCpu.RenderScanline += TheDisplay.OnRenderScanline;
     }
     
     public ZxSpectrum LoadBasicRom()
@@ -46,8 +46,6 @@ public class ZxSpectrum : IDisposable
         TheCpu.MainMemory.LoadRom(systemRom);
         return this;
     }
-
-    private void TheCPU_RenderCallbackEvent(CPU sender) => TheDisplay.UpdateScreen(sender);
 
     public void Dispose()
     {

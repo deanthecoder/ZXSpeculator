@@ -29,11 +29,23 @@ public partial class CPU : ViewModelBase
     private readonly AutoResetEvent m_debuggerTickEvent = new AutoResetEvent(false);
     private bool m_shutdownRequested;
     private bool m_resetRequested;
+    private int m_TStatesSinceInterrupt;
+    private long m_TStatesSinceCpuStart;
+    private bool m_fullThrottle;
+    private bool m_isDebugging;
+    private bool m_isPaused;
+    private int m_previousScanline;
 
+    public const double TStatesPerSecond = 3494400;
+
+    public event EventHandler<(Memory memory, int scanline)> RenderScanline;
+
+    public int TStatesPerInterrupt { private get; init; }
+
+    public ClockSync ClockSync { get; }
     public Registers TheRegisters { get; }
     public Memory MainMemory { get; }
     public bool IsHalted { get; private set; }
-
     public object CpuStepLock { get; } = new object();
 
     public CPU(Memory mainMemory, IPortHandler portHandler = null, SoundHandler soundHandler = null)
@@ -169,17 +181,22 @@ public partial class CPU : ViewModelBase
         // Execute instruction.
         var TStates = ExecuteAtPC();
         m_TStatesSinceCpuStart += TStates;
+        m_TStatesSinceInterrupt += TStates;
             
         // Record speaker state.
         m_soundHandler?.SampleSpeakerState(m_TStatesSinceCpuStart);
 
+        // Screen build-up.
+        var scanline = m_TStatesSinceInterrupt / 224;
+        if (scanline != m_previousScanline)
+        {
+            m_previousScanline = scanline;
+            RenderScanline?.Invoke(this, (MainMemory, scanline));
+        }
+
         // Time to handle interrupts?
-        m_TStatesSinceInterrupt += TStates;
         if (TStatesPerInterrupt == 0 || m_TStatesSinceInterrupt < TStatesPerInterrupt)
             return;
-        
-        // Screen refresh.
-        RenderCallbackEvent?.Invoke(this);
 
         // Handle MI interrupts.
         if (TheRegisters.IFF1 && !oldIFF)
@@ -215,22 +232,7 @@ public partial class CPU : ViewModelBase
                 break;
         }
     }
-
-    private int m_TStatesSinceInterrupt;
-    private long m_TStatesSinceCpuStart;
-
-    public const double TStatesPerSecond = 3494400;
-
-    public int TStatesPerInterrupt { private get; init; }
-    public delegate void RenderCallbackEventHandler(CPU sender);
-
-    public event RenderCallbackEventHandler RenderCallbackEvent;
-
-    private bool m_fullThrottle;
-    private bool m_isDebugging;
-    private bool m_isPaused;
-    public ClockSync ClockSync { get; }
-
+    
     private byte doIN_addrC()
     {
         var portAddress = (TheRegisters.Main.B << 8) + TheRegisters.Main.C;

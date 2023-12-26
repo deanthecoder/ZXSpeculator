@@ -37,10 +37,7 @@ public class ZxFileIo // todo - Implement .tap loading to support https://github
             throw new FileNotFoundException(fileInfo.FullName);
 
         lock (m_cpu.CpuStepLock)
-        {
             LoadFileInternal(fileInfo);
-            m_zxDisplay.IsScreenDirty = true;
-        }
     }
 
     private void LoadFileInternal(FileInfo fileInfo)

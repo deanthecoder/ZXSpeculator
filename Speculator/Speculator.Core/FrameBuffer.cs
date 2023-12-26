@@ -11,9 +11,9 @@ public static class FrameBuffer
         return new Span<byte>(framePtr + offset, bytesPerPixel);
     }
 
-    public unsafe static void SetPixel(byte* framePtr, int frameBufferRowBytes, int x, int y, Color color)
+    public unsafe static void SetPixel(byte* framePtr, int framerBufferStride, int x, int y, Color color)
     {
-        var pixel = GetPixel(framePtr, frameBufferRowBytes, x, y);
+        var pixel = GetPixel(framePtr, framerBufferStride, x, y);
         var alpha = color.A / 255.0;
         pixel[0] = (byte)(color.R * alpha);
         pixel[1] = (byte)(color.G * alpha);

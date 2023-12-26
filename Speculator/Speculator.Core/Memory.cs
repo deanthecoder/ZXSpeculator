@@ -16,36 +16,20 @@ namespace Speculator.Core;
 
 public class Memory
 {
-    private readonly ZxDisplay m_theDisplay;
     private int m_romSize;
 
-    public Memory(ZxDisplay theDisplay)
-    {
-        m_theDisplay = theDisplay;
-        m_romSize = 0;
-        Data = new byte[0x10000];
-    }
-
-    public byte[] Data { get; }
+    public byte[] Data { get; } = new byte[0x10000];
 
     private void ClearAll()
     {
         m_romSize = 0;
-        for (var i = 0; i < Data.Length; i++)
-            Poke((ushort)i, 0); // Don't optimize - This ensures the screen refreshes.
+        Array.Clear(Data);
     }
 
     public void Poke(ushort addr, byte value)
     {
         if (addr < m_romSize)
             return; // Can't write to ROM.
-
-        if (Data[addr] == value)
-            return; // No change.
-
-        // Write to pixel or color area?
-        m_theDisplay?.OnMemoryWrite(addr);
-        
         Data[addr] = value;
     }
 

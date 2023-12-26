@@ -18,8 +18,28 @@ namespace Speculator.Core;
 
 public class ZxDisplay
 {
-    internal const int ScreenBase = 0x4000;
+    public const int ScreenBase = 0x4000;
     private const int ColorMapBase = 0x5800;
+    private const int LeftMargin = 32;
+    private const int RightMargin = 32;
+    private const int TopMargin = 24;
+    private const int BottomMargin = 24;
+    private const int WriteableWidth = 256;
+    private const int WritableHeight = 192;
+
+    /// <summary>
+    /// Buffer of pixels, each byte a palette index.
+    /// </summary>
+    private readonly byte[][] m_screenBuffer = Enumerable.Range(0, TopMargin + WritableHeight + BottomMargin).Select(_ => new byte[LeftMargin + WriteableWidth + RightMargin]).ToArray();
+
+    private const int FramesPerFlash = 16;
+    private int m_flashFrameCount;
+    private bool m_isFlashing;
+    
+    /// <summary>
+    /// Used to prevent unnecessary UI screen refreshes.
+    /// </summary>
+    private bool m_didPixelsChange;
 
     private static readonly List<Color> Colors = new List<Color>
     {
@@ -41,57 +61,16 @@ public class ZxDisplay
         Color.FromRgb(0xFF, 0xFF, 0xFF)   // Bright White
     };
 
-    private const int LeftMargin = 32;
-    private const int RightMargin = 32;
-    private const int TopMargin = 24;
-    private const int BottomMargin = 24;
-    private const int WriteableWidth = 256;
-    private const int WritableHeight = 192;
-
     public WriteableBitmap Bitmap { get; } = new WriteableBitmap(new PixelSize(LeftMargin + WriteableWidth + RightMargin, TopMargin + WritableHeight + BottomMargin), new Vector(96, 96), PixelFormat.Rgba8888);
 
-    /// <summary>
-    /// Used to optimize screen rendering - Only refreshing the display if needed.
-    /// </summary>
-    public bool IsScreenDirty { get; set; } = true;
-
-    public byte BorderAttr
-    {
-        get => m_borderAttr;
-        set
-        {
-            if (m_borderAttr == value)
-                return;
-            m_borderAttr = value;
-            IsScreenDirty = true;
-        }
-    }
+    public byte BorderAttr { get; set; }
 
     public event EventHandler Refreshed;
 
-    private unsafe static void SetPixelGroup(byte* framePtr, int frameBufferRowBytes, int characterColumn, int y, byte pixels, byte attr, bool invertColors = false)
+    private static (byte, byte) GetColorIndices(byte attr, bool invert = false)
     {
-        var penAndPaper = GetColorIndices(attr, invertColors);
-        SetPixelGroup(framePtr, frameBufferRowBytes, characterColumn, y, pixels, penAndPaper.Item1, penAndPaper.Item2);
-    }
-    
-    private unsafe static void SetPixelGroup(byte* framePtr, int frameBufferRowBytes, int characterColumn, int y, byte pixels, int penIndex, int paperIndex)
-    {
-        var x = characterColumn * 8;
-
-        var offset = 0;
-        for (var i = 7; i >= 0; i--)
-        {
-            var isSet = (pixels & (1 << i)) != 0;
-            FrameBuffer.SetPixel(framePtr, frameBufferRowBytes, x + offset, y, Colors[isSet ? penIndex : paperIndex]);
-            offset++;
-        }
-    }
-
-    private static (int, int) GetColorIndices(byte attr, bool invert = false)
-    {
-        var paperIndex = attr >> 3 & 0x07;
-        var penIndex = attr & 0x07;
+        var paperIndex = (byte)(attr >> 3 & 0x07);
+        var penIndex = (byte)(attr & 0x07);
         
         var isBright = attr & 0x40;
         if (isBright != 0)
@@ -102,81 +81,93 @@ public class ZxDisplay
 
         return invert ? (paperIndex, penIndex) : (penIndex, paperIndex);
     }
-
-    private byte m_previousBorderColor;
-
-    private const int FramesPerFlash = 16;
-    private int m_flashFrameCount;
-    private bool m_isFlashing;
-    private byte m_borderAttr;
-
-    unsafe internal void UpdateScreen(CPU sender)
+    
+    public void OnRenderScanline(object sender, (Memory memory, int scanline) args)
     {
-        // Flashing?
-        if (m_flashFrameCount++ == FramesPerFlash)
+        var y = args.scanline - (48 - TopMargin);
+        if (y < 0 || y >= m_screenBuffer.Length)
         {
-            m_isFlashing = !m_isFlashing;
-            m_flashFrameCount = 0;
-            IsScreenDirty = true;
+            // Off-screen(/vsync) area.
+            return;
+        }
+        
+        // Fill entire line with border color.
+        var border = GetColorIndices(BorderAttr).Item1;
+        if (m_screenBuffer[y][0] != border)
+        {
+            m_didPixelsChange = true;
+            Array.Fill(m_screenBuffer[y], border);
         }
 
-        if (!IsScreenDirty)
+        // Set Y to the drawable screen coordinate.
+        y -= TopMargin;
+        if (y < 0 || y >= WritableHeight)
+        {
+            // In top or bottom border area - No screen content needed.
             return;
-        IsScreenDirty = false;
+        }
+        
+        // Draw screen pixel content.
+        var y76 = (byte)(y >> 6);
+        var y210 = (byte)(y & 0x07);
+        var y543 = (byte)((y >> 3) & 0x07);
+        var srcRowStart = (ushort)(0x4000 | (y76 << 11) | (y210 << 8) | (y543 << 5));
 
-        var borderAttr = BorderAttr;
+        var characterRow = y / 8;
+        for (var characterColumn = 0; characterColumn < 32; characterColumn++)
+        {
+            // Get block of 8 horizontal pixels.
+            var screenByte = args.memory.Data[srcRowStart + characterColumn]; 
+
+            // Get the pen/paper color for this block.
+            var a = characterRow * 32 + characterColumn;
+            var attr = args.memory.Data[ColorMapBase + a];
+            var isFlashSet = (attr & 0x80) != 0;
+            var penAndPaper = GetColorIndices(attr, m_isFlashing && isFlashSet);
+
+            // Write indexed colors for the 8 pixel block.
+            var off = LeftMargin + characterColumn * 8;
+            for (var i = 7; i >= 0; i--, off++)
+            {
+                var isSet = (screenByte & (1 << i)) != 0;
+                var index = isSet ? penAndPaper.Item1 : penAndPaper.Item2;
+                if (m_screenBuffer[y + TopMargin][off] == index)
+                    continue;
+                m_didPixelsChange = true;
+                m_screenBuffer[y + TopMargin][off] = index;
+            }
+        }
+        
+        // If scanline reached the bottom of the screen, update the UI.
+        if (y == WritableHeight - 1)
+        {
+            // Update the flash.
+            if (m_flashFrameCount++ == FramesPerFlash)
+            {
+                m_isFlashing = !m_isFlashing;
+                m_flashFrameCount = 0;
+            }
+            
+            if (m_didPixelsChange)
+                UpdateScreen();
+            m_didPixelsChange = false;
+        }
+    }
+    
+    private unsafe void UpdateScreen()
+    {
         using (var frameBuffer = Bitmap.Lock())
         {
             var framePtr = (byte*)frameBuffer.Address;
-            var frameBufferRowBytes = frameBuffer.RowBytes;
+            var framerBufferStride = frameBuffer.RowBytes;
 
-            if (m_previousBorderColor != borderAttr)
+            for (var y = 0; y < m_screenBuffer.Length; y++)
             {
-                m_previousBorderColor = borderAttr;
-
-                var penAndPaper = GetColorIndices(borderAttr, true);
-                
-                // Draw top/bottom borders.
-                for (var x = 0; x < Bitmap.PixelSize.Width / 8; x++)
-                {
-                    for (var y = 0; y < TopMargin; y++)
-                        SetPixelGroup(framePtr, frameBufferRowBytes, x, y, 0x00, penAndPaper.Item1, penAndPaper.Item2);
-                    for (var y = 0; y < BottomMargin; y++)
-                        SetPixelGroup(framePtr, frameBufferRowBytes, x, TopMargin + WritableHeight + y, 0x00, penAndPaper.Item1, penAndPaper.Item2);
-                }
-
-                // Draw left/right borders.
-                for (var y = 0; y < WritableHeight; y++)
-                {
-                    for (var x = 0; x < LeftMargin / 8; x++)
-                        SetPixelGroup(framePtr, frameBufferRowBytes, x, TopMargin + y, 0x00, penAndPaper.Item1, penAndPaper.Item2);
-                    for (var x = 0; x < RightMargin / 8; x++)
-                        SetPixelGroup(framePtr, frameBufferRowBytes, (LeftMargin + WriteableWidth) / 8 + x, TopMargin + y, 0x00, penAndPaper.Item1, penAndPaper.Item2);
-                }
-            }
-
-            // Draw content.
-            for (var i = 0; i < 6144; i++)
-            {
-                var addr = ScreenBase + i;
-                var tt = addr >> 11 & 0x03;
-                var lll = addr >> 8 & 0x07;
-                var cr = addr >> 5 & 0x07;
-                var cc = addr & 0x1F;
-
-                var pixelY = cr * 8 + tt * 64 + lll;
-                var screenByte = sender.MainMemory.Data[addr];
-
-                var characterAttr = sender.MainMemory.Data[ColorMapBase + (tt * 8 + cr) * 32 + cc];
-                var isFlashSet = (characterAttr & 0x80) != 0;
-                SetPixelGroup(framePtr, frameBufferRowBytes, cc + LeftMargin / 8, pixelY + TopMargin, screenByte, characterAttr, m_isFlashing && isFlashSet);
+                for (var x = 0; x < m_screenBuffer[0].Length; x++)
+                    FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y, Colors[m_screenBuffer[y][x]]);
             }
         }
 
-        // todo - Only send if content changed.
         Refreshed?.Invoke(this, EventArgs.Empty);
     }
-
-    public void OnMemoryWrite(int addr) =>
-        IsScreenDirty |= addr >= ScreenBase && addr <= 0x5800 || addr >= ColorMapBase && addr <= 0x5B00;
 }

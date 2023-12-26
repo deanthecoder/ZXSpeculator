@@ -54,7 +54,7 @@ public class ZexDocTests
 
         // Create the CPU.
         using var portHandler = new ZxPortHandler(null, null);
-        var cpu = new CPU(new Memory(null), portHandler)
+        var cpu = new CPU(new Memory(), portHandler)
         {
             TheRegisters =
             {
