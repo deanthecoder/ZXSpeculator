@@ -136,7 +136,8 @@ public partial class CPU : ViewModelBase
             // Allow debugger to stall execution.
             if (IsDebugging)
             {
-                m_debuggerTickEvent.WaitOne();
+                if (!m_debuggerTickEvent.WaitOne(100))
+                    continue;
             }
             else
             {
