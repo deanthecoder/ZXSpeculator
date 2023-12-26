@@ -82,7 +82,10 @@ public class ZxPortHandler : IPortHandler, IDisposable
     public byte In(ushort portAddress)
     {
         if ((portAddress & 0x00FF) == 0xFE)
-            return ReadKeyboardPort(portAddress);
+        {
+            lock (m_realKeysPressed)
+                return ReadKeyboardPort(portAddress);
+        }
 
         if ((portAddress & 0x001F) == 0x1F)
             return ReadJoystickPort();
@@ -91,6 +94,7 @@ public class ZxPortHandler : IPortHandler, IDisposable
         return 0xFF;
 
     }
+    
     private byte ReadJoystickPort()
     {
         byte b = 0x00;
@@ -110,7 +114,6 @@ public class ZxPortHandler : IPortHandler, IDisposable
     private byte ReadKeyboardPort(ushort portAddress)
     {
         byte result = 0x00;
-
         var hi = (byte)(portAddress >> 8);
 
         if ((hi & 0x80) == 0)
@@ -226,13 +229,17 @@ public class ZxPortHandler : IPortHandler, IDisposable
 
     private void SetKeyDown(KeyCode keyCode)
     {
-        if (!m_realKeysPressed.Contains(keyCode))
-            m_realKeysPressed.Add(keyCode);
+        lock (m_realKeysPressed)
+        {
+            if (!m_realKeysPressed.Contains(keyCode))
+                m_realKeysPressed.Add(keyCode);
+        }
     }
 
     private void SetKeyUp(KeyCode keyCode)
     {
-        m_realKeysPressed.Remove(keyCode);
+        lock (m_realKeysPressed)
+            m_realKeysPressed.Remove(keyCode);
     }
     
     public void Dispose()
