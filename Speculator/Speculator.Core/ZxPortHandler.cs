@@ -24,7 +24,6 @@ public class ZxPortHandler : IPortHandler, IDisposable
     private readonly List<KeyCode> m_realKeysPressed = new List<KeyCode>();
     private readonly Dictionary<KeyCode[], KeyCode[]> m_pcToSpectrumKeyMap;
     private readonly SimpleGlobalHook m_keyboardHook;
-    private bool m_oldBit5 = true; // Prevents initial 'click' when booting.
     private bool m_bit4;
 
     /// <summary>
@@ -205,10 +204,9 @@ public class ZxPortHandler : IPortHandler, IDisposable
             return;
         
         // Sounds.
+        // todo - How to hook up mic bit too? (b & 0x80)
         m_bit4 = (b & 0x10) != 0; // Speaker on/off.
-        var bit5 = (b & 0x08) == 0; // Mic (Inverted, and used when saving)
-        m_soundHandler?.SetSpeakerState(m_bit4 || (bit5 && !m_oldBit5));
-        m_oldBit5 = bit5;
+        m_soundHandler?.SetSpeakerState(m_bit4);
         
         // Lower 3 bits will set the border color.
         if (m_theDisplay != null)
