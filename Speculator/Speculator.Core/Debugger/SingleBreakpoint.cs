@@ -17,10 +17,10 @@ public class SingleBreakpoint
                 return;
             
             if (m_isEnabled)
-                m_theCpu.AllowBreak -= OnAllowBreak;
+                m_theCpu.Ticked -= OnTicked;
             m_isEnabled = value;
             if (m_isEnabled)
-                m_theCpu.AllowBreak += OnAllowBreak;
+                m_theCpu.Ticked += OnTicked;
         }
     }
 
@@ -31,7 +31,7 @@ public class SingleBreakpoint
         IsEnabled = true;
     }
     
-    private void OnAllowBreak(object sender, EventArgs e)
+    private void OnTicked(object sender, EventArgs e)
     {
         if (m_theCpu.TheRegisters.PC != Addr)
             return; // Breakpoint not hit yet...

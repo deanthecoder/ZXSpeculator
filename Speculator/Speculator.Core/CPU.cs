@@ -37,7 +37,7 @@ public partial class CPU : ViewModelBase
 
     public const double TStatesPerSecond = 3494400;
 
-    public event EventHandler AllowBreak; 
+    public event EventHandler Ticked; 
     public event EventHandler<(Memory memory, int scanline)> RenderScanline;
 
     public int TStatesPerInterrupt { private get; init; }
@@ -94,9 +94,6 @@ public partial class CPU : ViewModelBase
     public void DebuggerStep()
     {
         m_debuggerTickEvent.Set();
-        var unused = string.Empty;
-        this.Disassemble(TheRegisters.PC, ref unused, out var mnemonics);
-        Logger.Instance.Info($"{TheRegisters.PC:X04}: {mnemonics}");
         RaiseAllPropertyChanged();
     }
 
@@ -140,7 +137,7 @@ public partial class CPU : ViewModelBase
             lock (CpuStepLock)
             {
                 Step();
-                AllowBreak?.Invoke(this, EventArgs.Empty);
+                Ticked?.Invoke(this, EventArgs.Empty);
             }
         }
 

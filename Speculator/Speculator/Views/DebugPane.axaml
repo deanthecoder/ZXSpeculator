@@ -7,7 +7,7 @@
              mc:Ignorable="d"
              d:DesignWidth="320"
              d:DesignHeight="700"
-             MinWidth="320"
+             MinWidth="330"
              x:DataType="debugger:Debugger"
              x:Class="Speculator.Views.DebugPane">
     <Design.DataContext>
@@ -266,6 +266,14 @@
                         </StackPanel>
                     </Border>
                 </RadioButton>
+                <RadioButton x:Name="HistoryTab">
+                    <Border>
+                        <StackPanel Orientation="Horizontal" Margin="8,2">
+                            <avalonia:MaterialIcon Kind="History" />
+                            <TextBlock Text="History" Margin="4,0" />
+                        </StackPanel>
+                    </Border>
+                </RadioButton>
             </StackPanel>
             
             <Grid Grid.Row="1"
@@ -385,6 +393,48 @@
                             </ListBox.ItemTemplate>
                         </ListBox>
                     </Grid>
+                </Grid>
+                
+                <!-- History pane -->
+                <Grid IsVisible="{Binding IsChecked, ElementName=HistoryTab}">
+                    <ListBox Background="#3F000000"
+                             ScrollViewer.VerticalScrollBarVisibility="Visible"
+                             ItemsSource="{Binding History}"
+                             Loaded="OnHistoryPaneLoaded"
+                             Padding="16,0">
+                        <ListBox.Styles>
+                            <Style Selector="TextBlock">
+                                <Setter Property="FontFamily" Value="Courier New" />
+                                <Setter Property="Margin" Value="0" />
+                                <Setter Property="HorizontalAlignment" Value="Left" />
+                            </Style>
+                            <Style Selector="ListBoxItem">
+                                <Setter Property="Padding" Value="0" />
+                            </Style>
+                        </ListBox.Styles>
+
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Inlines="{Binding ., Converter={StaticResource MarkdownToInlinesConverter}}"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    
+                    <ToggleButton IsChecked="{Binding RecordHistory}"
+                                  HorizontalAlignment="Right"
+                                  VerticalAlignment="Top"
+                                  Padding="0"
+                                  Margin="0,0,16,0">
+                        <ToggleButton.Styles>
+                            <Style Selector="ToggleButton[IsChecked=True]">
+                                <Setter Property="Foreground" Value="Red"/>
+                            </Style>
+                            <Style Selector="ToggleButton[IsChecked=False]">
+                                <Setter Property="Foreground" Value="#60FF0000"/>
+                            </Style>
+                        </ToggleButton.Styles>
+                        <avalonia:MaterialIcon Width="32" Height="32" Kind="RecordRec"/>
+                    </ToggleButton>
                 </Grid>
             </Grid>
         </Grid>
