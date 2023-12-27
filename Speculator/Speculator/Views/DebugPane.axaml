@@ -3,13 +3,15 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-             xmlns:viewModels="clr-namespace:Speculator.ViewModels"
+             xmlns:debugger="clr-namespace:Speculator.Core.Debugger;assembly=Speculator.Core"
              mc:Ignorable="d"
-             d:DesignWidth="400" d:DesignHeight="700"
-             x:DataType="viewModels:MainWindowViewModel"
+             d:DesignWidth="320"
+             d:DesignHeight="700"
+             MinWidth="320"
+             x:DataType="debugger:Debugger"
              x:Class="Speculator.Views.DebugPane">
     <Design.DataContext>
-        <viewModels:MainWindowViewModel />
+        <debugger:Debugger />
     </Design.DataContext>
     
     <Grid RowDefinitions="Auto,Auto,Auto,*"
@@ -33,16 +35,28 @@
             <Style Selector="Button > TextBlock">
                 <Setter Property="Margin" Value="0"/>
             </Style>
+            
+            <!-- Fake tabs -->
+            <Style Selector="RadioButton">
+                <Setter Property="Theme" Value="{DynamicResource MaterialButtonlikeRadioButton}"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="Padding" Value="4,0"/>
+            </Style>
+            <Style Selector="RadioButton[IsChecked=True] > Border">
+                <Setter Property="Background" Value="MediumPurple"/>
+                <Setter Property="CornerRadius" Value="4,4,0,0"/>
+            </Style>
         </Grid.Styles>
         
         <Grid ColumnDefinitions="Auto,Auto,Auto"
-              HorizontalAlignment="Center">
+              HorizontalAlignment="Center"
+              IsEnabled="{Binding IsStepping}">
             <!-- Registers -->
             <Grid ColumnDefinitions="Auto,Auto,24,Auto,Auto"
                   RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto"
                   HorizontalAlignment="Center"
                   Margin="0,8,0,0"
-                  DataContext="{Binding Speccy.TheCpu.TheRegisters}">
+                  DataContext="{Binding TheCpu.TheRegisters}">
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="PC" FontWeight="Bold"/>
                 <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding PC, StringFormat={}{0:X4}, Mode=OneWay}"/>
                 <TextBlock Grid.Row="0" Grid.Column="3" Text="SP" FontWeight="Bold" />
@@ -83,7 +97,7 @@
                         Margin="16,4"
                         HorizontalAlignment="Center">
                 <!-- Flags -->
-                <Border DataContext="{Binding Speccy.TheCpu.TheRegisters}"
+                <Border DataContext="{Binding TheCpu.TheRegisters}"
                         HorizontalAlignment="Center"
                         BorderThickness="1"
                         BorderBrush="White"
@@ -132,7 +146,7 @@
                 </Border>
                 
                 <!-- IFF -->
-                <Border DataContext="{Binding Speccy.TheCpu.TheRegisters}"
+                <Border DataContext="{Binding TheCpu.TheRegisters}"
                         BorderThickness="1"
                         BorderBrush="White"
                         CornerRadius="6">
@@ -164,34 +178,57 @@
         </Grid>
 
         <Grid Grid.Row="1"
-              ColumnDefinitions="Auto,Auto,*"
+              ColumnDefinitions="Auto,Auto,Auto,*"
               Margin="8,8">
+            
             <!-- Control buttons -->
-            <Button ToolTip.Tip="Step"
-                    ToolTip.Placement="RightEdgeAlignedBottom"
-                    Command="{Binding Speccy.TheCpu.DebuggerStep}"
-                    Click="OnStepPressed"
+            <Button Grid.Column="0"
+                    ToolTip.Tip="Break"
+                    Command="{Binding StartDebugging}"
+                    IsVisible="{Binding !IsStepping}"
                     Foreground="White"
+                    HorizontalAlignment="Right"
                     Margin="0,0,8,0">
-                <avalonia:MaterialIcon Width="20" Height="20" Kind="DebugStepOver"/>
+                <avalonia:MaterialIcon Width="20" Height="20" Kind="Pause" />
             </Button>
             <Button Grid.Column="1"
                     ToolTip.Tip="Run"
-                    Command="{Binding ToggleDebugging}"
+                    Command="{Binding StopDebugging}"
+                    IsVisible="{Binding IsStepping}"
                     Foreground="White"
-                    HorizontalAlignment="Right">
-                <avalonia:MaterialIcon Width="20" Height="20" Kind="Play"/>
+                    HorizontalAlignment="Right"
+                    Margin="0,0,8,0">
+                <avalonia:MaterialIcon Width="20" Height="20" Kind="Play" />
+            </Button>
+            <Button Grid.Column="2"
+                    ToolTip.Tip="Step"
+                    ToolTip.Placement="RightEdgeAlignedBottom"
+                    Command="{Binding TheCpu.DebuggerStep}"
+                    IsEnabled="{Binding IsStepping}"
+                    Click="OnStepPressed"
+                    Foreground="White">
+                <avalonia:MaterialIcon Width="20" Height="20" Kind="DebugStepOver"/>
             </Button>
 
             <!-- Uptime -->
-            <TextBlock Grid.Column="2"
-                       Text="{Binding Speccy.TheCpu.UpTime, StringFormat='Uptime: {0:F5}s'}"
-                       VerticalAlignment="Bottom" />
+            <TextBlock Grid.Column="3"
+                       Text="{Binding TheCpu.UpTime, StringFormat='Uptime: {0:F5}s'}"
+                       VerticalAlignment="Bottom"
+                       IsVisible="{Binding IsStepping}" />
+            
+            <!-- Instructions -->
+            <TextBlock Grid.Column="3"
+                       Text="Pause to debug"
+                       Foreground="Orange"
+                       VerticalAlignment="Center"
+                       IsVisible="{Binding !IsStepping}" />
         </Grid>
         
         <!-- Disassembly -->
         <Grid Grid.Row="2"
-              Background="#3F000000" Margin="4,0">
+              Background="#3F000000"
+              Margin="4,0"
+              IsVisible="{Binding IsStepping}">
             <Border Background="MediumPurple" Height="16"
                     VerticalAlignment="Top"
                     CornerRadius="4"
@@ -201,56 +238,155 @@
                        Padding="8"
                        Margin="16,0">
                 <TextBlock.Inlines>
-                    <Binding Path="Speccy.TheCpu.Disassembly" Converter="{StaticResource MarkdownToInlinesConverter}" />
+                    <Binding Path="TheCpu.Disassembly" Converter="{StaticResource MarkdownToInlinesConverter}" />
                 </TextBlock.Inlines>
             </TextBlock>
         </Grid>
         
-        <!-- Memory -->
+        <!-- Memory/Breakpoints -->
         <Grid Grid.Row="3"
               RowDefinitions="Auto,*"
-              Margin="4,8">
-            <TextBlock Text="Memory" HorizontalAlignment="Left" />
-            <ListBox Grid.Row="1"
-                     Background="#3F000000"
-                     ScrollViewer.VerticalScrollBarVisibility="Visible"
-                     ItemsSource="{Binding MemoryDump.Content}"
-                     MinHeight="50"
-                     Margin="0,4"
-                     Padding="16,0">
-                <ListBox.Styles>
-                    <Style Selector="TextBlock">
-                        <Setter Property="FontFamily" Value="Courier New"/>
-                        <Setter Property="Margin" Value="0"/>
-                    </Style>
-                    <Style Selector="ListBoxItem">
-                        <Setter Property="Padding" Value="0"/>
-                    </Style>
-                </ListBox.Styles>
-                
-                <ListBox.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <VirtualizingStackPanel />
-                    </ItemsPanelTemplate>
-                </ListBox.ItemsPanel>
-                
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
-                            <StackPanel.Styles>
-                                <Style Selector="TextBlock[Tag=True]">
-                                    <Setter Property="Foreground" Value="Cyan"/>
-                                </Style>
-                                <Style Selector="TextBlock[Tag=False]">
-                                    <Setter Property="Foreground" Value="White"/>
-                                </Style>
-                            </StackPanel.Styles>
-                            <TextBlock Text="{Binding Addr}" Margin="0,0,16,0" Tag="{Binding IsBios}"/>
-                            <TextBlock Text="{Binding Values}" />
+              Margin="4,8"
+              IsVisible="{Binding IsStepping}">
+            <!-- 'Tabs' -->
+            <StackPanel Orientation="Horizontal">
+                <RadioButton x:Name="MemoryTab" IsChecked="True">
+                    <Border>
+                        <StackPanel Orientation="Horizontal" Margin="8,2">
+                            <avalonia:MaterialIcon Kind="Chip" />
+                            <TextBlock Text="Memory" Margin="4,0" />
                         </StackPanel>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+                    </Border>
+                </RadioButton>
+                <RadioButton x:Name="BreakpointTab">
+                    <Border>
+                        <StackPanel Orientation="Horizontal" Margin="8,2">
+                            <avalonia:MaterialIcon Kind="CheckboxMultipleBlankCircleOutline" />
+                            <TextBlock Text="Breakpoints" Margin="4,0" />
+                        </StackPanel>
+                    </Border>
+                </RadioButton>
+            </StackPanel>
+            
+            <Grid Grid.Row="1"
+                  MinHeight="50"
+                  Margin="0,4">
+                <Grid.Styles>
+                    <Style Selector="TextBox">
+                        <Setter Property="IsReadOnly" Value="False"/>
+                    </Style>
+                </Grid.Styles>
+                
+                <!-- Memory pane -->
+                <ListBox IsVisible="{Binding IsChecked, ElementName=MemoryTab}"
+                         Background="#3F000000"
+                         ScrollViewer.VerticalScrollBarVisibility="Visible"
+                         ItemsSource="{Binding MemoryDump.Content}"
+                         Padding="16,0">
+                    <ListBox.Styles>
+                        <Style Selector="TextBlock">
+                            <Setter Property="FontFamily" Value="Courier New"/>
+                            <Setter Property="Margin" Value="0"/>
+                        </Style>
+                        <Style Selector="ListBoxItem">
+                            <Setter Property="Padding" Value="0"/>
+                        </Style>
+                    </ListBox.Styles>
+                    
+                    <ListBox.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <VirtualizingStackPanel />
+                        </ItemsPanelTemplate>
+                    </ListBox.ItemsPanel>
+                    
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <StackPanel.Styles>
+                                    <Style Selector="TextBlock[Tag=True]">
+                                        <Setter Property="Foreground" Value="Cyan"/>
+                                    </Style>
+                                    <Style Selector="TextBlock[Tag=False]">
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </Style>
+                                </StackPanel.Styles>
+                                <TextBlock Text="{Binding Addr}" Margin="0,0,16,0" Tag="{Binding IsBios}"/>
+                                <TextBlock Text="{Binding Values}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                
+                <!-- Breakpoint pane -->
+                <Grid IsVisible="{Binding IsChecked, ElementName=BreakpointTab}" 
+                      Margin="0,4">
+                    <Grid Margin="16,8"
+                          ColumnDefinitions="Auto,Auto,Auto,*"
+                          RowDefinitions="Auto,Auto,*">
+                        
+                        <!-- Address -->
+                        <TextBlock Text="Address:"/>
+                        <TextBox Grid.Row="0" Grid.Column="1"
+                                 Width="120"
+                                 MaxLength="4"
+                                 Text="{Binding BreakpointAddr, Mode=TwoWay}" />
+                        <Button Grid.Row="0" Grid.Column="2"
+                                Foreground="White" Margin="4"
+                                Command="{Binding AddBreakpoint}"
+                                IsEnabled="{Binding IsValid}">
+                            <avalonia:MaterialIcon Width="20" Height="20" Kind="Plus" />
+                        </Button>
+                        
+                        <!-- Instruction -->
+                        <TextBlock Grid.Row="1" Grid.Column="0"
+                                   Text="Instruction:"/>
+                        <TextBlock Grid.Row="1" Grid.Column="1"
+                                   HorizontalAlignment="Left"
+                                   FontWeight="Bold"
+                                   Text="{Binding Instruction}"/>
+                        
+                        <!-- Existing Breakpoints -->
+                        <ListBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="4"
+                                 Margin="0,8,0,0"
+                                 Background="#3F000000"
+                                 ItemsSource="{Binding Breakpoints}">
+                            <ListBox.Styles>
+                                <Style Selector="ToggleButton avalonia|MaterialIcon.breakpoint-on">
+                                    <Setter Property="IsVisible" Value="False" />
+                                </Style>
+                                <Style Selector="ToggleButton:checked avalonia|MaterialIcon.breakpoint-on">
+                                    <Setter Property="IsVisible" Value="True" />
+                                </Style>
+                                <Style Selector="ToggleButton avalonia|MaterialIcon.breakpoint-off">
+                                    <Setter Property="IsVisible" Value="True" />
+                                </Style>
+                                <Style Selector="ToggleButton:checked avalonia|MaterialIcon.breakpoint-off">
+                                    <Setter Property="IsVisible" Value="False" />
+                                </Style>
+                            </ListBox.Styles>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ToggleButton IsChecked="{Binding IsEnabled}">
+                                            <Panel>
+                                                <avalonia:MaterialIcon Classes="breakpoint-on"
+                                                                       Kind="CheckboxBlankCircle"
+                                                                       Foreground="Red"/>
+                                                <avalonia:MaterialIcon Classes="breakpoint-off"
+                                                                       Kind="CheckboxBlankCircleOutline"/>
+                                            </Panel>
+                                        </ToggleButton>
+                                        
+                                        <TextBlock Text="{Binding Addr, StringFormat={}{0:X04}}"
+                                                   FontFamily="Courier New"
+                                                   Margin="8,0,0,0"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+                </Grid>
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>

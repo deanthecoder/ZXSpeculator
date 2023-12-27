@@ -15,6 +15,7 @@ using System.Diagnostics;
 using System.Text;
 using CSharp.Utils;
 using CSharp.Utils.ViewModels;
+using Speculator.Core.Extensions;
 
 // ReSharper disable InconsistentNaming
 namespace Speculator.Core;
@@ -22,7 +23,6 @@ namespace Speculator.Core;
 public partial class CPU : ViewModelBase
 {
     private readonly SoundHandler m_soundHandler;
-    private Z80Instructions InstructionSet { get; }
     private Alu TheAlu { get; }
     private IPortHandler ThePortHandler { get; }
     private Thread m_cpuThread;
@@ -32,16 +32,17 @@ public partial class CPU : ViewModelBase
     private int m_TStatesSinceInterrupt;
     private long m_TStatesSinceCpuStart;
     private bool m_fullThrottle;
-    private bool m_isDebugging;
-    private bool m_isPaused;
+    private bool m_isDebugStepping;
     private int m_previousScanline;
 
     public const double TStatesPerSecond = 3494400;
 
+    public event EventHandler AllowBreak; 
     public event EventHandler<(Memory memory, int scanline)> RenderScanline;
 
     public int TStatesPerInterrupt { private get; init; }
 
+    public Z80Instructions InstructionSet { get; }
     public ClockSync ClockSync { get; }
     public Registers TheRegisters { get; }
     public Memory MainMemory { get; }
@@ -93,33 +94,18 @@ public partial class CPU : ViewModelBase
     public void DebuggerStep()
     {
         m_debuggerTickEvent.Set();
-        var unused = String.Empty;
-        Disassemble(TheRegisters.PC, ref unused, out var mnemonics);
+        var unused = string.Empty;
+        this.Disassemble(TheRegisters.PC, ref unused, out var mnemonics);
         Logger.Instance.Info($"{TheRegisters.PC:X04}: {mnemonics}");
         RaiseAllPropertyChanged();
     }
 
-    /// <summary>
-    /// We pause the CPU when loading a new ROM/snapshot.
-    /// </summary>
-    public bool IsPaused
+    public bool IsDebugStepping
     {
-        get => m_isPaused;
+        get => m_isDebugStepping;
         set
         {
-            if (m_isPaused == value)
-                return;
-            m_isPaused = value;
-            RaiseAllPropertyChanged();
-        }
-    }
-
-    public bool IsDebugging
-    {
-        get => m_isDebugging;
-        set
-        {
-            if (!SetField(ref m_isDebugging, value))
+            if (!SetField(ref m_isDebugStepping, value))
                 return;
             ClockSync.Reset();
             RaiseAllPropertyChanged();
@@ -133,20 +119,13 @@ public partial class CPU : ViewModelBase
         m_shutdownRequested = false;
         m_resetRequested = false;
         IsHalted = false;
-        IsPaused = false;
         
         m_soundHandler?.Start();
 
         while (!m_shutdownRequested)
         {
-            if (IsPaused)
-            {
-                Thread.Sleep(100);
-                continue;
-            }
-            
             // Allow debugger to stall execution.
-            if (IsDebugging)
+            if (IsDebugStepping)
             {
                 if (!m_debuggerTickEvent.WaitOne(100))
                     continue;
@@ -157,9 +136,12 @@ public partial class CPU : ViewModelBase
                 if (!FullThrottle)
                     ClockSync.SyncWithRealTime();
             }
-            
+
             lock (CpuStepLock)
+            {
                 Step();
+                AllowBreak?.Invoke(this, EventArgs.Empty);
+            }
         }
 
         if (m_resetRequested)
@@ -177,7 +159,7 @@ public partial class CPU : ViewModelBase
     public void Step()
     {
         var oldIFF = TheRegisters.IFF1;
-        
+
         // Execute instruction.
         var TStates = ExecuteAtPC();
         m_TStatesSinceCpuStart += TStates;
@@ -368,7 +350,7 @@ public partial class CPU : ViewModelBase
             for (var i = 0; i < 6; i++)
             {
                 var hexBytes = string.Empty;
-                var pcOffset = Disassemble(pc, ref hexBytes, out var mnemonics);
+                var pcOffset = this.Disassemble(pc, ref hexBytes, out var mnemonics);
                 mnemonics = $"*{mnemonics}*";
                 sb.AppendLine($"{pc:X04}: {mnemonics,-14}  {hexBytes,-11}");
                 if (pcOffset == 0)
@@ -381,51 +363,4 @@ public partial class CPU : ViewModelBase
     }
 
     public double UpTime => m_TStatesSinceCpuStart / TStatesPerSecond;
-
-    private ushort Disassemble(ushort addr, ref string hexBytes, out string mnemonics)
-    {
-        var instruction = InstructionSet.findInstructionAtMemoryLocation(MainMemory, addr);
-
-        if (instruction == null)
-        {
-            hexBytes = MainMemory.ReadAsHexString(addr, 4) + "...";
-            mnemonics = "??";
-            return 0;
-        }
-
-        // Format the instruction as hex bytes.
-        for (var i = 0; i < instruction.ByteCount; i++)
-        {
-            if (i > 0)
-                hexBytes += " ";
-            hexBytes += MainMemory.ReadAsHexString((ushort)(addr + i), 1);
-        }
-
-        // Format the instruction as opcodes.
-        var hexParts = instruction.HexTemplate.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-        var hexValues = new List<string>();
-        for (var i = 0; i < hexParts.Length; i++)
-        {
-            switch (hexParts[i])
-            {
-                case "n":
-                    hexValues.Add(MainMemory.ReadAsHexString((ushort)(addr + i), 1));
-                    break;
-                case "d":
-                    hexValues.Add(Alu.FromTwosCompliment(MainMemory.Peek((ushort)(addr + i))).ToString());
-                    break;
-            }
-        }
-
-        // LD hl,nn = LD hl,1234 = A3 n n => hexValues [34, 12]
-        mnemonics = instruction.MnemonicTemplate;
-        foreach (var hexValue in hexValues)
-        {
-            var index = Math.Max(mnemonics.LastIndexOf('n'), mnemonics.LastIndexOf('d'));
-            Debug.Assert(index >= 0);
-            mnemonics = mnemonics.Insert(index, hexValue).Remove(index + hexValue.Length, 1);
-        }
-
-        return instruction.ByteCount;
-    }
 }

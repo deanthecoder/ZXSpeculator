@@ -23,6 +23,7 @@ public class ZxSpectrum : IDisposable
 
     private SoundHandler m_soundHandler;
     private ZxDisplay TheDisplay { get; }
+    public Debugger.Debugger TheDebugger { get; }
 
     public CPU TheCpu { get; }
     public ZxPortHandler PortHandler { get; }
@@ -36,8 +37,15 @@ public class ZxSpectrum : IDisposable
         {
             TStatesPerInterrupt = TStatesPerRenderFrame
         };
+        TheDebugger = new Debugger.Debugger(TheCpu);
 
         TheCpu.RenderScanline += TheDisplay.OnRenderScanline;
+
+        TheDebugger.IsSteppingChanged += (_, _) =>
+        {
+            if (TheDebugger.IsStepping)
+                SoundHandler.IsEnabled = false;
+        };
     }
     
     public ZxSpectrum LoadBasicRom()

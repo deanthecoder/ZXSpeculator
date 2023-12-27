@@ -1,9 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
-using Speculator.Core;
 
-namespace Speculator.ViewModels;
+namespace Speculator.Core.Debugger;
 
 public class MemoryDumpViewModel
 {
@@ -14,12 +12,12 @@ public class MemoryDumpViewModel
         var lineCount = memory.Data.Length / 8;
         Content = new ObservableCollection<SingleItem>(Enumerable.Range(0, lineCount).Select(i => new SingleItem(memory, (ushort)(i * 8))));
 
-        memory.DataLoaded += (sender, args) => Refresh();
+        memory.DataLoaded += (_, _) => Refresh();
     }
     
     public void Refresh()
     {
-        for (ushort i = 0; i < Content.Count; i += 8)
+        for (ushort i = 0; i < Content.Count; i++)
         {
             var existingItem = Content[i];
             var newItem = new SingleItem(existingItem);

@@ -10,6 +10,7 @@
 // or modifying this code.
 
 using System;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
@@ -36,6 +37,15 @@ public partial class MainWindow : Window
         
         // Kick the UI to update the screen when the emulator updates it.
         var action = new Action(() => (sender as Image)?.InvalidateVisual());
-        ViewModel.Display.Refreshed += (_, _) => Dispatcher.UIThread.Invoke(action);
+        ViewModel.Display.Refreshed += (_, _) =>
+        {
+            try
+            {
+                Dispatcher.UIThread.Invoke(action);
+            }
+            catch (TaskCanceledException)
+            {
+            }
+        };
     }
 }

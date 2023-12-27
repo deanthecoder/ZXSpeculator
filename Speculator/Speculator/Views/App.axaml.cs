@@ -40,8 +40,8 @@ public partial class App : Application
                 DataContext = viewModel
             };
 
-            desktop.MainWindow.Activated += (sender, args) => viewModel.Speccy.PortHandler.HandleKeyEvents = true;
-            desktop.MainWindow.Deactivated += (sender, args) => viewModel.Speccy.PortHandler.HandleKeyEvents = false;
+            desktop.MainWindow.Activated += (_, _) => viewModel.Speccy.PortHandler.HandleKeyEvents = true;
+            desktop.MainWindow.Deactivated += (_, _) => viewModel.Speccy.PortHandler.HandleKeyEvents = false;
 
             if (!Design.IsDesignMode)
             {

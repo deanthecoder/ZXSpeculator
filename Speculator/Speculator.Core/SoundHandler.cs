@@ -10,6 +10,7 @@
 // or modifying this code.
 
 using CSharp.Utils;
+using CSharp.Utils.ViewModels;
 using Speculator.Core.HostDevices;
 
 namespace Speculator.Core;
@@ -18,7 +19,7 @@ namespace Speculator.Core;
 /// Emulated sound support, recording virtual speaker movements.
 /// Uses a SoundDevice to send sound to the host device.
 /// </summary>
-public class SoundHandler : IDisposable
+public class SoundHandler : ViewModelBase, IDisposable
 {
     private bool m_speakerState;
     private const int SampleHz = 11025;
@@ -28,7 +29,7 @@ public class SoundHandler : IDisposable
     private readonly SoundDevice m_soundDevice;
     private bool m_isDisposed;
     private readonly Thread m_thread;
-    private bool m_isSoundEnabled = true;
+    private bool m_isEnabled = true;
 
     public SoundHandler()
     {
@@ -46,7 +47,17 @@ public class SoundHandler : IDisposable
             Logger.Instance.Error($"Failed to initialize host sound device: {e.Message}");
         }
     }
-    
+
+    public bool IsEnabled
+    {
+        get => m_isEnabled;
+        set
+        {
+            if (SetField(ref m_isEnabled, value))
+                m_soundDevice.SetEnabled(value);
+        }
+    }
+
     public void Start()
     {
         if (m_thread?.IsAlive != true)
@@ -67,7 +78,7 @@ public class SoundHandler : IDisposable
 
     public void SampleSpeakerState(long tStateCount)
     {
-        if (!m_isSoundEnabled)
+        if (!m_isEnabled)
             return;
         
         // Update the count of on/off speaker states.
@@ -84,12 +95,6 @@ public class SoundHandler : IDisposable
         m_speakerStates[1] = 0;
 
         // Append to the sample buffer.
-        m_soundDevice.AddSample(m_isSoundEnabled ? sampleValue : 0.0);
-    }
-
-    public void SetSoundEnabled(bool isSoundEnabled)
-    {
-        m_isSoundEnabled = isSoundEnabled;
-        m_soundDevice.SetEnabled(isSoundEnabled);
+        m_soundDevice.AddSample(sampleValue);
     }
 }

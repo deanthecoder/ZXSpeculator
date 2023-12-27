@@ -11,8 +11,7 @@
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/app.ico"
         Title="ZX Speculator"
-        Width="1000"
-        Height="575">
+        Width="1066" Height="634">
     <Design.DataContext>
         <vm:MainWindowViewModel />
     </Design.DataContext>
@@ -39,26 +38,31 @@
             
             <MenuItem Header="_Hardware">
                 <MenuItem Header="Enable _Sound" Command="{Binding ToggleSound}"
-                          IsVisible="{Binding !IsSoundEnabled}" />
+                          IsVisible="{Binding !Speccy.SoundHandler.IsEnabled}"
+                          IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}"/>
                 <MenuItem Header="Disable _Sound" Command="{Binding ToggleSound}"
-                          IsVisible="{Binding IsSoundEnabled}" />
+                          IsVisible="{Binding Speccy.SoundHandler.IsEnabled}"
+                          IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}" />
                 <MenuItem Header="Full Speed" Command="{Binding ToggleFullThrottle}"
-                          IsVisible="{Binding !IsFullThrottle}" />
+                          IsVisible="{Binding !IsFullThrottle}"
+                          IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}" />
                 <MenuItem Header="Accurate Speed" Command="{Binding ToggleFullThrottle}"
-                          IsVisible="{Binding IsFullThrottle}" />
+                          IsVisible="{Binding IsFullThrottle}"
+                          IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}" />
                 <MenuItem Header="_Reset Emulator" Command="{Binding ResetMachine}"
                           InputGesture="{OnPlatform 'escape'}"/>
-                <MenuItem Header="Enable Debugging" Command="{Binding ToggleDebugging}"
-                          IsVisible="{Binding !IsDebuggingEnabled}" />
-                <MenuItem Header="Disable Debugging" Command="{Binding ToggleDebugging}"
-                          IsVisible="{Binding IsDebuggingEnabled}" />
+                <MenuItem Header="Show Debugger" Command="{Binding Speccy.TheDebugger.Show}"
+                          IsVisible="{Binding !Speccy.TheDebugger.IsVisible}" />
+                <MenuItem Header="Hide Debugger" Command="{Binding Speccy.TheDebugger.Hide}"
+                          IsVisible="{Binding Speccy.TheDebugger.IsVisible}" />
             </MenuItem>
         </Menu>
 
         <Image Grid.Row="1" Grid.Column="0"
                Source="{Binding Display.Bitmap}" Loaded="OnScreenBitmapLoaded" />
 
-        <views:DebugPane Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" 
-                         IsVisible="{Binding IsDebuggingEnabled}" />
+        <views:DebugPane DataContext="{Binding Speccy.TheDebugger}"
+                         Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"
+                         IsVisible="{Binding IsVisible}" />
     </Grid>
 </Window>

@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Speculator.ViewModels;
+using Speculator.Core.Debugger;
 
 namespace Speculator.Views;
 
@@ -12,6 +12,6 @@ public partial class DebugPane : UserControl
     }
     private void OnStepPressed(object sender, RoutedEventArgs e)
     {
-        ((MainWindowViewModel)DataContext)?.MemoryDump.Refresh();
+        ((Debugger)DataContext)?.MemoryDump.Refresh();
     }
 }

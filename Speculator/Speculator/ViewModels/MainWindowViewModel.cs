@@ -22,16 +22,12 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 {
     public ZxSpectrum Speccy { get; }
     public ZxDisplay Display { get; }
-    public bool IsSoundEnabled { get; private set; } = true;
     public bool IsFullThrottle { get; private set; }
-    public bool IsDebuggingEnabled { get; private set; }
-    public MemoryDumpViewModel MemoryDump { get; }
 
     public MainWindowViewModel()
     {
         Display = new ZxDisplay();
         Speccy = new ZxSpectrum(Display).LoadBasicRom();
-        MemoryDump = new MemoryDumpViewModel(Speccy.TheCpu.MainMemory);
     }
 
     public void LoadRom()
@@ -52,36 +48,22 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 
     public void ToggleSound()
     {
-        IsSoundEnabled = !IsSoundEnabled;
+        Speccy.SoundHandler.IsEnabled = !Speccy.SoundHandler.IsEnabled;
         
-        if (IsSoundEnabled && IsFullThrottle)
+        if (Speccy.SoundHandler.IsEnabled && IsFullThrottle)
             ToggleFullThrottle(); // Enabling sound turns off full throttle.
-        
-        OnPropertyChanged(nameof(IsSoundEnabled));
-        Speccy.SoundHandler.SetSoundEnabled(IsSoundEnabled);
     }
 
     public void ToggleFullThrottle()
     {
         IsFullThrottle = !IsFullThrottle;
         
-        if (IsFullThrottle && IsSoundEnabled)
-            ToggleSound(); // Full throttle turns off sound.
+        if (IsFullThrottle)
+            Speccy.SoundHandler.IsEnabled = false; // Full throttle turns off sound.
         
         OnPropertyChanged(nameof(IsFullThrottle));
         Speccy.TheCpu.FullThrottle = IsFullThrottle;
     }
     
-    public void ToggleDebugging()
-    {
-        IsDebuggingEnabled = !IsDebuggingEnabled;
-        
-        if (IsDebuggingEnabled && IsSoundEnabled)
-            ToggleSound(); // Debugging turns off sound.
-        
-        OnPropertyChanged(nameof(IsDebuggingEnabled));
-        Speccy.TheCpu.IsDebugging = IsDebuggingEnabled;
-    }
-
     public void Dispose() => Speccy.Dispose();
 }
