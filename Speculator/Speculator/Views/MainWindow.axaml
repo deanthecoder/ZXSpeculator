@@ -55,6 +55,10 @@
                 <MenuItem Header="Accurate Speed" Command="{Binding ToggleFullThrottle}"
                           IsVisible="{Binding IsFullThrottle}"
                           IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}" />
+                <MenuItem Header="Use Cursor Joystick" Command="{Binding ToggleCursorJoystick}"
+                          IsVisible="{Binding !Speccy.PortHandler.EmulateCursorJoystick}" />
+                <MenuItem Header="Use Kempston Joystick" Command="{Binding ToggleCursorJoystick}"
+                          IsVisible="{Binding Speccy.PortHandler.EmulateCursorJoystick}" />
                 <MenuItem Header="_Reset Emulator" Command="{Binding ResetMachine}"
                           InputGesture="{OnPlatform 'escape'}"/>
                 <MenuItem Header="Show Debugger" Command="{Binding Speccy.TheDebugger.Show}"

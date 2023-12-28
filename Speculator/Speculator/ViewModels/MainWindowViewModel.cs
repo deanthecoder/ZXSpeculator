@@ -43,6 +43,9 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     public void ResetMachine() =>
         Speccy.TheCpu.ResetAsync();
 
+    public void ToggleCursorJoystick() =>
+        Speccy.PortHandler.EmulateCursorJoystick = !Speccy.PortHandler.EmulateCursorJoystick;
+
     public void CloseCommand() =>
         Application.Current.GetMainWindow().Close();
 

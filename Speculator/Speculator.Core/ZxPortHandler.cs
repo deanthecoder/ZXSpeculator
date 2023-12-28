@@ -9,6 +9,7 @@
 // We do not accept any liability for damage caused by executing
 // or modifying this code.
 
+using CSharp.Utils.ViewModels;
 using SharpHook;
 using SharpHook.Native;
 
@@ -17,20 +18,31 @@ namespace Speculator.Core;
 /// <summary>
 /// Detects key presses and speaker state changes, and feeds port info back to the emulator.
 /// </summary>
-public class ZxPortHandler : IPortHandler, IDisposable
+public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
 {
     private readonly SoundHandler m_soundHandler;
     private readonly ZxDisplay m_theDisplay;
     private readonly List<KeyCode> m_realKeysPressed = new List<KeyCode>();
     private readonly Dictionary<KeyCode[], KeyCode[]> m_pcToSpectrumKeyMap;
+    private readonly Dictionary<KeyCode[], KeyCode[]> m_pcToSpectrumKeyMapWithJoystick;
     private readonly SimpleGlobalHook m_keyboardHook;
     private bool m_bit4;
+    private bool m_emulateCursorJoystick;
 
     /// <summary>
     /// The keyboard hooks work regardless of whether the app has focus.
     /// This flag ensures we ignore events we don't want.
     /// </summary>
     public bool HandleKeyEvents { get; set; }
+
+    /// <summary>
+    /// Whether cursor or Kempston joystick is enabled.
+    /// </summary>
+    public bool EmulateCursorJoystick
+    {
+        get => m_emulateCursorJoystick;
+        set => SetField(ref m_emulateCursorJoystick, value);
+    }
 
     public ZxPortHandler(SoundHandler soundHandler, ZxDisplay theDisplay)
     {
@@ -59,24 +71,29 @@ public class ZxPortHandler : IPortHandler, IDisposable
             [K(KeyCode.Vc7, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.Vc6),
             [K(KeyCode.Vc8, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.VcB),
             [K(KeyCode.Vc9, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.Vc8),
-            [K(KeyCode.Vc0, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.Vc9),
+            [K(KeyCode.Vc0, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.Vc9)
         };
-        
+
         // Make right-shift mirror left shift.
         m_pcToSpectrumKeyMap
             .Where(o => o.Key.Length == 2 && o.Key[1] == KeyCode.VcLeftShift)
             .ToList()
             .ForEach(o => m_pcToSpectrumKeyMap.Add(K(o.Key[0], KeyCode.VcRightShift), o.Value));
 
+        // Make extended key map for Cursor Joystick support.
+        m_pcToSpectrumKeyMapWithJoystick = m_pcToSpectrumKeyMap.ToDictionary(entry => entry.Key, entry => entry.Value);
+        m_pcToSpectrumKeyMapWithJoystick[K(KeyCode.VcUp)] = K(KeyCode.Vc7);
+        m_pcToSpectrumKeyMapWithJoystick[K(KeyCode.VcDown)] = K(KeyCode.Vc6);
+        m_pcToSpectrumKeyMapWithJoystick[K(KeyCode.VcLeft)] = K(KeyCode.Vc5);
+        m_pcToSpectrumKeyMapWithJoystick[K(KeyCode.VcRight)] = K(KeyCode.Vc8);
+        m_pcToSpectrumKeyMapWithJoystick[K(KeyCode.VcBackQuote)] = K(KeyCode.Vc0);
+
         m_keyboardHook = new SimpleGlobalHook();
         m_keyboardHook.KeyPressed += (_, args) => SetKeyDown(args.Data.KeyCode);
         m_keyboardHook.KeyReleased += (_, args) => SetKeyUp(args.Data.KeyCode);
     }
 
-    public void StartKeyboardHook()
-    {
-        m_keyboardHook.RunAsync();
-    }
+    public void StartKeyboardHook() => m_keyboardHook.RunAsync();
 
     private static KeyCode[] K(params KeyCode[] keyCodes) => keyCodes;
 
@@ -222,12 +239,13 @@ public class ZxPortHandler : IPortHandler, IDisposable
             return false; // Mac user probably triggering a menu item.
         
         var zxPressed = m_realKeysPressed.ToList();
-        foreach (var keyMap in m_pcToSpectrumKeyMap)
+        var keyMap = EmulateCursorJoystick ? m_pcToSpectrumKeyMapWithJoystick : m_pcToSpectrumKeyMap;
+        foreach (var map in keyMap)
         {
-            if (keyMap.Key.All(o => m_realKeysPressed.Contains(o)))
+            if (map.Key.All(o => m_realKeysPressed.Contains(o)))
             {
                 zxPressed.Remove(key);
-                zxPressed.AddRange(keyMap.Value);
+                zxPressed.AddRange(map.Value);
             }
         }
 
