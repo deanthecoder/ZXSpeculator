@@ -2280,7 +2280,7 @@ public partial class CPU
 
             case Z80Instructions.InstructionID.RETI:
                 doRet();
-                TheRegisters.IFF1 = TheRegisters.IFF2 = false;
+                TheRegisters.IFF1 = TheRegisters.IFF2;
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RETN:
                 RETN();
