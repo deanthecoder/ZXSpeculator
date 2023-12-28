@@ -94,11 +94,10 @@ public class SoundDevice
     /// </summary>
     private void WriteCallback(SoundIOOutStream outStream, int frameCountMin, int frameCountMax)
     {
-        var toWrite = frameCountMin;
-
         if (!m_isSoundEnabled)
             m_soundBuffer.Clear();
 
+        var toWrite = frameCountMin;
         if (m_soundBuffer.Count > toWrite)
             toWrite = Math.Min(m_soundBuffer.Count, frameCountMax);
 

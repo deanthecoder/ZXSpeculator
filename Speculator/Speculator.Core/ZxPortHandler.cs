@@ -204,9 +204,9 @@ public class ZxPortHandler : IPortHandler, IDisposable
             return;
         
         // Sounds.
-        // todo - How to hook up mic bit too? (b & 0x80)
         m_bit4 = (b & 0x10) != 0; // Speaker on/off.
-        m_soundHandler?.SetSpeakerState(m_bit4);
+        var earBit = (b & 0x08) == 0;
+        m_soundHandler?.SetSpeakerState((m_bit4 ? 0.75 : 0.0) + (earBit ? 0.25 : 0.0));
         
         // Lower 3 bits will set the border color.
         if (m_theDisplay != null)

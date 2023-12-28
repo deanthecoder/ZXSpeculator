@@ -21,11 +21,11 @@ namespace Speculator.Core;
 /// </summary>
 public class SoundHandler : ViewModelBase, IDisposable
 {
-    private bool m_speakerState;
+    private double m_soundLevel;
     private const int SampleHz = 11025;
     private const int TicksPerSample = (int)(CPU.TStatesPerSecond / SampleHz);
     private long m_lastTStateCount;
-    private readonly int[] m_speakerStates = new int[2];
+    private readonly List<double> m_soundLevels = new List<double>();
     private readonly SoundDevice m_soundDevice;
     private bool m_isDisposed;
     private readonly Thread m_thread;
@@ -38,7 +38,7 @@ public class SoundHandler : ViewModelBase, IDisposable
             m_soundDevice = new SoundDevice(SampleHz);
             m_thread = new Thread(() => m_soundDevice.SoundLoop(() => m_isDisposed))
             {
-                Name = "Sound thread",
+                Name = "Sound Device",
                 Priority = ThreadPriority.AboveNormal
             };
         }
@@ -64,9 +64,12 @@ public class SoundHandler : ViewModelBase, IDisposable
             m_thread?.Start();
     }
 
-    public void SetSpeakerState(bool soundBit)
+    /// <summary>
+    /// Called whenever the CPU's speaker state changes.
+    /// </summary>
+    public void SetSpeakerState(double soundLevel)
     {
-        m_speakerState = soundBit;
+        m_soundLevel = soundLevel;
     }
 
     public void Dispose()
@@ -76,13 +79,17 @@ public class SoundHandler : ViewModelBase, IDisposable
         m_thread?.Join();
     }
 
+    /// <summary>
+    /// Called every CPU tick to build a collection of speaker samples.
+    /// Passed to the sound device's buffer when enough are collected.
+    /// </summary>
     public void SampleSpeakerState(long tStateCount)
     {
         if (!m_isEnabled)
             return;
         
         // Update the count of on/off speaker states.
-        m_speakerStates[m_speakerState ? 1 : 0]++;
+        m_soundLevels.Add(m_soundLevel);
 
         var elapsedTicks = tStateCount - m_lastTStateCount;
         if (elapsedTicks < TicksPerSample)
@@ -90,9 +97,8 @@ public class SoundHandler : ViewModelBase, IDisposable
 
         // We've collected enough samples for averaging to occur.
         m_lastTStateCount = tStateCount;
-        var sampleValue = m_speakerStates[1] / ((double)m_speakerStates[0] + m_speakerStates[1]);
-        m_speakerStates[0] = 0;
-        m_speakerStates[1] = 0;
+        var sampleValue = m_soundLevels.Any() ? m_soundLevels.Average() : 0.0;
+        m_soundLevels.Clear();
 
         // Append to the sample buffer.
         m_soundDevice.AddSample(sampleValue);
