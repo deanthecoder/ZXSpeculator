@@ -1,4 +1,6 @@
 using System.Collections.ObjectModel;
+using System.Text;
+using CSharp.Utils;
 using CSharp.Utils.Validators;
 using CSharp.Utils.ViewModels;
 using Speculator.Core.Extensions;
@@ -7,14 +9,17 @@ namespace Speculator.Core.Debugger;
 
 public class Debugger : ViewModelBase
 {
-    public CPU TheCpu { get; }
+    private const int MaxHistoryLength = 200;
+    private readonly ActionConsolidator m_propertyEventRaiser;
     private string m_breakpointAddr;
     private bool m_isStepping;
     private bool m_isVisible;
     private bool m_recordHistory;
+    private int m_cpuSubscriptions;
 
     public event EventHandler IsSteppingChanged;
 
+    public CPU TheCpu { get; }
     public MemoryDumpViewModel MemoryDump { get; }
     public ObservableCollection<string> History { get; } = new ObservableCollection<string>();
 
@@ -32,10 +37,20 @@ public class Debugger : ViewModelBase
         get => m_isStepping;
         set
         {
-            if (!SetField(ref m_isStepping, value))
+            if (m_isStepping == value)
                 return;
+            
+            if (m_isStepping)
+                SubscribeToCpuEvents(false);
+
+            m_isStepping = value;
             IsSteppingChanged?.Invoke(this, EventArgs.Empty);
-            TheCpu.IsDebugStepping = value;
+            TheCpu.IsDebuggerActive = value;
+
+            if (m_isStepping)
+                SubscribeToCpuEvents(true);
+
+            RaiseAllPropertiesChanged();
         }
     }
 
@@ -48,11 +63,11 @@ public class Debugger : ViewModelBase
                 return;
 
             if (m_recordHistory)
-                TheCpu.Ticked -= OnCpuTick;
+                SubscribeToCpuEvents(false);
             m_recordHistory = value;
             if (m_recordHistory)
             {
-                TheCpu.Ticked += OnCpuTick;
+                SubscribeToCpuEvents(true);
                 History.Clear();
             }
         }
@@ -70,9 +85,15 @@ public class Debugger : ViewModelBase
             OnPropertyChanged(nameof(Instruction));
         }
     }
-
+    
+    /// <summary>
+    /// True if BreakpointAddr is valid.
+    /// </summary>
     public bool IsValid => new HexStringAttribute().IsValid(BreakpointAddr);
 
+    /// <summary>
+    /// Human readable instruction located at [BreakpointAddr].
+    /// </summary>
     public string Instruction
     {
         get
@@ -92,6 +113,7 @@ public class Debugger : ViewModelBase
 
     public Debugger(CPU theCpu = null)
     {
+        m_propertyEventRaiser = new ActionConsolidator(RaiseAllPropertiesChanged);
         TheCpu = theCpu;
         MemoryDump = new MemoryDumpViewModel(TheCpu?.MainMemory ?? new Memory());
     }
@@ -111,21 +133,71 @@ public class Debugger : ViewModelBase
         Breakpoints.Add(breakpoint);
     }
 
-    private void OnCpuTick(object sender, EventArgs e)
+    private void OnCpuTicked(object sender, (ushort prevPC, ushort currentPC) pcValues)
     {
-        // Record the CPU history.
-        var unused = string.Empty;
-        TheCpu.Disassemble(TheCpu.TheRegisters.PC, ref unused, out var mnemonics);
-        mnemonics = $"*{mnemonics}*";
-        History.Add($"{TheCpu.TheRegisters.PC:X04}: {mnemonics}");
-        while (History.Count > 1000)
-            History.RemoveAt(0);
+        if (RecordHistory)
+        {
+            // Record the CPU history.
+            var unused = string.Empty;
+            TheCpu.Disassemble(pcValues.prevPC, ref unused, out var mnemonics);
+            mnemonics = $"*{mnemonics}*";
+            History.Add($"{pcValues.prevPC:X04}: {mnemonics}");
+            while (History.Count > MaxHistoryLength)
+                History.RemoveAt(0);
+        }
 
-        OnPropertyChanged(nameof(History));
+        if (IsStepping)
+            m_propertyEventRaiser.Invoke();
+    }
+
+    /// <summary>
+    /// Multi-line disassembly, starting at [PC].
+    /// </summary>
+    public string Disassembly
+    {
+        get
+        {
+            var sb = new StringBuilder();
+            var pc = TheCpu.TheRegisters.PC;
+            for (var i = 0; i < 6; i++)
+            {
+                var hexBytes = string.Empty;
+                var pcOffset = TheCpu.Disassemble(pc, ref hexBytes, out var mnemonics);
+                sb.AppendLine($"{pc:X04}: *{mnemonics,-14}*  {hexBytes,-11}");
+                if (pcOffset == 0)
+                    break;
+                pc += pcOffset;
+            }
+
+            return sb.ToString();
+        }
     }
 
     public void StartDebugging() => IsStepping = true;
     public void StopDebugging() => IsStepping = false;
     public void Show() => IsVisible = true;
     public void Hide() => IsVisible = false;
+
+    public void RunToInterrupt()
+    {
+        TheCpu.InterruptFired += OnInterruptFired;
+        StopDebugging();
+        return;
+
+        void OnInterruptFired(object sender, EventArgs e)
+        {
+            TheCpu.InterruptFired -= OnInterruptFired;
+            StartDebugging();
+        }
+    }
+
+    private void SubscribeToCpuEvents(bool b)
+    {
+        if (m_cpuSubscriptions == 0 && b)
+            TheCpu.Ticked += OnCpuTicked;
+        else if (m_cpuSubscriptions == 1 && !b)
+            TheCpu.Ticked -= OnCpuTicked;
+
+        m_cpuSubscriptions += b ? 1 : -1;
+    }
 }

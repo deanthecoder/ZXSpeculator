@@ -23,7 +23,10 @@ public class ViewModelBase : INotifyPropertyChanged
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    protected void RaiseAllPropertyChanged()
+    /// <summary>
+    /// Recursively raise change events for all properties.
+    /// </summary>
+    protected void RaiseAllPropertiesChanged()
     {
         foreach (var propertyInfo in GetType().GetProperties())
         {
@@ -34,8 +37,8 @@ public class ViewModelBase : INotifyPropertyChanged
                 // Get the value of the property (which should be a ViewModelBase instance)
                 var viewModelBaseProperty = propertyInfo.GetValue(this) as ViewModelBase;
 
-                // Call RaiseAllPropertyChanged on the property if it's not null
-                viewModelBaseProperty?.RaiseAllPropertyChanged();
+                // Call RaiseAllPropertiesChanged on the property if it's not null
+                viewModelBaseProperty?.RaiseAllPropertiesChanged();
             }
 
             OnPropertyChanged(propertyInfo.Name);

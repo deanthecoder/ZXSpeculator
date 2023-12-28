@@ -5,9 +5,9 @@
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:debugger="clr-namespace:Speculator.Core.Debugger;assembly=Speculator.Core"
              mc:Ignorable="d"
-             d:DesignWidth="320"
+             d:DesignWidth="335"
              d:DesignHeight="700"
-             MinWidth="330"
+             MinWidth="335"
              x:DataType="debugger:Debugger"
              x:Class="Speculator.Views.DebugPane">
     <Design.DataContext>
@@ -178,7 +178,7 @@
         </Grid>
 
         <Grid Grid.Row="1"
-              ColumnDefinitions="Auto,Auto,Auto,*"
+              ColumnDefinitions="Auto,Auto,Auto,Auto,*"
               Margin="8,8">
             
             <!-- Control buttons -->
@@ -187,7 +187,6 @@
                     Command="{Binding StartDebugging}"
                     IsVisible="{Binding !IsStepping}"
                     Foreground="White"
-                    HorizontalAlignment="Right"
                     Margin="0,0,8,0">
                 <avalonia:MaterialIcon Width="20" Height="20" Kind="Pause" />
             </Button>
@@ -196,28 +195,35 @@
                     Command="{Binding StopDebugging}"
                     IsVisible="{Binding IsStepping}"
                     Foreground="White"
-                    HorizontalAlignment="Right"
                     Margin="0,0,8,0">
                 <avalonia:MaterialIcon Width="20" Height="20" Kind="Play" />
             </Button>
             <Button Grid.Column="2"
                     ToolTip.Tip="Step"
-                    ToolTip.Placement="RightEdgeAlignedBottom"
+                    ToolTip.Placement="TopEdgeAlignedRight"
                     Command="{Binding TheCpu.DebuggerStep}"
-                    IsEnabled="{Binding IsStepping}"
+                    IsVisible="{Binding IsStepping}"
                     Click="OnStepPressed"
-                    Foreground="White">
+                    Foreground="White"
+                    Margin="0,0,8,0">
                 <avalonia:MaterialIcon Width="20" Height="20" Kind="DebugStepOver"/>
+            </Button>
+            <Button Grid.Column="3"
+                    ToolTip.Tip="Run to next interrupt"
+                    Command="{Binding RunToInterrupt}"
+                    IsVisible="{Binding IsStepping}"
+                    Foreground="White">
+                <avalonia:MaterialIcon Width="20" Height="20" Kind="TimerPlayOutline"/>
             </Button>
 
             <!-- Uptime -->
-            <TextBlock Grid.Column="3"
+            <TextBlock Grid.Column="4"
                        Text="{Binding TheCpu.UpTime, StringFormat='Uptime: {0:F5}s'}"
                        VerticalAlignment="Bottom"
                        IsVisible="{Binding IsStepping}" />
             
             <!-- Instructions -->
-            <TextBlock Grid.Column="3"
+            <TextBlock Grid.Column="4"
                        Text="Pause to debug"
                        Foreground="Orange"
                        VerticalAlignment="Center"
@@ -238,7 +244,7 @@
                        Padding="8"
                        Margin="16,0">
                 <TextBlock.Inlines>
-                    <Binding Path="TheCpu.Disassembly" Converter="{StaticResource MarkdownToInlinesConverter}" />
+                    <Binding Path="Disassembly" Converter="{StaticResource MarkdownToInlinesConverter}" />
                 </TextBlock.Inlines>
             </TextBlock>
         </Grid>

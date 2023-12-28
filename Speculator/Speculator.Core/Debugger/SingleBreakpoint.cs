@@ -17,10 +17,10 @@ public class SingleBreakpoint
                 return;
             
             if (m_isEnabled)
-                m_theCpu.Ticked -= OnTicked;
+                m_theCpu.Ticked -= OnCpuTicked;
             m_isEnabled = value;
             if (m_isEnabled)
-                m_theCpu.Ticked += OnTicked;
+                m_theCpu.Ticked += OnCpuTicked;
         }
     }
 
@@ -31,12 +31,12 @@ public class SingleBreakpoint
         IsEnabled = true;
     }
     
-    private void OnTicked(object sender, EventArgs e)
+    private void OnCpuTicked(object sender, (ushort prevPC, ushort currentPC) pcValues)
     {
-        if (m_theCpu.TheRegisters.PC != Addr)
+        if (pcValues.currentPC != Addr)
             return; // Breakpoint not hit yet...
         
-        m_theCpu.IsDebugStepping = true;
+        m_theCpu.IsDebuggerActive = true;
         BreakpointHit?.Invoke(this, EventArgs.Empty);
     }
 

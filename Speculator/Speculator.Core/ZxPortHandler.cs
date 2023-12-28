@@ -104,7 +104,7 @@ public class ZxPortHandler : IPortHandler, IDisposable
     private byte ReadJoystickPort()
     {
         byte b = 0x00;
-        if (IsZxKeyPressed(KeyCode.VcBackQuote)) // todo - test
+        if (IsZxKeyPressed(KeyCode.VcBackQuote))
             b = (byte)(b | 0x10); // Fire.
         if (IsZxKeyPressed(KeyCode.VcUp))
             b = (byte)(b | 0x8);
@@ -182,7 +182,7 @@ public class ZxPortHandler : IPortHandler, IDisposable
             if (IsZxKeyPressed(KeyCode.VcJ)) result |= 1 << 3;
             if (IsZxKeyPressed(KeyCode.VcK)) result |= 1 << 2;
             if (IsZxKeyPressed(KeyCode.VcL)) result |= 1 << 1;
-            if (IsZxKeyPressed(KeyCode.VcEnter)) result |= 1 << 0;// todo - test
+            if (IsZxKeyPressed(KeyCode.VcEnter)) result |= 1 << 0;
         }
 
         if ((hi & 0x01) == 0)

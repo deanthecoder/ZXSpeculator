@@ -12,10 +12,7 @@
 // todo - fix all the header comments.
 
 using System.Diagnostics;
-using System.Text;
-using CSharp.Utils;
 using CSharp.Utils.ViewModels;
-using Speculator.Core.Extensions;
 
 // ReSharper disable InconsistentNaming
 namespace Speculator.Core;
@@ -32,12 +29,24 @@ public partial class CPU : ViewModelBase
     private int m_TStatesSinceInterrupt;
     private long m_TStatesSinceCpuStart;
     private bool m_fullThrottle;
-    private bool m_isDebugStepping;
+    private bool m_isDebuggerActive;
     private int m_previousScanline;
 
     public const double TStatesPerSecond = 3494400;
 
-    public event EventHandler Ticked; 
+    /// <summary>
+    /// Called immediately after an instruction has been processed and PC incremented.
+    /// </summary>
+    public event EventHandler<(ushort prevPC, ushort currentPC)> Ticked;
+    
+    /// <summary>
+    /// Called immediately after an interrupt jump has been handled.
+    /// </summary>
+    public event EventHandler InterruptFired;
+    
+    /// <summary>
+    /// Called periodically throughout each 1/50th second.
+    /// </summary>
     public event EventHandler<(Memory memory, int scanline)> RenderScanline;
 
     public int TStatesPerInterrupt { private get; init; }
@@ -91,21 +100,18 @@ public partial class CPU : ViewModelBase
     /// <summary>
     /// Triggers the event which allows the CPU to 'tick' to the next instruction.
     /// </summary>
-    public void DebuggerStep()
-    {
-        m_debuggerTickEvent.Set();
-        RaiseAllPropertyChanged();
-    }
+    public void DebuggerStep() => m_debuggerTickEvent.Set();
 
-    public bool IsDebugStepping
+    /// <summary>
+    /// Indicates the debugger is active, requiring DebuggerStep() to advance the CPU.
+    /// </summary>
+    public bool IsDebuggerActive
     {
-        get => m_isDebugStepping;
+        get => m_isDebuggerActive;
         set
         {
-            if (!SetField(ref m_isDebugStepping, value))
-                return;
-            ClockSync.Reset();
-            RaiseAllPropertyChanged();
+            if (SetField(ref m_isDebuggerActive, value))
+                ClockSync.Reset();
         }
     }
     
@@ -122,7 +128,7 @@ public partial class CPU : ViewModelBase
         while (!m_shutdownRequested)
         {
             // Allow debugger to stall execution.
-            if (IsDebugStepping)
+            if (IsDebuggerActive)
             {
                 if (!m_debuggerTickEvent.WaitOne(100))
                     continue;
@@ -136,8 +142,9 @@ public partial class CPU : ViewModelBase
 
             lock (CpuStepLock)
             {
+                var prevPC = TheRegisters.PC;
                 Step();
-                Ticked?.Invoke(this, EventArgs.Empty);
+                Ticked?.Invoke(this, (prevPC, TheRegisters.PC));
             }
         }
 
@@ -210,6 +217,8 @@ public partial class CPU : ViewModelBase
                 Debug.Fail("Invalid interrupt mode.");
                 break;
         }
+
+        InterruptFired?.Invoke(this, EventArgs.Empty);
     }
     
     private byte doIN_addrC()
@@ -336,27 +345,6 @@ public partial class CPU : ViewModelBase
         TheRegisters.HalfCarryFlag = false;
         TheRegisters.ParityFlag = TheRegisters.Main.BC != 0;
         TheRegisters.SubtractFlag = false;
-    }
-
-    public string Disassembly
-    {
-        get
-        {
-            var sb = new StringBuilder();
-            var pc = TheRegisters.PC;
-            for (var i = 0; i < 6; i++)
-            {
-                var hexBytes = string.Empty;
-                var pcOffset = this.Disassemble(pc, ref hexBytes, out var mnemonics);
-                mnemonics = $"*{mnemonics}*";
-                sb.AppendLine($"{pc:X04}: {mnemonics,-14}  {hexBytes,-11}");
-                if (pcOffset == 0)
-                    break;
-                pc += pcOffset;
-            }
-
-            return sb.ToString();
-        }
     }
 
     public double UpTime => m_TStatesSinceCpuStart / TStatesPerSecond;
