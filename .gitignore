@@ -399,3 +399,4 @@ FodyWeavers.xsd
 *.rom
 *.sna
 *.z80
+**/ZX Speculator.app/

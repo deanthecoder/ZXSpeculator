@@ -22,13 +22,13 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="runtimes\osx\native\libsoundio.dylib">
+      <None Update="libsoundio.dylib">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <None Update="runtimes\osx\native\libsoundio.2.dylib">
+      <None Update="libsoundio.2.dylib">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <None Update="runtimes\osx\native\libsoundio.2.0.0.dylib">
+      <None Update="libsoundio.2.0.0.dylib">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
     </ItemGroup>
