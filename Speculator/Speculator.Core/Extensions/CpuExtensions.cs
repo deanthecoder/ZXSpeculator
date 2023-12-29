@@ -9,9 +9,10 @@ public static class CpuExtensions
 
         if (instruction == null)
         {
-            hexBytes = memory.ReadAsHexString(addr, 4) + "...";
+            // Unknown instruction.
+            hexBytes = memory.ReadAsHexString(addr, 1);
             mnemonics = "??";
-            return 0;
+            return 1;
         }
 
         // Format the instruction as hex bytes.
@@ -23,10 +24,7 @@ public static class CpuExtensions
         }
 
         // Format the instruction as opcodes.
-        var hexParts = instruction.HexTemplate.Split(new[]
-        {
-            ' '
-        }, StringSplitOptions.RemoveEmptyEntries);
+        var hexParts = instruction.HexTemplate.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         var hexValues = new List<string>();
         for (var i = 0; i < hexParts.Length; i++)
         {
