@@ -28,12 +28,23 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
     private readonly SimpleGlobalHook m_keyboardHook;
     private bool m_bit4;
     private bool m_emulateCursorJoystick;
+    private bool m_handleKeyEvents = true;
 
     /// <summary>
     /// The keyboard hooks work regardless of whether the app has focus.
     /// This flag ensures we ignore events we don't want.
     /// </summary>
-    public bool HandleKeyEvents { get; set; }
+    public bool HandleKeyEvents
+    {
+        get => m_handleKeyEvents;
+        set
+        {
+            if (m_handleKeyEvents == value)
+                return;
+            m_handleKeyEvents = value;
+            m_realKeysPressed.Clear();
+        }
+    }
 
     /// <summary>
     /// Whether cursor or Kempston joystick is enabled.
@@ -222,7 +233,6 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
         
         // Sounds.
         m_bit4 = (b & 0x10) != 0; // Speaker on/off.
-        var earBit = (b & 0x08) == 0;
         m_soundHandler?.SetSpeakerState((byte)((b & 0x18) >> 3));
         
         // Lower 3 bits will set the border color.
@@ -266,9 +276,33 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
         lock (m_realKeysPressed)
             m_realKeysPressed.Remove(keyCode);
     }
-    
+
     public void Dispose()
     {
         m_keyboardHook?.Dispose();
+    }
+
+    public IDisposable CreateKeyBlocker() => new KeyBlocker(this);
+
+    /// <summary>
+    /// Blocks keyboard input for being registered.
+    /// Useful when we know the Speccy doesn't have focus (like when a file open dialog is active).
+    /// </summary>
+    private class KeyBlocker : IDisposable
+    {
+        private readonly ZxPortHandler m_portHandler;
+        private readonly bool m_oldHandleKeyEvents;
+
+        internal KeyBlocker(ZxPortHandler portHandler)
+        {
+            m_portHandler = portHandler;
+            m_oldHandleKeyEvents = portHandler.HandleKeyEvents;
+            portHandler.HandleKeyEvents = false;
+        }
+        
+        public void Dispose()
+        {
+            m_portHandler.HandleKeyEvents = m_oldHandleKeyEvents;
+        }
     }
 }

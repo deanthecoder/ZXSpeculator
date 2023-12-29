@@ -12,6 +12,7 @@
 
     <ItemGroup>
         <AvaloniaResource Include="Assets\**"/>
+        <AvaloniaResource Remove="ZX Speculator.app\**" />
     </ItemGroup>
 
 
@@ -40,6 +41,7 @@
       <None Update="ROMs\48.rom">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
+      <None Remove="ZX Speculator.app\**" />
     </ItemGroup>
 
 
@@ -48,5 +50,21 @@
         <DependentUpon>App.axaml</DependentUpon>
         <SubType>Code</SubType>
       </Compile>
+      <Compile Remove="ZX Speculator.app\**" />
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <AvaloniaXaml Remove="ZX Speculator.app\**" />
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <EmbeddedResource Remove="ZX Speculator.app\**" />
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <AdditionalFiles Remove="ZX Speculator.app\**" />
     </ItemGroup>
 </Project>

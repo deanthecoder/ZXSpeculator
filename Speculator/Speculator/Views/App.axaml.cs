@@ -9,6 +9,7 @@
 // We do not accept any liability for damage caused by executing
 // or modifying this code.
 
+using System;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
@@ -20,6 +21,8 @@ namespace Speculator.Views;
 // ReSharper disable once PartialTypeWithSinglePart
 public partial class App : Application
 {
+    private IDisposable m_keyBlocker;
+    
     public App()
     {
         DataContext = new AppViewModel();
@@ -40,8 +43,8 @@ public partial class App : Application
                 DataContext = viewModel
             };
 
-            desktop.MainWindow.Activated += (_, _) => viewModel.Speccy.PortHandler.HandleKeyEvents = true;
-            desktop.MainWindow.Deactivated += (_, _) => viewModel.Speccy.PortHandler.HandleKeyEvents = false;
+            desktop.MainWindow.Deactivated += (_, _) => m_keyBlocker = viewModel.Speccy.PortHandler.CreateKeyBlocker();
+            desktop.MainWindow.Activated += (_, _) => m_keyBlocker?.Dispose();
 
             if (!Design.IsDesignMode)
             {
