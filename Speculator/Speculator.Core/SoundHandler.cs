@@ -21,11 +21,11 @@ namespace Speculator.Core;
 /// </summary>
 public class SoundHandler : ViewModelBase, IDisposable
 {
-    private double m_soundLevel;
+    private byte m_soundLevel;
     private const int SampleHz = 11025;
     private const int TicksPerSample = (int)(CPU.TStatesPerSecond / SampleHz);
     private long m_lastTStateCount;
-    private readonly List<double> m_soundLevels = new List<double>();
+    private readonly int[] m_soundLevels = new int[4];
     private readonly SoundDevice m_soundDevice;
     private bool m_isDisposed;
     private readonly Thread m_thread;
@@ -67,7 +67,7 @@ public class SoundHandler : ViewModelBase, IDisposable
     /// <summary>
     /// Called whenever the CPU's speaker state changes.
     /// </summary>
-    public void SetSpeakerState(double soundLevel)
+    public void SetSpeakerState(byte soundLevel)
     {
         m_soundLevel = soundLevel;
     }
@@ -89,7 +89,7 @@ public class SoundHandler : ViewModelBase, IDisposable
             return;
         
         // Update the count of on/off speaker states.
-        m_soundLevels.Add(m_soundLevel);
+        m_soundLevels[m_soundLevel]++;
 
         var elapsedTicks = tStateCount - m_lastTStateCount;
         if (elapsedTicks < TicksPerSample)
@@ -97,10 +97,16 @@ public class SoundHandler : ViewModelBase, IDisposable
 
         // We've collected enough samples for averaging to occur.
         m_lastTStateCount = tStateCount;
-        var sampleValue = m_soundLevels.Any() ? m_soundLevels.Average() : 0.0;
-        m_soundLevels.Clear();
-
+        var sampleValue = 0.0;
+        var sampleCount = 0.0;
+        for (var i = 0; i < m_soundLevels.Length; i++)
+        {
+            sampleValue += i * m_soundLevels[i];
+            sampleCount += m_soundLevels[i];
+            m_soundLevels[i] = 0;
+        }
+        
         // Append to the sample buffer.
-        m_soundDevice.AddSample(sampleValue);
+        m_soundDevice.AddSample(sampleCount > 0.0 ? sampleValue * 0.25 / sampleCount : 0.0);
     }
 }
