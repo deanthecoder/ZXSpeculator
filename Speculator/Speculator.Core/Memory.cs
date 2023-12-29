@@ -81,7 +81,7 @@ public class Memory
     /// <summary>
     /// Bulk load data into memory (such as from disk).
     /// </summary>
-    public void LoadData(IList<byte> data, int addr)
+    public void LoadData(IList<byte> data, ushort addr)
     {
         data.CopyTo(Data, addr);
         DataLoaded?.Invoke(this, EventArgs.Empty);

@@ -13,6 +13,7 @@ using System.Diagnostics;
 using CSharp.Utils;
 using CSharp.Utils.Extensions;
 using Speculator.Core.Utils;
+// ReSharper disable MustUseReturnValue
 
 namespace Speculator.Core;
 
@@ -107,46 +108,112 @@ public class ZxFileIo // todo - Implement .tap loading to support https://github
         Debug.Assert(stream.Position == 30);
 
         var isVersion1 = m_cpu.TheRegisters.PC != 0x0000;
-        if (!isVersion1)
+        if (isVersion1)
         {
-            Logger.Instance.Warn("Unsupported Z80 version (Only v1 implemented).");
+            // Version 1.
+            var bytesToRead = (int)(stream.Length - stream.Position);
+            var data = ReadBytes(stream, bytesToRead);
+            if (isDataCompressed)
+            {
+                Decompress(data);
+
+                // Remove trailer.
+                data.RemoveRange(data.Count - 4, 4);
+            }
+
+            Debug.Assert(data.Count <= 48 * 1024);
+            m_cpu.MainMemory.LoadData(data, 0x4000);
             return;
         }
         
-        // Version 1
-        var bytesToRead = (int)(stream.Length - stream.Position);
-        var data = new List<byte>();
-        for (var i = 0; i < bytesToRead; i++)
-            data.Add((byte)stream.ReadByte());
-
-        if (isDataCompressed)
+        // Read the length of the extended header (2 bytes)
+        int extendedHeaderLength = ReadZxWord(stream);
+        if (extendedHeaderLength != 23) 
         {
-            var offset = 0;
-            while (offset < data.Count - 4)
-            {
-                if (data[offset] == 0xED && data[offset + 1] == 0xED)
-                {
-                    var count = data[offset + 2];
-                    var b = data[offset + 3];
-
-                    data.RemoveRange(offset, 4);
-                    for (var i = 0; i < count; i++)
-                        data.Insert(offset, b);
-
-                    offset += count;
-                }
-                else
-                {
-                    offset++;
-                }
-            }
-
-            // Remove trailer.
-            data.RemoveRange(data.Count - 4, 4);
+            Logger.Instance.Warn("Unsupported or invalid Z80 file format.");
+            return;
         }
+        
+        // Read the extended header for version 2 files.
+        var extendedHeader = new byte[extendedHeaderLength];
+        stream.Read(extendedHeader, 0, extendedHeaderLength);
 
-        Debug.Assert(data.Count <= 48 * 1024);
-        m_cpu.MainMemory.LoadData(data, 0x4000);
+        m_cpu.TheRegisters.PC = (ushort)((extendedHeader[1] << 8) + extendedHeader[0]);
+        if (!ReportHardwareMode(extendedHeader[2]))
+            return; // Unsupported Speccy.
+        
+        // Read blocks.
+        while (stream.Position < stream.Length)
+        {
+            var blockSize = ReadZxWord(stream);
+            var pageNumber = stream.ReadByte();
+
+            var data = ReadBytes(stream, blockSize);
+            Decompress(data);
+
+            switch (pageNumber)
+            {
+                case 0: m_cpu.MainMemory.LoadData(data, 0x0000);
+                    break;
+                case 4: m_cpu.MainMemory.LoadData(data, 0x8000);
+                    break;
+                case 5: m_cpu.MainMemory.LoadData(data, 0xC000);
+                    break;
+                case 8: m_cpu.MainMemory.LoadData(data, 0x4000);
+                    break;
+            }
+        }
+    }
+    
+    private static List<byte> ReadBytes(FileStream stream, int byteCount)
+    {
+        var data = new List<byte>(byteCount);
+        for (var i = 0; i < byteCount; i++)
+            data.Add((byte)stream.ReadByte());
+        return data;
+    }
+
+    private static void Decompress(List<byte> data)
+    {
+        var offset = 0;
+        while (offset < data.Count - 4)
+        {
+            if (data[offset] == 0xED && data[offset + 1] == 0xED)
+            {
+                var count = data[offset + 2];
+                var b = data[offset + 3];
+
+                data.RemoveRange(offset, 4);
+                for (var i = 0; i < count; i++)
+                    data.Insert(offset, b);
+
+                offset += count;
+            }
+            else
+            {
+                offset++;
+            }
+        }
+    }
+
+    private static bool ReportHardwareMode(int hardwareMode)
+    {
+        var modeDescription = hardwareMode switch
+        {
+            0 => "48K Spectrum",
+            1 => "48K Spectrum + Interface 1",
+            2 => "SamRam",
+            3 => "128K Spectrum",
+            4 => "128K Spectrum + Interface 1",
+            _ => $"Unknown hardware mode: {hardwareMode}"
+        };
+
+        var isSupported = hardwareMode <= 1;
+        if (isSupported)
+            return true;
+        
+        Logger.Instance.Warn($"Unsupported model: {modeDescription}");
+        return false;
     }
 
     private void LoadSCR(FileInfo file) =>
