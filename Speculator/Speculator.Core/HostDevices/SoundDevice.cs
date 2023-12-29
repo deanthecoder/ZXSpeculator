@@ -47,6 +47,7 @@ public class SoundDevice
         outStream.SampleRate = m_sampleHz;
         outStream.ErrorCallback += () => Logger.Instance.Error("Sound device error.");
         outStream.UnderflowCallback += () => Logger.Instance.Warn("Sound buffer underflow.");
+        outStream.SoftwareLatency = 100;
 
         if (device.SupportsFormat(SoundIODevice.Float32NE))
         {
