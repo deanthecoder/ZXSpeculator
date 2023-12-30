@@ -50,8 +50,7 @@ public partial class CPU
                         Logger.Instance.Warn($"Ignoring {opcode:X2} prefix for opcode {MainMemory.ReadAsHexString(TheRegisters.PC, 4, true)} (Disabling future warnings).");
                     var nop = ExecuteInstruction(InstructionSet.Nop);
                     
-                    // todo - The above statement is not implemented.  Not used in any games I care, but causes test failures.
-                    var i = ExecuteAtPC(); // DD CB 01 36  'sll (ix + d)' where d is 01 - Like CB 36 'sll (hl)'.
+                    var i = ExecuteAtPC();
                     return nop + i;
 
                 case 0xED:

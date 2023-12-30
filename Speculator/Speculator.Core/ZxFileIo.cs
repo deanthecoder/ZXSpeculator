@@ -17,7 +17,7 @@ using Speculator.Core.Utils;
 
 namespace Speculator.Core;
 
-public class ZxFileIo // todo - Implement .tap loading to support https://github.com/raxoft/z80test
+public class ZxFileIo
 {
     private readonly CPU m_cpu;
     private readonly ZxDisplay m_zxDisplay;

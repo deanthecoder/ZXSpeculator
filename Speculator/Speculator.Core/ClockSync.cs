@@ -65,7 +65,7 @@ public class ClockSync
     {
         private readonly Stopwatch m_stopwatch;
         
-        public Pauser(Stopwatch stopwatch) // todo - Pause stopwatch, and set m_tStateCountAtStart?
+        public Pauser(Stopwatch stopwatch)
         {
             m_stopwatch = stopwatch;
             stopwatch.Stop();
