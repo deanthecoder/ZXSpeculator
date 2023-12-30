@@ -18,6 +18,7 @@ public class ClockSync
     private readonly Stopwatch m_realTime;
     private readonly double m_emulatedTicksPerSecond;
     private readonly Func<long> m_ticksSinceCpuStart;
+    private bool m_isSpeedLimited = true;
 
     /// <summary>
     /// Number of T states when this stopwatch was started.
@@ -35,10 +36,33 @@ public class ClockSync
     /// Operations external to emulation (such as loading a ROM) should pause
     /// emulated machine whilst they're 'busy'.
     /// </summary>
-    public Pauser CreatePauser() => new Pauser(m_realTime);
+    public IDisposable CreatePauser() => new Pauser(m_realTime);
+
+    /// <summary>
+    /// Call to set whether the emulator is running at 100% emulated speed,
+    /// or 'full throttle'.
+    /// </summary>
+    public void SetLimitSpeed(bool enableSpeedLimit)
+    {
+        lock (m_realTime)
+        {
+            if (m_isSpeedLimited == enableSpeedLimit)
+                return;
+            m_isSpeedLimited = enableSpeedLimit;
+            if (!m_isSpeedLimited)
+                return;
+            
+            // Reset the timing variables when re-enabling 100% emulated peed.
+            m_tStateCountAtStart = m_ticksSinceCpuStart();
+            m_realTime.Restart();
+        }
+    }
 
     public void SyncWithRealTime()
     {
+        if (!m_isSpeedLimited)
+            return;
+        
         lock (m_realTime)
         {
             var emulatedUptimeSecs = (m_ticksSinceCpuStart() - m_tStateCountAtStart) / m_emulatedTicksPerSecond;
@@ -61,7 +85,7 @@ public class ClockSync
         }
     }
 
-    public class Pauser : IDisposable
+    private class Pauser : IDisposable
     {
         private readonly Stopwatch m_stopwatch;
         

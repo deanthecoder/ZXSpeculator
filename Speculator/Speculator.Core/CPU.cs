@@ -73,7 +73,7 @@ public partial class CPU : ViewModelBase
         set
         {
             if (SetField(ref m_fullThrottle, value))
-                ClockSync.Reset();
+                ClockSync.SetLimitSpeed(!value);
         }
     }
 
@@ -134,8 +134,7 @@ public partial class CPU : ViewModelBase
             else
             {
                 // Sync the clock speed.
-                if (!FullThrottle)
-                    ClockSync.SyncWithRealTime();
+                ClockSync.SyncWithRealTime();
             }
 
             lock (CpuStepLock)
