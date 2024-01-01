@@ -12,6 +12,7 @@
 using CSharp.Utils.ViewModels;
 using SharpHook;
 using SharpHook.Native;
+using Speculator.Core.Tape;
 
 namespace Speculator.Core;
 
@@ -22,13 +23,14 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
 {
     private readonly SoundHandler m_soundHandler;
     private readonly ZxDisplay m_theDisplay;
+    private readonly TapeLoader m_tapeLoader;
     private readonly List<KeyCode> m_realKeysPressed = new List<KeyCode>();
     private readonly Dictionary<KeyCode[], KeyCode[]> m_pcToSpectrumKeyMap;
     private readonly Dictionary<KeyCode[], KeyCode[]> m_pcToSpectrumKeyMapWithJoystick;
     private readonly SimpleGlobalHook m_keyboardHook;
-    private bool m_bit4;
     private bool m_emulateCursorJoystick;
     private bool m_handleKeyEvents = true;
+    private bool? m_tapeSignal;
 
     /// <summary>
     /// The keyboard hooks work regardless of whether the app has focus.
@@ -55,10 +57,11 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
         set => SetField(ref m_emulateCursorJoystick, value);
     }
 
-    public ZxPortHandler(SoundHandler soundHandler, ZxDisplay theDisplay)
+    public ZxPortHandler(SoundHandler soundHandler, ZxDisplay theDisplay, TapeLoader tapeLoader)
     {
         m_soundHandler = soundHandler;
         m_theDisplay = theDisplay;
+        m_tapeLoader = tapeLoader;
 
         // Map PC key to a sequence of emulated Speccy keys.
         m_pcToSpectrumKeyMap = new Dictionary<KeyCode[], KeyCode[]>
@@ -111,24 +114,25 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
     public byte In(ushort portAddress)
     {
         var result = (byte)0xFF; // 'floating' bux value.
-        
+
         if ((portAddress & 0x00FF) == 0xFE)
         {
             lock (m_realKeysPressed)
                 result = ReadKeyboardPort(portAddress);
 
-            // The docs say 'Bit 6 of IN-Port 0xfe is the EAR input bit.'
-            // ...as set by an OUT instruction.
-            // Not sure it makes a difference, but we can emulate it.
-            if (m_bit4)
-                result = (byte)(result | 0x40);
+            // Read from the tape, if loaded.
+            m_tapeSignal = m_tapeLoader.GetTapeSignal();
+            if (m_tapeSignal.HasValue)
+                result = (byte)((result & 0b10111111) + (m_tapeSignal.Value ? 0x40 : 0x00));
         } 
         else if ((portAddress & 0x001F) == 0x1F)
+        {
             result = ReadJoystickPort();
+        }
 
         return result;
     }
-    
+
     private byte ReadJoystickPort()
     {
         byte b = 0x00;
@@ -144,7 +148,7 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
             b = (byte)(b | 0x1);
         return b;
     }
-    
+
     private byte ReadKeyboardPort(ushort portAddress)
     {
         byte result = 0x00;
@@ -232,8 +236,14 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
             return;
         
         // Sounds.
-        m_bit4 = (b & 0x10) != 0; // Speaker on/off.
-        m_soundHandler?.SetSpeakerState((byte)((b & 0x18) >> 3));
+        var speakerState = (byte)((b & 0x18) >> 3);
+        if (m_tapeSignal.HasValue)
+        {
+            // Tape loading is active, so ensure the sound it piped out.
+            speakerState = (byte)((speakerState & 0xfe) + (m_tapeSignal.Value ? 1 : 0));
+        }
+        
+        m_soundHandler?.SetSpeakerState(speakerState);
         
         // Lower 3 bits will set the border color.
         if (m_theDisplay != null)
@@ -282,7 +292,7 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
         m_keyboardHook?.Dispose();
     }
 
-    public IDisposable CreateKeyBlocker() => new KeyBlocker(this);
+    public IDisposable CreateKeyBlocker() => new ZxPortHandler.KeyBlocker(this);
 
     /// <summary>
     /// Blocks keyboard input for being registered.

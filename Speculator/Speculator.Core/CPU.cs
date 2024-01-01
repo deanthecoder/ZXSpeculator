@@ -25,12 +25,12 @@ public partial class CPU : ViewModelBase
     private bool m_shutdownRequested;
     private bool m_resetRequested;
     private int m_TStatesSinceInterrupt;
-    private long m_TStatesSinceCpuStart;
     private bool m_fullThrottle;
     private bool m_isDebuggerActive;
     private int m_previousScanline;
 
     public const double TStatesPerSecond = 3494400;
+    public long TStatesSinceCpuStart { get; private set; }
 
     /// <summary>
     /// Called immediately after an instruction has been processed and PC incremented.
@@ -64,7 +64,7 @@ public partial class CPU : ViewModelBase
         TheRegisters = new Registers();
         TheAlu = new Alu(TheRegisters);
         ThePortHandler = portHandler;
-        ClockSync = new ClockSync(TStatesPerSecond, () => m_TStatesSinceCpuStart);
+        ClockSync = new ClockSync(TStatesPerSecond, () => TStatesSinceCpuStart);
     }
 
     public bool FullThrottle
@@ -163,11 +163,11 @@ public partial class CPU : ViewModelBase
 
         // Execute instruction.
         var TStates = ExecuteAtPC();
-        m_TStatesSinceCpuStart += TStates;
+        TStatesSinceCpuStart += TStates;
         m_TStatesSinceInterrupt += TStates;
             
         // Record speaker state.
-        m_soundHandler?.SampleSpeakerState(m_TStatesSinceCpuStart);
+        m_soundHandler?.SampleSpeakerState(TStatesSinceCpuStart);
 
         // Screen build-up.
         var scanline = m_TStatesSinceInterrupt / 224;
@@ -202,12 +202,12 @@ public partial class CPU : ViewModelBase
             case 0:
             case 1:
                 CallIfTrue(0x0038, true);
-                m_TStatesSinceCpuStart += 17;
+                TStatesSinceCpuStart += 17;
                 m_TStatesSinceInterrupt += 17;
                 break;
             case 2:
                 CallIfTrue(MainMemory.PeekWord((ushort)((TheRegisters.I << 8) | 0xff)), true);
-                m_TStatesSinceCpuStart += 19;
+                TStatesSinceCpuStart += 19;
                 m_TStatesSinceInterrupt += 19;
                 break;
             default:
@@ -344,5 +344,5 @@ public partial class CPU : ViewModelBase
         TheRegisters.SubtractFlag = false;
     }
 
-    public double UpTime => m_TStatesSinceCpuStart / TStatesPerSecond;
+    public double UpTime => TStatesSinceCpuStart / TStatesPerSecond;
 }

@@ -12,6 +12,7 @@
 using System.Diagnostics;
 using CSharp.Utils;
 using CSharp.Utils.Extensions;
+using Speculator.Core.Tape;
 using Speculator.Core.Utils;
 // ReSharper disable MustUseReturnValue
 
@@ -21,12 +22,15 @@ public class ZxFileIo
 {
     private readonly CPU m_cpu;
     private readonly ZxDisplay m_zxDisplay;
-    public static string[] FileFilters { get; } = { "*.z80", "*.bin", "*.scr", "*.sna", "*.zip" };
+    private readonly TapeLoader m_tapeLoader;
+    
+    public static string[] FileFilters { get; } = { "*.z80", "*.bin", "*.scr", "*.sna", "*.zip", "*.tap" };
 
-    public ZxFileIo(CPU cpu, ZxDisplay zxDisplay)
+    public ZxFileIo(CPU cpu, ZxDisplay zxDisplay, TapeLoader tapeLoader)
     {
         m_cpu = cpu;
         m_zxDisplay = zxDisplay;
+        m_tapeLoader = tapeLoader;
     }
 
     public void LoadFile(FileInfo fileInfo)
@@ -43,7 +47,7 @@ public class ZxFileIo
 
     private void LoadFileInternal(FileInfo fileInfo)
     {
-        switch (fileInfo.Extension)
+        switch (fileInfo.Extension.ToLower())
         {
             case ".zip":
             {
@@ -65,6 +69,9 @@ public class ZxFileIo
                 return;
             case ".z80":
                 LoadZ80(fileInfo);
+                return;
+            case ".tap":
+                m_tapeLoader.Load(fileInfo);
                 return;
         }
     }

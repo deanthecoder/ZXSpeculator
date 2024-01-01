@@ -9,6 +9,8 @@
 //
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
+using Speculator.Core.Tape;
+
 namespace Speculator.Core;
 
 /// <summary>
@@ -26,15 +28,17 @@ public class ZxSpectrum : IDisposable
     public CPU TheCpu { get; }
     public ZxPortHandler PortHandler { get; }
     public SoundHandler SoundHandler => m_soundHandler ??= new SoundHandler();
+    public TapeLoader TheTapeLoader { get; } = new TapeLoader();
 
     public ZxSpectrum(ZxDisplay display)
     {
         TheDisplay = display;
-        PortHandler = new ZxPortHandler(SoundHandler, TheDisplay);
+        PortHandler = new ZxPortHandler(SoundHandler, TheDisplay, TheTapeLoader);
         TheCpu = new CPU(new Memory(), PortHandler, SoundHandler)
         {
             TStatesPerInterrupt = TStatesPerRenderFrame
         };
+        TheTapeLoader.TheCpu = TheCpu;
         TheDebugger = new Debugger.Debugger(TheCpu);
 
         TheCpu.RenderScanline += TheDisplay.OnRenderScanline;
@@ -69,7 +73,7 @@ public class ZxSpectrum : IDisposable
     public ZxSpectrum LoadRom(FileInfo romFile)
     {
         using var _ = PortHandler.CreateKeyBlocker();
-        new ZxFileIo(TheCpu, TheDisplay).LoadFile(romFile);
+        new ZxFileIo(TheCpu, TheDisplay, TheTapeLoader).LoadFile(romFile);
         return this;
     }
 }
