@@ -6,7 +6,7 @@ ZX Speculator is a ZX Spectrum 48K emulator, written in C#. It leverages the [Av
 
 ## Features
 - **Platform Independent**: Built using [Avalonia](https://avaloniaui.net/), ensuring compatibility across various platforms.
-- **File Format Support**: Compatible with .z80, .bin, .scr, and .sna files.
+- **File Format Support**: Compatible with .z80, .bin, .scr, .tap, and .sna files.
 - **Integrated Debugger**: Comes with a built-in debugger for examination of the Z80 CPU state, including step-through instruction capabilities.
 - **Sound Libraries**: Utilizes [libsoundio](http://libsound.io/) on Mac and [NAudio](https://github.com/naudio/NAudio) on Windows for sound emulation.
 
@@ -25,6 +25,11 @@ The project is provided as C# source code:
 1. Clone the repository from GitHub.
 2. Open the project in your preferred IDE.
 3. Build and run the application.
+
+### Loading .tap Files
+1. Type `Load ""` in BASIC.
+2. Use File->Open to load the .tap file.
+3. Enjoy the loading experience.
 
 ## Contribution and Improvements
 ZX Speculator is an ongoing project and contributions are welcome. Whether it's improving emulation accuracy, testing on different platforms, or enhancing existing features, your input is valuable (although I can't always promise a fast response, as this is a side project).
