@@ -258,6 +258,9 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
         if (m_realKeysPressed.Contains(KeyCode.VcLeftMeta) || m_realKeysPressed.Contains(KeyCode.VcRightMeta))
             return false; // Mac user probably triggering a menu item.
         
+        if (!m_realKeysPressed.Any())
+            return false; // Nothing pressed.
+
         var zxPressed = m_realKeysPressed.ToList();
         var keyMap = EmulateCursorJoystick ? m_pcToSpectrumKeyMapWithJoystick : m_pcToSpectrumKeyMap;
         foreach (var map in keyMap)
