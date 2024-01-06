@@ -67,10 +67,8 @@ public class SoundHandler : ViewModelBase, IDisposable
     /// <summary>
     /// Called whenever the CPU's speaker state changes.
     /// </summary>
-    public void SetSpeakerState(byte soundLevel)
-    {
+    public void SetSpeakerState(byte soundLevel) =>
         m_soundLevel = soundLevel;
-    }
 
     public void Dispose()
     {
@@ -85,9 +83,6 @@ public class SoundHandler : ViewModelBase, IDisposable
     /// </summary>
     public void SampleSpeakerState(long tStateCount)
     {
-        if (!m_isEnabled)
-            return;
-        
         // Update the count of on/off speaker states.
         m_soundLevels[m_soundLevel]++;
 
@@ -96,7 +91,7 @@ public class SoundHandler : ViewModelBase, IDisposable
             return; // Not enough time elapsed - Keep collecting speaker states.
 
         // We've collected enough samples for averaging to occur.
-        m_lastTStateCount = tStateCount;
+        m_lastTStateCount += TicksPerSample;
         var sampleValue = 0.0;
         var sampleCount = 0.0;
         for (var i = 0; i < m_soundLevels.Length; i++)
@@ -107,6 +102,7 @@ public class SoundHandler : ViewModelBase, IDisposable
         }
         
         // Append to the sample buffer.
-        m_soundDevice.AddSample(sampleCount > 0.0 ? sampleValue * 0.25 / sampleCount : 0.0);
+        var value = sampleCount > 0.0 ? sampleValue * 0.25 / sampleCount : 0.0;
+        m_soundDevice.AddSample(value);
     }
 }

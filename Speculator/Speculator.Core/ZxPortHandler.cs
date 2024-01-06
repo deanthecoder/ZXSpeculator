@@ -290,12 +290,10 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
             m_realKeysPressed.Remove(keyCode);
     }
 
-    public void Dispose()
-    {
+    public void Dispose() =>
         m_keyboardHook?.Dispose();
-    }
 
-    public IDisposable CreateKeyBlocker() => new ZxPortHandler.KeyBlocker(this);
+    public IDisposable CreateKeyBlocker() => new KeyBlocker(this);
 
     /// <summary>
     /// Blocks keyboard input for being registered.

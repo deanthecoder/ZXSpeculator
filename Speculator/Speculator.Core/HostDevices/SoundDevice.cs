@@ -9,10 +9,8 @@
 //
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
-#if !WINDOWS
-using System.Collections.Concurrent;
 using CSharp.Utils;
-using SoundIOSharp;
+using OpenTK.Audio.OpenAL;
 
 namespace Speculator.Core.HostDevices;
 
@@ -21,170 +19,139 @@ namespace Speculator.Core.HostDevices;
 /// </summary>
 public class SoundDevice
 {
-    private readonly int m_sampleHz;
-    private Action<IntPtr, double> m_writeSampleFunc;
-    private readonly ConcurrentQueue<double> m_soundBuffer = new ConcurrentQueue<double>();
-    private double m_lastSample;
-    private int m_channelCount;
+    private readonly int m_source;
+    private readonly int[] m_buffers;
+    private readonly int m_sampleRate;
     private bool m_isSoundEnabled = true;
+
+    /// <summary>
+    /// Data received from the CPU, copied into m_transferBuffer for transfer to the sound card.
+    /// </summary>
+    private readonly List<byte> m_cpuBuffer = new List<byte>(8192);
+
+    /// <summary>
+    /// The number of device buffers we can queue.
+    /// </summary>
+    private const int BufferCount = 3;
+    
+    /// <summary>
+    /// Fixed buffer for interop with the sound card. Used to fill the device buffers.
+    /// </summary>
+    private readonly byte[] m_transferBuffer;
 
     public SoundDevice(int sampleHz)
     {
-        m_sampleHz = sampleHz;
+        m_sampleRate = sampleHz;
+
+        // Initialize OpenAL.
+        var device = ALC.OpenDevice(null);
+        var context = ALC.CreateContext(device, (int[])null);
+        ALC.MakeContextCurrent(context);
+
+        // Generate buffers and a source.
+        m_buffers = AL.GenBuffers(BufferCount);
+        m_source = AL.GenSource();
+
+        m_transferBuffer = new byte[m_sampleRate / (20 * BufferCount)];
     }
 
     public void SoundLoop(Func<bool> isCancelled)
     {
-        using var api = new SoundIO();
-        api.Connect();
-        api.FlushEvents();
+        // Wait for the first batch of sample data from the CPU.
+        while (!isCancelled() && !IsEnoughDataFromCpuBuffered(BufferCount))
+            Thread.Sleep(10);
 
-        var device = api.GetOutputDevice(api.DefaultOutputDeviceIndex);
-        if (device == null)
-        {
-            Logger.Instance.Error("Output sound device not found.");
-            return;
-        }
+        // Pre-fill all buffers with initial data.
+        foreach (var bufferId in m_buffers)
+            UpdateBufferData(bufferId);
 
-        if (device.ProbeError != 0)
-        {
-            Logger.Instance.Error("Cannot probe sound device.");
-            return;
-        }
-
-        var outStream = device.CreateOutStream();
-
-        outStream.WriteCallback = (min, max) => WriteCallback(outStream, min, max);
-        outStream.SampleRate = m_sampleHz;
-        outStream.ErrorCallback += () => Logger.Instance.Error("Sound device error.");
-        outStream.UnderflowCallback += () => Logger.Instance.Warn("Sound buffer underflow.");
-        outStream.SoftwareLatency = 100;
-
-        if (device.SupportsFormat(SoundIODevice.Float32NE))
-        {
-            outStream.Format = SoundIODevice.Float32NE;
-            m_writeSampleFunc = write_sample_float32ne;
-        }
-        else if (device.SupportsFormat(SoundIODevice.Float64NE))
-        {
-            outStream.Format = SoundIODevice.Float64NE;
-            m_writeSampleFunc = write_sample_float64ne;
-        }
-        else if (device.SupportsFormat(SoundIODevice.S32NE))
-        {
-            outStream.Format = SoundIODevice.S32NE;
-            m_writeSampleFunc = write_sample_s32ne;
-        }
-        else if (device.SupportsFormat(SoundIODevice.S16NE))
-        {
-            outStream.Format = SoundIODevice.S16NE;
-            m_writeSampleFunc = write_sample_s16ne;
-        }
-        else
-        {
-            Logger.Instance.Error("No suitable sound format available.");
-            return;
-        }
-
-        outStream.Open();
-            
-        if (outStream.LayoutErrorMessage != null)
-            Logger.Instance.Error("Unable to set sound channel layout: " + outStream.LayoutErrorMessage);
-
-        outStream.Start();
-        m_channelCount = outStream.Layout.ChannelCount;
-
+        // Start playback.
+        AL.SourcePlay(m_source);
+        CheckSoundError();
+        
         while (!isCancelled())
-            api.FlushEvents();
-
-        outStream.Dispose();
-        device.RemoveReference();
-    }
-    
-    /// <summary>
-    /// Called periodically by the sound library to send more data to the sound card.
-    /// </summary>
-    private void WriteCallback(SoundIOOutStream outStream, int frameCountMin, int frameCountMax)
-    {
-        if (!m_isSoundEnabled)
-            m_soundBuffer.Clear();
-
-        var toWrite = frameCountMin;
-        if (m_soundBuffer.Count > toWrite)
-            toWrite = Math.Min(m_soundBuffer.Count, frameCountMax);
-
-        // Prepare to stream the buffer samples.
-        var results = outStream.BeginWrite(ref toWrite);
-
-        // Write real sample data.
-        var toWriteFromBuffer = Math.Min(toWrite, m_soundBuffer.Count);
-        int written;
-        for (written = 0; written < toWriteFromBuffer; written++)
         {
-            if (m_soundBuffer.TryDequeue(out var sample))
-                WriteSample(results, sample);
+            Thread.Sleep(10);
+            
+            // Fill any unused device buffers with more CPU data.
+            AL.GetSource(m_source, ALGetSourcei.BuffersProcessed, out var buffersProcessed);
+            CheckSoundError();
+            while (buffersProcessed-- > 0)
+            {
+                var bufferId = AL.SourceUnqueueBuffer(m_source);
+                CheckSoundError();
+                UpdateBufferData(bufferId);
+            }
+            
+            // Restart playback if it has stopped and there are device buffers queued.
+            AL.GetSource(m_source, ALGetSourcei.SourceState, out var state);
+            CheckSoundError();
+            if ((ALSourceState)state == ALSourceState.Playing)
+                continue; // Device is playing - All good.
+            
+            AL.GetSource(m_source, ALGetSourcei.BuffersQueued, out var buffersQueued);
+            CheckSoundError();
+            if (buffersQueued <= 0)
+                continue; // No buffers ready for playback, yet.
+            
+            AL.SourcePlay(m_source);
+            CheckSoundError();
+            ClearCpuBuffer();
         }
 
-        // If there's a shortfall, pad by reusing the last known sample.
-        while (written < toWrite)
-        {
-            WriteSample(results, m_lastSample);
-            written++;
-        }
-
-        outStream.EndWrite();
+        AL.SourceStop(m_source);
     }
     
-    private void WriteSample(SoundIOChannelAreas channelAreas, double sample)
+    private static void CheckSoundError()
     {
-        for (var channel = 0; channel < m_channelCount; channel++)
-        {
-            m_lastSample = sample;
-            var area = channelAreas.GetArea(channel);
-            m_writeSampleFunc(area.Pointer, m_lastSample);
-            area.Pointer += area.Step;
-        }
-    }
-
-    private unsafe static void write_sample_s16ne(IntPtr ptr, double sample)
-    {
-        var buf = (short*)ptr;
-        var range = short.MaxValue - (double)short.MinValue;
-        var val = sample * range / 2.0;
-        *buf = (short)val;
-    }
-
-    private unsafe static void write_sample_s32ne(IntPtr ptr, double sample)
-    {
-        var buf = (int*)ptr;
-        var range = int.MaxValue - (double)int.MinValue;
-        var val = sample * range / 2.0;
-        *buf = (int)val;
-    }
-
-    private unsafe static void write_sample_float32ne(IntPtr ptr, double sample)
-    {
-        var buf = (float*)ptr;
-        *buf = (float)sample;
-    }
-
-    private unsafe static void write_sample_float64ne(IntPtr ptr, double sample)
-    {
-        var buf = (double*)ptr;
-        *buf = sample;
+        var err = AL.GetError();
+        if (err != ALError.NoError)
+            Logger.Instance.Error($"Sound device error: {err}");
     }
     
-    /// <summary>
-    /// Append a sample (0.0 - 1.0) to the buffer.
-    /// </summary>
+    private bool IsEnoughDataFromCpuBuffered(int bufferCountToFill = 1) =>
+        m_cpuBuffer.Count >= m_transferBuffer.Length * bufferCountToFill;
+
+    private void UpdateBufferData(int bufferId)
+    {
+        lock (m_cpuBuffer)
+        {
+            // Pad CPU sound buffer if not filled to capacity.
+            while (!IsEnoughDataFromCpuBuffered())
+                m_cpuBuffer.Add((byte)(m_cpuBuffer.Count > 0 ? m_cpuBuffer[^1] : 0));
+            
+            // Move the CPU sound buffer data to the device's buffer.
+            m_cpuBuffer.CopyTo(0, m_transferBuffer, 0, m_transferBuffer.Length);
+            m_cpuBuffer.RemoveRange(0, m_transferBuffer.Length);
+        }
+
+        // Fill the device buffer with data.
+        AL.BufferData(bufferId, ALFormat.Mono8, m_transferBuffer, m_sampleRate);
+        CheckSoundError();
+
+        // Queue the device buffer for playback.
+        AL.SourceQueueBuffer(m_source, bufferId);
+        CheckSoundError();
+    }
+
     public void AddSample(double sampleValue)
     {
-        m_soundBuffer.Enqueue(sampleValue);
+        var sample = (byte)(m_isSoundEnabled ? sampleValue * byte.MaxValue : 0);
+        lock (m_cpuBuffer)
+            m_cpuBuffer.Add(sample);
     }
-    
+
     public void SetEnabled(bool isSoundEnabled)
     {
+        if (m_isSoundEnabled == isSoundEnabled)
+            return;
         m_isSoundEnabled = isSoundEnabled;
+        ClearCpuBuffer();
+    }
+    
+    private void ClearCpuBuffer()
+    {
+        lock (m_cpuBuffer)
+            m_cpuBuffer.Clear();
     }
 }
-#endif

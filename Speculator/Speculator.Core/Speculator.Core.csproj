@@ -8,29 +8,12 @@
         <AssemblyVersion>1.0.0.0</AssemblyVersion>
         <Company>Dean Edis (DeanTheCoder)</Company>
     </PropertyGroup>
-
-    <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
-        <DefineConstants>WINDOWS</DefineConstants>
-    </PropertyGroup>
     
     <ItemGroup>
       <PackageReference Include="Avalonia" Version="11.0.6" />
       <PackageReference Include="DotNetZip" Version="1.16.0" />
-      <PackageReference Include="libsoundio-sharp-net" Version="1.0.0" />
-      <PackageReference Condition="'$(OS)' == 'Windows_NT'" Include="NAudio" Version="2.2.1" />
+      <PackageReference Include="OpenTK.Audio.OpenAL" Version="4.8.2" />
       <PackageReference Include="SharpHook" Version="5.2.0" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <None Update="libsoundio.dylib">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="libsoundio.2.dylib">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="libsoundio.2.0.0.dylib">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
     </ItemGroup>
 
     <ItemGroup>
