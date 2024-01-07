@@ -9,12 +9,22 @@
 
     <ItemGroup>
       <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+      <PackageReference Include="NSubstitute" Version="5.1.0" />
       <PackageReference Include="NUnit" Version="4.0.1" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\CSharp.Utils\CSharp.Utils.csproj" />
       <ProjectReference Include="..\Speculator.Core\Speculator.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="FuseTestData\tests.in">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="FuseTestData\tests.expected">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 </Project>

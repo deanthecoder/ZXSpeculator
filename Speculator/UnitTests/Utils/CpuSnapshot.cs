@@ -12,7 +12,7 @@
 using Newtonsoft.Json;
 using Speculator.Core;
 
-namespace UnitTests;
+namespace UnitTests.Utils;
 
 /// <summary>
 /// Saves/Restores a complete machine snapshot of a CPU and memory.

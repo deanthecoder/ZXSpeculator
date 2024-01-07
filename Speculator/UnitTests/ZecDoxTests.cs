@@ -10,19 +10,19 @@
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
 using System.Diagnostics;
-using System.Reflection;
 using CSharp.Utils.Extensions;
+using CSharp.Utils.UnitTesting;
+using NSubstitute;
 using NUnit.Framework;
 using Speculator.Core;
+using UnitTests.Utils;
 
 namespace UnitTests;
 
 [TestFixture]
-public class ZexDocTests
+public class ZexDocTests : TestsBase
 {
-    private static DirectoryInfo m_projectDir;
-
-    private static DirectoryInfo SnapshotDir => ProjectDir.GetDir("Snapshots");
+    private static DirectoryInfo SnapshotDir => ProjectDir.GetDir("ZexTestData");
 
     public static IEnumerable<string> SnapshotNames { get; } = SnapshotDir.EnumerateFiles("*.json").Select(o => o.Name);
     
@@ -30,22 +30,6 @@ public class ZexDocTests
     public void TestBuilder()
     {
         RunZexTest();
-    }
-
-    private static DirectoryInfo ProjectDir
-    {
-        get
-        {
-            if (m_projectDir == null)
-            {
-                var location = Assembly.GetExecutingAssembly().Location;
-                m_projectDir = new FileInfo(location).Directory;
-                while (m_projectDir?.EnumerateFiles("*.csproj").Any() != true && m_projectDir?.Parent != null)
-                    m_projectDir = m_projectDir.Parent;
-            }
-            
-            return m_projectDir;
-        }
     }
 
     [Test, Sequential, Parallelizable(ParallelScope.All)]
@@ -64,7 +48,8 @@ public class ZexDocTests
         Assert.That(zexDocBin, Does.Exist);
 
         // Create the CPU.
-        using var portHandler = new ZxPortHandler(null, null, null);
+        var portHandler = Substitute.For<IPortHandler>();
+         portHandler.In(Arg.Any<ushort>()).Returns(info => (byte)(info.Arg<ushort>() >> 8));
         var cpu = new CPU(new Memory(), portHandler)
         {
             TheRegisters =

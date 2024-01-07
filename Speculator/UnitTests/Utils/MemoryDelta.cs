@@ -9,7 +9,7 @@
 //
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
-namespace UnitTests;
+namespace UnitTests.Utils;
 
 public class MemoryDelta
 {
