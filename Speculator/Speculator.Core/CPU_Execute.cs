@@ -36,10 +36,10 @@ public partial class CPU
         if (instruction != null)
             return ExecuteInstruction(instruction);
 
+        // Note: Some of these prefixed instructions will be handled above.
         try
         {
-            var opcode = MainMemory.Peek(TheRegisters.PC);
-            switch (opcode)
+            switch (opcodeByte)
             {
                 case 0xDD:
                 case 0xFD:
@@ -47,17 +47,26 @@ public partial class CPU
                     // z80-documented-v0.91.pdf says we can treat this opcode prefix as a NOP
                     // and process the next opcode as normal.
                     if (!m_opcodeWarningIssued)
-                        Logger.Instance.Warn($"Ignoring {opcode:X2} prefix for opcode {MainMemory.ReadAsHexString(TheRegisters.PC, 4, true)} (Disabling future warnings).");
+                        Logger.Instance.Warn($"Ignoring {opcodeByte:X2} prefix for opcode {MainMemory.ReadAsHexString(TheRegisters.PC, 4, true)} (Disabling future warnings).");
                     var nop = ExecuteInstruction(InstructionSet.Nop);
                     
                     var i = Tick();
                     return nop + i;
 
                 case 0xED:
-                    // 'Zilog Z80 CPU Specifications by Sean Young' says if an EDxx instruction
-                    // is not listed then treat as two NOPs.
-                    if (!m_opcodeWarningIssued)
-                        Logger.Instance.Warn($"Ignoring ED prefix for opcode {MainMemory.ReadAsHexString(TheRegisters.PC, 4, true)} (Disabling future warnings).");
+                    var nextByte = MainMemory.Peek((ushort)(TheRegisters.PC + 1));
+                    if (nextByte <= 0x3F || nextByte >= 0x80)
+                    {
+                        // These are legit able to be treated as 'nop nop' instructions.
+                        // See https://mdfs.net/Docs/Comp/Z80/UnDocOps
+                    }
+                    else
+                    {
+                        // Not yet supported in this emulator.
+                        if (!m_opcodeWarningIssued)
+                            Logger.Instance.Warn($"Ignoring ED prefix for opcode {MainMemory.ReadAsHexString(TheRegisters.PC, 4, true)} (Disabling future warnings).");
+                    }
+                    
                     return ExecuteInstruction(InstructionSet.NopNop);
 
                 default:
