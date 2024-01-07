@@ -2758,10 +2758,8 @@ public partial class CPU
     }
     
     /// <summary>
-    /// Each tick increments the R register, but never sets the high bit.
+    /// Each tick increments the R register, but doesn't change the high bit.
     /// </summary>
-    private void IncrementR()
-    {
-        TheRegisters.R = (byte)((TheRegisters.R + 1) & 0x7F);
-    }
+    private void IncrementR() =>
+        TheRegisters.R = (byte)((TheRegisters.R + 1 & 0x7F) | (TheRegisters.R & 0x80));
 }
