@@ -103,6 +103,6 @@ public class SoundHandler : ViewModelBase, IDisposable
         
         // Append to the sample buffer.
         var value = sampleCount > 0.0 ? sampleValue * 0.25 / sampleCount : 0.0;
-        m_soundDevice.AddSample(value);
+        m_soundDevice?.AddSample(value);
     }
 }
