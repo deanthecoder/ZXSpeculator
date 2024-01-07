@@ -1078,6 +1078,36 @@ public partial class Z80Instructions
                 instr = Instructions[568];
                 return true;
             }
+            case 0x55: // RETN - Duplicate
+            {
+                instr = Instructions[808];
+                return true;
+            }
+            case 0x5D: // RETN - Duplicate
+            {
+                instr = Instructions[809];
+                return true;
+            }
+            case 0x65: // RETN - Duplicate
+            {
+                instr = Instructions[810];
+                return true;
+            }
+            case 0x6D: // RETN - Duplicate
+            {
+                instr = Instructions[811];
+                return true;
+            }
+            case 0x75: // RETN - Duplicate
+            {
+                instr = Instructions[812];
+                return true;
+            }
+            case 0x7D: // RETN - Duplicate
+            {
+                instr = Instructions[813];
+                return true;
+            }
             case 0x46: // IM0
             {
                 instr = Instructions[202];
