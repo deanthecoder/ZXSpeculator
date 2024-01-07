@@ -33,7 +33,7 @@ public partial class Z80Instructions
 
     private List<Instruction> Instructions { get; set; }
 
-    public Instruction findInstructionAtMemoryLocation(Memory mainMemory, ushort addr)
+    public Instruction FindInstructionAtMemoryLocation(Memory mainMemory, ushort addr)
     {
         switch (mainMemory.Peek(addr))
         {
@@ -1037,6 +1037,41 @@ public partial class Z80Instructions
             case 0x44: // NEG
             {
                 instr = Instructions[444];
+                return true;
+            }
+            case 0x4C: // NEG - Duplicate
+            {
+                instr = Instructions[799];
+                return true;
+            }
+            case 0x54: // NEG
+            {
+                instr = Instructions[800];
+                return true;
+            }
+            case 0x5C: // NEG - Duplicate
+            {
+                instr = Instructions[801];
+                return true;
+            }
+            case 0x64: // NEG
+            {
+                instr = Instructions[802];
+                return true;
+            }
+            case 0x6C: // NEG - Duplicate
+            {
+                instr = Instructions[803];
+                return true;
+            }
+            case 0x74: // NEG - Duplicate
+            {
+                instr = Instructions[804];
+                return true;
+            }
+            case 0x7C: // NEG - Duplicate
+            {
+                instr = Instructions[805];
                 return true;
             }
             case 0x45: // RETN

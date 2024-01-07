@@ -162,7 +162,7 @@ public partial class CPU : ViewModelBase
         var oldIFF = TheRegisters.IFF1;
 
         // Execute instruction.
-        var TStates = ExecuteAtPC();
+        var TStates = Tick();
         TStatesSinceCpuStart += TStates;
         m_TStatesSinceInterrupt += TStates;
             

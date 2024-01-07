@@ -16,7 +16,7 @@ public static class CpuExtensions
     public static ushort Disassemble(this CPU theCpu, ushort addr, ref string hexBytes, out string mnemonics)
     {
         var memory = theCpu.MainMemory;
-        var instruction = theCpu.InstructionSet.findInstructionAtMemoryLocation(memory, addr);
+        var instruction = theCpu.InstructionSet.FindInstructionAtMemoryLocation(memory, addr);
 
         if (instruction == null)
         {

@@ -22,7 +22,7 @@ public partial class CPU
     /// </summary>
     /// <remarks>The program counter will automatically be incremented.</remarks>
     /// <returns>The number of TStates used by the instruction.</returns>
-    private int ExecuteAtPC()
+    private int Tick()
     {
         var opcodeByte = MainMemory.Peek(TheRegisters.PC);
         var hasOpcodePrefix = opcodeByte is 0xDD or 0xFD or 0xED or 0xCB;
@@ -32,7 +32,7 @@ public partial class CPU
             TheRegisters.R++;
         }
         
-        var instruction = InstructionSet.findInstructionAtMemoryLocation(MainMemory, TheRegisters.PC);
+        var instruction = InstructionSet.FindInstructionAtMemoryLocation(MainMemory, TheRegisters.PC);
         if (instruction != null)
             return ExecuteInstruction(instruction);
 
@@ -50,7 +50,7 @@ public partial class CPU
                         Logger.Instance.Warn($"Ignoring {opcode:X2} prefix for opcode {MainMemory.ReadAsHexString(TheRegisters.PC, 4, true)} (Disabling future warnings).");
                     var nop = ExecuteInstruction(InstructionSet.Nop);
                     
-                    var i = ExecuteAtPC();
+                    var i = Tick();
                     return nop + i;
 
                 case 0xED:

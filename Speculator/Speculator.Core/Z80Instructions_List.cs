@@ -15,6 +15,7 @@ public partial class Z80Instructions
 {
     private void InitList()
     {
+        // Note: Order is important - Only append.
         Instructions = new()
         {
             new(InstructionID.ADC_A_A, "ADC A,A", "8F", 4),
@@ -816,6 +817,13 @@ public partial class Z80Instructions
             new(InstructionID.XOR_addrIX_plus_d, "XOR (IX+d)", "DD AE d", 19),
             new(InstructionID.XOR_addrIY_plus_d, "XOR (IY+d)", "FD AE d", 19),
             new(InstructionID.XOR_n, "XOR n", "EE n", 7),
+            new(InstructionID.NEG, "NEG", "ED 4C", 4), // Z80 duplicate of ED 44.
+            new(InstructionID.NEG, "NEG", "ED 54", 4), // Z80 duplicate of ED 44.
+            new(InstructionID.NEG, "NEG", "ED 5C", 4), // Z80 duplicate of ED 44.
+            new(InstructionID.NEG, "NEG", "ED 64", 4), // Z80 duplicate of ED 44.
+            new(InstructionID.NEG, "NEG", "ED 6C", 4), // Z80 duplicate of ED 44.
+            new(InstructionID.NEG, "NEG", "ED 74", 4), // Z80 duplicate of ED 44.
+            new(InstructionID.NEG, "NEG", "ED 7C", 4), // Z80 duplicate of ED 44.
         };
     }
 }
