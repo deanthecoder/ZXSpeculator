@@ -48,7 +48,7 @@ public partial class CPU
                     // and process the next opcode as normal.
                     if (!m_opcodeWarningIssued)
                         Logger.Instance.Warn($"Ignoring {opcodeByte:X2} prefix for opcode {MainMemory.ReadAsHexString(TheRegisters.PC, 4, true)} (Disabling future warnings).");
-                    var nop = ExecuteInstruction(InstructionSet.Nop);
+                    var nop = ExecuteInstruction(InstructionSet.Nop, false); // Don't increment R - We did it above.
                     
                     var i = Tick();
                     return nop + i;
@@ -84,14 +84,15 @@ public partial class CPU
     /// </summary>
     /// <remarks>The program counter will automatically be incremented.</remarks>
     /// <returns>The number of TStates used by the instruction.</returns>
-    private int ExecuteInstruction(Instruction instruction)
+    private int ExecuteInstruction(Instruction instruction, bool incrementR = true)
     {
         var instructionAddress = TheRegisters.PC;
         TheRegisters.PC += instruction.ByteCount;
         var valueAddress = (ushort)(instructionAddress + instruction.ValueByteOffset);
 
         // R increased each time an opcode is read.
-        IncrementR();
+        if (incrementR)
+            IncrementR();
 
         switch (instruction.Id)
         {
