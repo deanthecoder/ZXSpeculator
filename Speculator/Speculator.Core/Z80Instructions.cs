@@ -1188,6 +1188,11 @@ public partial class Z80Instructions
                 instr = Instructions[203];
                 return true;
             }
+            case 0x76: // IM1 - Duplicate
+            {
+                instr = Instructions[815];
+                return true;
+            }
             case 0x57: // LD A,I
             {
                 instr = Instructions[264];
