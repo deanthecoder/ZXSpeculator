@@ -834,6 +834,7 @@ public partial class Z80Instructions
             new(InstructionID.RETN, "RETN", "ED 7D", 14), // Z80 duplicate of ED 45.
             new(InstructionID.IM0, "IM0", "ED 66", 4),    // Z80 duplicate of ED 46.
             new(InstructionID.IM1, "IM1", "ED 76", 4),    // Z80 duplicate of ED 56.
+            new(InstructionID.IM2, "IM2", "ED 7E", 4),    // Z80 duplicate of ED 5E.
         };
     }
 }
