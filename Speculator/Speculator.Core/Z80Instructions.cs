@@ -1011,7 +1011,6 @@ public partial class Z80Instructions
     
     private bool HandleEDPrefix(Memory mainMemory, int addr, out Instruction instr)
     {
-
         switch (mainMemory.Peek((ushort)(addr + 1)))
         {
             case 0x40: // IN B,(C)

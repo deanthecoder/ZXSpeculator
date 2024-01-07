@@ -29,7 +29,7 @@ public partial class CPU
         if (hasOpcodePrefix)
         {
             // R increased each time an opcode is read - The prefix is a 'bonus' +1.
-            TheRegisters.R++;
+            IncrementR();
         }
         
         var instruction = InstructionSet.FindInstructionAtMemoryLocation(MainMemory, TheRegisters.PC);
@@ -82,7 +82,7 @@ public partial class CPU
         var valueAddress = (ushort)(instructionAddress + instruction.ValueByteOffset);
 
         // R increased each time an opcode is read.
-        TheRegisters.R++;
+        IncrementR();
 
         switch (instruction.Id)
         {
@@ -2745,5 +2745,13 @@ public partial class CPU
             default:
                 throw new UnsupportedInstruction(this, instruction);
         }
+    }
+    
+    /// <summary>
+    /// Each tick increments the R register, but never sets the high bit.
+    /// </summary>
+    private void IncrementR()
+    {
+        TheRegisters.R = (byte)((TheRegisters.R + 1) & 0x7F);
     }
 }
