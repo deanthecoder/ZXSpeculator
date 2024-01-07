@@ -1043,7 +1043,7 @@ public partial class Z80Instructions
                 instr = Instructions[799];
                 return true;
             }
-            case 0x54: // NEG
+            case 0x54: // NEG - Duplicate
             {
                 instr = Instructions[800];
                 return true;
@@ -1053,7 +1053,7 @@ public partial class Z80Instructions
                 instr = Instructions[801];
                 return true;
             }
-            case 0x64: // NEG
+            case 0x64: // NEG - Duplicate
             {
                 instr = Instructions[802];
                 return true;
@@ -1081,6 +1081,16 @@ public partial class Z80Instructions
             case 0x46: // IM0
             {
                 instr = Instructions[202];
+                return true;
+            }
+            case 0x4E: // IM0 - Duplicate
+            {
+                instr = Instructions[806];
+                return true;
+            }
+            case 0x6E: // IM0 - Duplicate
+            {
+                instr = Instructions[807];
                 return true;
             }
             case 0x47: // LD I,A
