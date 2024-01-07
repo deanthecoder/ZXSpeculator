@@ -1,0 +1,24 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Speculator.Views.AboutDialogContent"
+             Background="Transparent">
+    <StackPanel>
+        <StackPanel.Styles>
+            <Style Selector="TextBlock">
+                <Setter Property="HorizontalAlignment" Value="Center" />
+                <Setter Property="FontSize" Value="12" />
+            </Style>
+        </StackPanel.Styles>
+
+        <Image Source="/Assets/app.ico" Width="90" Height="90" Margin="16" />
+
+        <TextBlock Text="ZX Speculator" FontSize="30" />
+
+        <TextBlock x:Name="AppVersion" FontSize="12" />
+        <TextBlock Text="Copyright © 2024 Dean Edis (DeanTheCoder)." Margin="0,16,0,0" />
+        <TextBlock Text="All rights reserved." Margin="4" />
+    </StackPanel>
+</UserControl>

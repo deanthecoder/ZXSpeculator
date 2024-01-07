@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:Speculator.Views"
+        xmlns:dialogHostAvalonia="clr-namespace:DialogHostAvalonia;assembly=DialogHost.Avalonia"
         mc:Ignorable="d"
         d:DesignWidth="600"
         d:DesignHeight="650"
@@ -28,51 +29,63 @@
         <KeyBinding Command="{Binding ResetMachine}" Gesture="{OnPlatform 'escape'}" />
     </Window.KeyBindings>
 
-    <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,*">
-        <Menu Tag="{Binding WindowState, ElementName=self}">
-            <Menu.Styles>
-                <Style Selector="Menu[Tag=FullScreen]">
-                    <Setter Property="IsVisible" Value="False"/>
-                </Style>
-            </Menu.Styles>
-            <MenuItem Header="_File">
-                <MenuItem Header="_Load ROM" Command="{Binding LoadRom}"
-                          InputGesture="{OnPlatform 'ctrl+o', macOS='⌘+o'}"/>
-                <Separator/>
-                <MenuItem Header="_Exit" Command="{Binding CloseCommand}" />
-            </MenuItem>
-            
-            <MenuItem Header="_Hardware">
-                <MenuItem Header="Enable _Sound" Command="{Binding ToggleSound}"
-                          IsVisible="{Binding !Speccy.SoundHandler.IsEnabled}"
-                          IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}"/>
-                <MenuItem Header="Disable _Sound" Command="{Binding ToggleSound}"
-                          IsVisible="{Binding Speccy.SoundHandler.IsEnabled}"
-                          IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}" />
-                <MenuItem Header="Full Speed" Command="{Binding ToggleFullThrottle}"
-                          IsVisible="{Binding !IsFullThrottle}"
-                          IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}" />
-                <MenuItem Header="Accurate Speed" Command="{Binding ToggleFullThrottle}"
-                          IsVisible="{Binding IsFullThrottle}"
-                          IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}" />
-                <MenuItem Header="Use Cursor Joystick" Command="{Binding ToggleCursorJoystick}"
-                          IsVisible="{Binding !Speccy.PortHandler.EmulateCursorJoystick}" />
-                <MenuItem Header="Use Kempston Joystick" Command="{Binding ToggleCursorJoystick}"
-                          IsVisible="{Binding Speccy.PortHandler.EmulateCursorJoystick}" />
-                <MenuItem Header="_Reset Emulator" Command="{Binding ResetMachine}"
-                          InputGesture="{OnPlatform 'escape'}"/>
-                <MenuItem Header="Show Debugger" Command="{Binding Speccy.TheDebugger.Show}"
-                          IsVisible="{Binding !Speccy.TheDebugger.IsVisible}" />
-                <MenuItem Header="Hide Debugger" Command="{Binding Speccy.TheDebugger.Hide}"
-                          IsVisible="{Binding Speccy.TheDebugger.IsVisible}" />
-            </MenuItem>
-        </Menu>
+    <dialogHostAvalonia:DialogHost x:Name="host" OverlayBackground="Black">
+        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,*">
+            <Menu Tag="{Binding WindowState, ElementName=self}">
+                <Menu.Styles>
+                    <Style Selector="Menu[Tag=FullScreen]">
+                        <Setter Property="IsVisible" Value="False"/>
+                    </Style>
+                </Menu.Styles>
+                <MenuItem Header="_File">
+                    <MenuItem Header="_Load ROM" Command="{Binding LoadRom}"
+                              InputGesture="{OnPlatform 'ctrl+o', macOS='⌘+o'}"/>
+                    <Separator/>
+                    <MenuItem Header="_Exit" Command="{Binding CloseCommand}" />
+                </MenuItem>
+                
+                <MenuItem Header="_Hardware">
+                    <MenuItem Header="Enable _Sound" Command="{Binding ToggleSound}"
+                              IsVisible="{Binding !Speccy.SoundHandler.IsEnabled}"
+                              IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}"/>
+                    <MenuItem Header="Disable _Sound" Command="{Binding ToggleSound}"
+                              IsVisible="{Binding Speccy.SoundHandler.IsEnabled}"
+                              IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}" />
+                    <MenuItem Header="Full Speed" Command="{Binding ToggleFullThrottle}"
+                              IsVisible="{Binding !IsFullThrottle}"
+                              IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}" />
+                    <MenuItem Header="Accurate Speed" Command="{Binding ToggleFullThrottle}"
+                              IsVisible="{Binding IsFullThrottle}"
+                              IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}" />
+                    <MenuItem Header="Use Cursor Joystick" Command="{Binding ToggleCursorJoystick}"
+                              IsVisible="{Binding !Speccy.PortHandler.EmulateCursorJoystick}" />
+                    <MenuItem Header="Use Kempston Joystick" Command="{Binding ToggleCursorJoystick}"
+                              IsVisible="{Binding Speccy.PortHandler.EmulateCursorJoystick}" />
+                    <MenuItem Header="_Reset Emulator" Command="{Binding ResetMachine}"
+                              InputGesture="{OnPlatform 'escape'}"/>
+                    <MenuItem Header="Show Debugger" Command="{Binding Speccy.TheDebugger.Show}"
+                              IsVisible="{Binding !Speccy.TheDebugger.IsVisible}" />
+                    <MenuItem Header="Hide Debugger" Command="{Binding Speccy.TheDebugger.Hide}"
+                              IsVisible="{Binding Speccy.TheDebugger.IsVisible}" />
+                </MenuItem>
+                
+                <MenuItem Header="Help">
+                    <MenuItem Header="Open Project Page..." Command="{Binding OpenProjectPage}"/>
+                    <MenuItem Header="About..."
+                              Command="{Binding OpenDialogCommand, ElementName=host}">
+                        <MenuItem.CommandParameter>
+                            <views:AboutDialogContent PointerPressed="OnAboutDialogClicked"/>
+                        </MenuItem.CommandParameter>
+                    </MenuItem>
+                </MenuItem>
+            </Menu>
 
-        <Image Grid.Row="1" Grid.Column="0"
-               Source="{Binding Display.Bitmap}" Loaded="OnScreenBitmapLoaded" />
+            <Image Grid.Row="1" Grid.Column="0"
+                   Source="{Binding Display.Bitmap}" Loaded="OnScreenBitmapLoaded" />
 
-        <views:DebugPane DataContext="{Binding Speccy.TheDebugger}"
-                         Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"
-                         IsVisible="{Binding IsVisible}" />
-    </Grid>
+            <views:DebugPane DataContext="{Binding Speccy.TheDebugger}"
+                             Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"
+                             IsVisible="{Binding IsVisible}" />
+        </Grid>
+    </dialogHostAvalonia:DialogHost>
 </Window>

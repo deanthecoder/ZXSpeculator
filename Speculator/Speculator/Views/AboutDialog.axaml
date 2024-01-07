@@ -2,26 +2,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="clr-namespace:Speculator.Views"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Speculator.Views.AboutDialog"
         Icon="/Assets/app.ico"
         Title="About"
         MaxWidth="350" MaxHeight="240"
         CanResize="False">
-    <StackPanel>
-        <StackPanel.Styles>
-            <Style Selector="TextBlock">
-                <Setter Property="HorizontalAlignment" Value="Center"/>
-                <Setter Property="FontSize" Value="12"/>
-            </Style>
-        </StackPanel.Styles>
-        
-        <Image Source="/Assets/app.ico" Width="90" Height="90" Margin="16"/>
-        
-        <TextBlock Text="ZX Speculator" FontSize="30"/>
-        
-        <TextBlock x:Name="AppVersion" FontSize="12"/>
-        <TextBlock Text="Copyright © 2023 Dean Edis (DeanTheCoder)." Margin="0,16,0,0"/>
-        <TextBlock Text="All rights reserved." Margin="4"/>
-    </StackPanel>
+    <views:AboutDialogContent/>
 </Window>

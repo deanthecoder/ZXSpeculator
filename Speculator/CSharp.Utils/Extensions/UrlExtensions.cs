@@ -9,14 +9,15 @@
 //
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
-using Avalonia.Controls;
+using System.Diagnostics;
 
-namespace Speculator.Views;
+namespace CSharp.Utils.Extensions;
 
-public partial class AboutDialog : Window
+public static class UrlExtensions
 {
-    public AboutDialog()
-    {
-        InitializeComponent();
-    }
+    public static void Open(this Uri url) =>
+        Process.Start(new ProcessStartInfo(url.AbsoluteUri)
+        {
+            UseShellExecute = true
+        });
 }

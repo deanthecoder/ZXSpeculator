@@ -9,14 +9,17 @@
 //
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
+using System.Reflection;
 using Avalonia.Controls;
 
 namespace Speculator.Views;
 
-public partial class AboutDialog : Window
+public partial class AboutDialogContent : UserControl
 {
-    public AboutDialog()
+    public AboutDialogContent()
     {
         InitializeComponent();
+
+        AppVersion.Text = $"Version {Assembly.GetExecutingAssembly().GetName().Version?.ToString()}";
     }
 }

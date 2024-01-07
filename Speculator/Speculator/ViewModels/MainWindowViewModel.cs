@@ -67,6 +67,8 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         OnPropertyChanged(nameof(IsFullThrottle));
         Speccy.TheCpu.FullThrottle = IsFullThrottle;
     }
+
+    public void OpenProjectPage() => new Uri("https://github.com/deanthecoder/ZXSpeculator").Open();
     
     public void Dispose() => Speccy.Dispose();
 }
