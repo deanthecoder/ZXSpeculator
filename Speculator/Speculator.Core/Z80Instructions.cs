@@ -14,11 +14,12 @@ namespace Speculator.Core;
 public partial class Z80Instructions
 {
     private Instruction[] m_instructionSubSetDDCB;
-    private Instruction[] InstructionSubSetDDCB =>
-        m_instructionSubSetDDCB ??= Instructions.Where(o => o.HexTemplate.Replace(" ", string.Empty).StartsWith("DDCB")).ToArray();
     private Instruction[] m_instructionSubSetFDCB;
     private Instruction m_nop;
     private Instruction m_nopnop;
+
+    private Instruction[] InstructionSubSetDDCB =>
+        m_instructionSubSetDDCB ??= Instructions.Where(o => o.HexTemplate.Replace(" ", string.Empty).StartsWith("DDCB")).ToArray();
 
     private Instruction[] InstructionSubSetFDCB =>
         m_instructionSubSetFDCB ??= Instructions.Where(o => o.HexTemplate.Replace(" ", string.Empty).StartsWith("FDCB")).ToArray();
@@ -560,10 +561,14 @@ public partial class Z80Instructions
         return null;
 
     }
-    
+
+    /// <summary>
+    /// Treat HL in next instruction as IY.
+    /// </summary>
     private bool HandleFDPrefix(Memory mainMemory, ushort addr, out Instruction instr)
     {
-        switch (mainMemory.Peek((ushort)(addr + 1)))
+        var nextOpcode = mainMemory.Peek((ushort)(addr + 1));
+        switch (nextOpcode)
         {
             case 0x09: // ADD IY,BC
             {
@@ -1399,9 +1404,13 @@ public partial class Z80Instructions
         return false;
     }
     
+    /// <summary>
+    /// Treat HL in next instruction as IX.
+    /// </summary>
     private bool HandleDDPrefix(Memory mainMemory, ushort addr, out Instruction instr)
     {
-        switch (mainMemory.Peek((ushort)(addr + 1)))
+        var nextOpcode = mainMemory.Peek((ushort)(addr + 1));
+        switch (nextOpcode)
         {
             case 0x09: // ADD IX,BC
             {
