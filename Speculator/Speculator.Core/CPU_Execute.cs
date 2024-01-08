@@ -2759,7 +2759,7 @@ public partial class CPU
                 TheRegisters.Main.HL++;
 
                 // 'Undocumented'.
-                TheRegisters.HalfCarryFlag |= hlMem + TheRegisters.Main.L > 255;
+                TheRegisters.HalfCarryFlag = hlMem + TheRegisters.Main.L > 255;
                 TheRegisters.CarryFlag = hlMem + TheRegisters.Main.L > 255;
                 TheRegisters.ParityFlag = Alu.IsEvenParity((byte)(((hlMem + TheRegisters.Main.L) & 7) ^ TheRegisters.Main.B));
                 TheRegisters.SubtractFlag = (hlMem & 0x80) != 0;
@@ -2767,13 +2767,23 @@ public partial class CPU
             }
 
             case Z80Instructions.InstructionID.OTIR:
+            {
                 // Looping version of OUTI.
+                var hlMem = MainMemory.Peek(TheRegisters.Main.HL);
                 TheRegisters.Main.B = TheAlu.DecAndSetFlags(TheRegisters.Main.B);
-                ThePortHandler.Out(TheRegisters.Main.C, MainMemory.Peek(TheRegisters.Main.HL));
+                ThePortHandler.Out(TheRegisters.Main.C, hlMem);
                 TheRegisters.Main.HL++;
                 if (TheRegisters.Main.B != 0)
                     TheRegisters.PC -= 2; // Repeat.
+
+                // 'Undocumented'.
+                TheRegisters.HalfCarryFlag = hlMem + TheRegisters.Main.L > 255;
+                TheRegisters.CarryFlag = hlMem + TheRegisters.Main.L > 255;
+                TheRegisters.ParityFlag = Alu.IsEvenParity((byte)(((hlMem + TheRegisters.Main.L) & 7) ^ TheRegisters.Main.B));
+                TheRegisters.SubtractFlag = (hlMem & 0x80) != 0;
+
                 return instruction.TStateCount;
+            }
 
             case Z80Instructions.InstructionID.OUTD:
             {
