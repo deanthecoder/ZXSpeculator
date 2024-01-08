@@ -72,6 +72,8 @@ public class SoundHandler : ViewModelBase, IDisposable
 
     public void Dispose()
     {
+        m_soundDevice?.Mute();
+        
         // Wait for the sound thread to exit.
         m_isDisposed = true;
         m_thread?.Join();

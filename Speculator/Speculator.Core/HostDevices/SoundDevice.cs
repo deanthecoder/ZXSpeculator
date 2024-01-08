@@ -56,23 +56,28 @@ public class SoundDevice
     }
 
     public void SoundLoop(Func<bool> isCancelled)
-    {
-        // Wait for the first batch of sample data from the CPU.
-        while (!isCancelled() && !IsEnoughDataFromCpuBuffered(BufferCount))
-            Thread.Sleep(10);
-
+    { 
         // Pre-fill all buffers with initial data.
         foreach (var bufferId in m_buffers)
             UpdateBufferData(bufferId);
 
-        // Start playback.
+        // Start playback (Muted, to avoid the 'pop').
+        Mute();
         AL.SourcePlay(m_source);
         CheckSoundError();
-        
+
+        var gain = 0.0f;
+
         while (!isCancelled())
         {
             Thread.Sleep(10);
-            
+
+            if (gain < 0.2)
+            {
+                gain += 0.005f;
+                AL.Source(m_source, ALSourcef.Gain, gain);
+            }
+
             // Fill any unused device buffers with more CPU data.
             AL.GetSource(m_source, ALGetSourcei.BuffersProcessed, out var buffersProcessed);
             CheckSoundError();
@@ -82,26 +87,32 @@ public class SoundDevice
                 CheckSoundError();
                 UpdateBufferData(bufferId);
             }
-            
+
             // Restart playback if it has stopped and there are device buffers queued.
             AL.GetSource(m_source, ALGetSourcei.SourceState, out var state);
             CheckSoundError();
             if ((ALSourceState)state == ALSourceState.Playing)
                 continue; // Device is playing - All good.
-            
+
             AL.GetSource(m_source, ALGetSourcei.BuffersQueued, out var buffersQueued);
             CheckSoundError();
             if (buffersQueued <= 0)
                 continue; // No buffers ready for playback, yet.
-            
+
+            gain = 0.0f;
+            AL.Source(m_source, ALSourcef.Gain, gain);
             AL.SourcePlay(m_source);
             CheckSoundError();
             ClearCpuBuffer();
         }
 
+        Mute();
         AL.SourceStop(m_source);
     }
     
+    public void Mute() =>
+        AL.Source(m_source, ALSourcef.Gain, 0.0f);
+
     private static void CheckSoundError()
     {
         var err = AL.GetError();
