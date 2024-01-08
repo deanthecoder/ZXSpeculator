@@ -25,11 +25,12 @@ public class Memory
 
     public byte[] Data { get; } = new byte[0x10000];
 
-    public void Poke(ushort addr, byte value)
+    public byte Poke(ushort addr, byte value)
     {
         if (IsRom(addr))
-            return; // Can't write to ROM.
+            return Data[addr]; // Can't write to ROM.
         Data[addr] = value;
+        return value;
     }
 
     public void Poke(ushort addr, ushort v)
