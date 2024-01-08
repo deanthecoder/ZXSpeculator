@@ -2743,13 +2743,23 @@ public partial class CPU
             }
 
             case Z80Instructions.InstructionID.INDR:
+            {
                 // Looping version if IND.
-                MainMemory.Poke(TheRegisters.Main.HL, ThePortHandler.In(TheRegisters.Main.C));
+                var hlMem = MainMemory.Poke(TheRegisters.Main.HL, ThePortHandler.In(TheRegisters.Main.BC));
                 TheRegisters.Main.HL--;
                 TheRegisters.Main.B = TheAlu.DecAndSetFlags(TheRegisters.Main.B);
                 if (TheRegisters.Main.B != 0)
                     TheRegisters.PC -= 2; // Repeat.
+
+                // 'Undocumented'.
+                var decC = (TheRegisters.Main.C - 1) & 255;
+                TheRegisters.HalfCarryFlag = hlMem + decC > 255;
+                TheRegisters.CarryFlag = hlMem + decC > 255;
+                TheRegisters.ParityFlag = Alu.IsEvenParity((byte)(((hlMem + decC) & 7) ^ TheRegisters.Main.B));
+                TheRegisters.SubtractFlag = (hlMem & 0x80) != 0;
+
                 return instruction.TStateCount;
+            }
 
             case Z80Instructions.InstructionID.OUTI:
             {
