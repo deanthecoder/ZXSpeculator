@@ -2693,17 +2693,19 @@ public partial class CPU
                 return instruction.TStateCount;
 
             case Z80Instructions.InstructionID.INI:
+            {
                 var hlMem = MainMemory.Poke(TheRegisters.Main.HL, ThePortHandler.In(TheRegisters.Main.BC));
                 TheRegisters.Main.HL++;
                 TheRegisters.Main.B = TheAlu.DecAndSetFlags(TheRegisters.Main.B);
                 var incC = (TheRegisters.Main.C + 1) & 255;
-                
+
                 // 'Undocumented'.
                 TheRegisters.HalfCarryFlag |= hlMem + incC > 255;
                 TheRegisters.CarryFlag |= hlMem + incC > 255;
                 TheRegisters.ParityFlag |= Alu.IsEvenParity((byte)(((hlMem + incC) & 7) ^ TheRegisters.Main.B));
                 TheRegisters.SubtractFlag = (hlMem & 0x80) != 0;
                 return instruction.TStateCount;
+            }
 
             case Z80Instructions.InstructionID.INIR:
                 // Looping version of INI.
@@ -2730,10 +2732,19 @@ public partial class CPU
                 return instruction.TStateCount;
 
             case Z80Instructions.InstructionID.OUTI:
+            {
                 TheRegisters.Main.B = TheAlu.DecAndSetFlags(TheRegisters.Main.B);
-                ThePortHandler.Out(TheRegisters.Main.C, MainMemory.Peek(TheRegisters.Main.HL));
+                var hlMem = MainMemory.Peek(TheRegisters.Main.HL);
+                ThePortHandler.Out(TheRegisters.Main.C, hlMem);
                 TheRegisters.Main.HL++;
+
+                // 'Undocumented'.
+                TheRegisters.HalfCarryFlag |= hlMem + TheRegisters.Main.L > 255;
+                TheRegisters.CarryFlag |= hlMem + TheRegisters.Main.L > 255;
+                TheRegisters.ParityFlag |= Alu.IsEvenParity((byte)(((hlMem + TheRegisters.Main.L) & 7) ^ TheRegisters.Main.B));
+                TheRegisters.SubtractFlag = (hlMem & 0x80) != 0;
                 return instruction.TStateCount;
+            }
 
             case Z80Instructions.InstructionID.OTIR:
                 // Looping version of OUTI.
