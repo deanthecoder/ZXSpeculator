@@ -159,48 +159,72 @@ public class Registers : ViewModelBase
         Alt.Clear();
     }
 
+    /// <summary>
+    /// S:Bit 7 (7...0)
+    /// </summary>
     public bool SignFlag
     {
         set => Main.F = value ? (byte)(Main.F | (1 << 7)) : (byte)(Main.F & ~(1 << 7));
         get => (Main.F & (1 << 7)) != 0;
     }
 
+    /// <summary>
+    /// Z:Bit 6 (7...0)
+    /// </summary>
     public bool ZeroFlag
     {
         set => Main.F = value ? (byte)(Main.F | (1 << 6)) : (byte)(Main.F & ~(1 << 6));
         get => (Main.F & (1 << 6)) != 0;
     }
 
+    /// <summary>
+    /// 5:Bit 5 (7...0)
+    /// </summary>
     public bool Flag5
     {
         private set => Main.F = value ? (byte)(Main.F | (1 << 5)) : (byte)(Main.F & ~(1 << 5));
         get => (Main.F & (1 << 5)) != 0;
     }
 
+    /// <summary>
+    /// H:Bit 4 (7...0)
+    /// </summary>
     public bool HalfCarryFlag
     {
         set => Main.F = value ? (byte)(Main.F | (1 << 4)) : (byte)(Main.F & ~(1 << 4));
         get => (Main.F & (1 << 4)) != 0;
     }
 
+    /// <summary>
+    /// 3:Bit 3 (7...0)
+    /// </summary>
     public bool Flag3
     {
         private set => Main.F = value ? (byte)(Main.F | (1 << 3)) : (byte)(Main.F & ~(1 << 3));
         get => (Main.F & (1 << 3)) != 0;
     }
 
+    /// <summary>
+    /// P:Bit 2 (7...0)
+    /// </summary>
     public bool ParityFlag
     {
         set => Main.F = value ? (byte)(Main.F | (1 << 2)) : (byte)(Main.F & ~(1 << 2));
         get => (Main.F & (1 << 2)) != 0;
     }
 
+    /// <summary>
+    /// N:Bit 1 (7...0)
+    /// </summary>
     public bool SubtractFlag
     {
         set => Main.F = value ? (byte)(Main.F | (1 << 1)) : (byte)(Main.F & ~(1 << 1));
         get => (Main.F & (1 << 1)) != 0;
     }
 
+    /// <summary>
+    /// C:Bit 0 (7...0)
+    /// </summary>
     public bool CarryFlag
     {
         set => Main.F = value ? (byte)(Main.F | (1 << 0)) : (byte)(Main.F & ~(1 << 0));
