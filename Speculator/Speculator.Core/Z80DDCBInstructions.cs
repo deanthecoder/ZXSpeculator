@@ -28,15 +28,17 @@ public partial class Z80Instructions
         for (var i = 0; i < regs.Length; i++)
         {
             var r = regs[i];
-            if (r != 0)
-                yield return CreateRlcIxPlusDInstruction(r, i);
+            if (r == 0)
+                continue;
+            yield return CreateRlcIxPlusDInstruction(r, i);
+            yield return CreateRrcIxPlusDInstruction(r, i);
         }
     }
     
     private static Instruction CreateRlcIxPlusDInstruction(char regName, int regIndex)
     {
         const int tStates = 23;
-        return new Instruction(InstructionID.RLC_addrIX_plus_d_undoc, $"RLC (IX+d),{regName}", $"DD CB d {regIndex:X02}", tStates)
+        return new Instruction(InstructionID.RLC_addrIX_plus_d_undoc, $"RLC (IX+d),{regName}", $"DD CB d {0x00 + regIndex:X02}", tStates)
         {
             Run = Impl
         };
@@ -45,6 +47,24 @@ public partial class Z80Instructions
         {
             var ixPlusD = registers.IXPlusD(memory.Peek(valueAddress));
             var result = alu.RotateLeftCircular(memory.Peek(ixPlusD));
+            memory.Poke(ixPlusD, result);
+            registers.Main.SetRegister(regName, result);
+            return tStates;
+        }
+    }
+    
+    private static Instruction CreateRrcIxPlusDInstruction(char regName, int regIndex)
+    {
+        const int tStates = 23;
+        return new Instruction(InstructionID.RRC_addrIX_plus_d_undoc, $"RRC (IX+d),{regName}", $"DD CB d {0x08 + regIndex:X02}", tStates)
+        {
+            Run = Impl
+        };
+
+        int Impl(Memory memory, Registers registers, Alu alu, ushort valueAddress)
+        {
+            var ixPlusD = registers.IXPlusD(memory.Peek(valueAddress));
+            var result = alu.RotateRightCircular(memory.Peek(ixPlusD));
             memory.Poke(ixPlusD, result);
             registers.Main.SetRegister(regName, result);
             return tStates;

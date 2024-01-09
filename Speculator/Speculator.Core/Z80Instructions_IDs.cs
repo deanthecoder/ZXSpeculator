@@ -387,6 +387,7 @@ public partial class Z80Instructions
         RRCA,
         RRC_addrHL,
         RRC_addrIX_plus_d,
+        RRC_addrIX_plus_d_undoc,
         RRC_addrIY_plus_d,
         RRD,
         SLA_A,
