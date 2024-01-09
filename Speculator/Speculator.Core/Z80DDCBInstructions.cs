@@ -15,8 +15,7 @@ namespace Speculator.Core;
 
 public partial class Z80Instructions
 {
-    // todo - Repeat for FD CB instruction (IY)
-    private IEnumerable<Instruction> GetDdcbInstructions()
+    private IEnumerable<Instruction> GetDdCbInstructions()
     {
         // Handled explicitly?
         foreach (var instr in Instructions.Where(o => o.HexTemplate.Replace(" ", string.Empty).StartsWith("DDCB")))
@@ -29,7 +28,7 @@ public partial class Z80Instructions
         };
         for (var i = 0; i < regs.Length; i++)
         {
-            var regSuffix = regs[i] != '\0' ? $",{regs}" : string.Empty;
+            var regSuffix = regs[i] != '\0' ? $",{regs[i]}" : string.Empty;
             yield return CreateRlcIxPlusDInstruction(regs[i], i, regSuffix);
             yield return CreateRrcIxPlusDInstruction(regs[i], i, regSuffix);
             yield return CreateRlIxPlusDInstruction(regs[i], i, regSuffix);

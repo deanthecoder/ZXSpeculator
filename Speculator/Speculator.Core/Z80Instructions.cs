@@ -19,10 +19,10 @@ public partial class Z80Instructions
     private Instruction m_nopnop;
 
     private Instruction[] InstructionSubSetDDCB =>
-        m_instructionSubSetDDCB ??= GetDdcbInstructions().ToArray();
+        m_instructionSubSetDDCB ??= GetDdCbInstructions().ToArray();
 
     private Instruction[] InstructionSubSetFDCB =>
-        m_instructionSubSetFDCB ??= Instructions.Where(o => o.HexTemplate.Replace(" ", string.Empty).StartsWith("FDCB")).ToArray();
+        m_instructionSubSetFDCB ??= GetFdCbInstructions().ToArray();
 
     public Instruction Nop => m_nop ??= Instructions.First(t => t.Id == InstructionID.NOP);
     public Instruction NopNop => m_nopnop ??= Instructions.First(t => t.Id == InstructionID.NOPNOP);
