@@ -2003,30 +2003,6 @@ public partial class CPU
             case Z80Instructions.InstructionID.SET_7_addrHL:
                 MainMemory.Poke(TheRegisters.Main.HL, MainMemory.Peek(TheRegisters.Main.HL).SetBit(7));
                 return instruction.TStateCount;
-            case Z80Instructions.InstructionID.SET_0_addrIX_plus_d:
-                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))).SetBit(0));
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.SET_1_addrIX_plus_d:
-                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))).SetBit(1));
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.SET_2_addrIX_plus_d:
-                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))).SetBit(2));
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.SET_3_addrIX_plus_d:
-                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))).SetBit(3));
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.SET_4_addrIX_plus_d:
-                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))).SetBit(4));
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.SET_5_addrIX_plus_d:
-                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))).SetBit(5));
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.SET_6_addrIX_plus_d:
-                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))).SetBit(6));
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.SET_7_addrIX_plus_d:
-                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))).SetBit(7));
-                return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_0_addrIY_plus_d:
                 MainMemory.Poke(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress)), MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))).SetBit(0));
                 return instruction.TStateCount;

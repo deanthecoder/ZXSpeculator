@@ -43,6 +43,7 @@ public partial class Z80Instructions
             {
                 yield return CreateBitIxPlusDInstruction(i, bit);
                 yield return CreateResIxPlusDInstruction(regs[i], i, regSuffix, bit);
+                yield return CreateSetIxPlusDInstruction(regs[i], i, regSuffix, bit);
             }
         }
     }
@@ -225,6 +226,24 @@ public partial class Z80Instructions
         {
             var ixPlusD = registers.IXPlusD(memory.Peek(valueAddress));
             var result = memory.Peek(ixPlusD).ResetBit(bit);
+            memory.Poke(ixPlusD, result);
+            registers.Main.SetRegister(regName, result);
+            return tStates;
+        }
+    }
+    
+    private static Instruction CreateSetIxPlusDInstruction(char regName, int regIndex, string regSuffix, byte bit)
+    {
+        const int tStates = 23;
+        return new Instruction(InstructionID.SET_n_addrIX_plus_d, $"SET {bit},(IX+d){regSuffix}", $"DD CB d {0xC0 + bit * 8 + regIndex:X02}", tStates)
+        {
+            Run = Impl
+        };
+
+        int Impl(Memory memory, Registers registers, Alu alu, ushort valueAddress)
+        {
+            var ixPlusD = registers.IXPlusD(memory.Peek(valueAddress));
+            var result = memory.Peek(ixPlusD).SetBit(bit);
             memory.Poke(ixPlusD, result);
             registers.Main.SetRegister(regName, result);
             return tStates;
