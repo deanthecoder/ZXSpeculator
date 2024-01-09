@@ -34,6 +34,8 @@ public partial class Z80Instructions
             yield return CreateRrcIxPlusDInstruction(r, i);
             yield return CreateRlIxPlusDInstruction(r, i);
             yield return CreateRrIxPlusDInstruction(r, i);
+            yield return CreateSlaIxPlusDInstruction(r, i);
+            yield return CreateSraIxPlusDInstruction(r, i);
         }
     }
     
@@ -103,6 +105,42 @@ public partial class Z80Instructions
         {
             var ixPlusD = registers.IXPlusD(memory.Peek(valueAddress));
             var result = alu.RotateRight(memory.Peek(ixPlusD));
+            memory.Poke(ixPlusD, result);
+            registers.Main.SetRegister(regName, result);
+            return tStates;
+        }
+    }
+    
+    private static Instruction CreateSlaIxPlusDInstruction(char regName, int regIndex)
+    {
+        const int tStates = 23;
+        return new Instruction(InstructionID.SLA_addrIX_plus_d_undoc, $"SLA (IX+d),{regName}", $"DD CB d {0x20 + regIndex:X02}", tStates)
+        {
+            Run = Impl
+        };
+
+        int Impl(Memory memory, Registers registers, Alu alu, ushort valueAddress)
+        {
+            var ixPlusD = registers.IXPlusD(memory.Peek(valueAddress));
+            var result = alu.ShiftLeft(memory.Peek(ixPlusD));
+            memory.Poke(ixPlusD, result);
+            registers.Main.SetRegister(regName, result);
+            return tStates;
+        }
+    }
+    
+    private static Instruction CreateSraIxPlusDInstruction(char regName, int regIndex)
+    {
+        const int tStates = 23;
+        return new Instruction(InstructionID.SRA_addrIX_plus_d_undoc, $"SRA (IX+d),{regName}", $"DD CB d {0x28 + regIndex:X02}", tStates)
+        {
+            Run = Impl
+        };
+
+        int Impl(Memory memory, Registers registers, Alu alu, ushort valueAddress)
+        {
+            var ixPlusD = registers.IXPlusD(memory.Peek(valueAddress));
+            var result = alu.ShiftRightArithmetic(memory.Peek(ixPlusD));
             memory.Poke(ixPlusD, result);
             registers.Main.SetRegister(regName, result);
             return tStates;
