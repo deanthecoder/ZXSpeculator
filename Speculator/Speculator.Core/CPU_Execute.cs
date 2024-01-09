@@ -634,7 +634,7 @@ public partial class CPU
                 if (!TheRegisters.ZeroFlag && TheRegisters.Main.BC != 0)
                     TheRegisters.PC -= 2;
                 TheRegisters.ParityFlag = TheRegisters.Main.BC != 0;
-                return TheRegisters.Main.BC != 0 ? 21 : 16;
+                return TheRegisters.Main.BC != 0 && TheRegisters.Main.A != MainMemory.Peek(TheRegisters.Main.HL) ? 21 : 16;
             }
             case Z80Instructions.InstructionID.ADC_A_n:
                 TheRegisters.Main.A = TheAlu.AddAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(valueAddress), true);
@@ -2498,7 +2498,7 @@ public partial class CPU
                 TheRegisters.ParityFlag = Alu.IsEvenParity((byte)(((hlMem + incC) & 7) ^ TheRegisters.Main.B));
                 TheRegisters.SubtractFlag = (hlMem & 0x80) != 0;
 
-                return instruction.TStateCount;
+                return TheRegisters.Main.B == 0 ? 16 : 21;
             }
 
             case Z80Instructions.InstructionID.IND:
@@ -2533,7 +2533,7 @@ public partial class CPU
                 TheRegisters.ParityFlag = Alu.IsEvenParity((byte)(((hlMem + decC) & 7) ^ TheRegisters.Main.B));
                 TheRegisters.SubtractFlag = (hlMem & 0x80) != 0;
 
-                return instruction.TStateCount;
+                return TheRegisters.Main.B == 0 ? 16 : 21;
             }
 
             case Z80Instructions.InstructionID.OUTI:
@@ -2567,7 +2567,7 @@ public partial class CPU
                 TheRegisters.ParityFlag = Alu.IsEvenParity((byte)(((hlMem + TheRegisters.Main.L) & 7) ^ TheRegisters.Main.B));
                 TheRegisters.SubtractFlag = (hlMem & 0x80) != 0;
 
-                return instruction.TStateCount;
+                return TheRegisters.Main.B == 0 ? 16 : 21;
             }
 
             case Z80Instructions.InstructionID.OUTD:
@@ -2602,7 +2602,7 @@ public partial class CPU
                 TheRegisters.ParityFlag = Alu.IsEvenParity((byte)(((hlMem + TheRegisters.Main.L) & 7) ^ TheRegisters.Main.B));
                 TheRegisters.SubtractFlag = (hlMem & 0x80) != 0;
 
-                return instruction.TStateCount;
+                return TheRegisters.Main.B == 0 ? 16 : 21;
             }
 
             default:

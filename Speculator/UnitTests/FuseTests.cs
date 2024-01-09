@@ -44,6 +44,6 @@ public class FuseTests : TestsBase
         Assert.That(fuseTest.Run(cpu, fuseResult.ExpectedPC), Is.True, "Test timed-out.");
 
         // todo - Be more strict.
-        fuseResult.Verify(cpu, relaxFlagChecks: true, relaxTStateChecks: true);
+        fuseResult.Verify(cpu, relaxFlagChecks: true);
     }
 }
