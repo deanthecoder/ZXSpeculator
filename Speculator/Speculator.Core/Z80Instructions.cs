@@ -24,7 +24,7 @@ public partial class Z80Instructions
     private Instruction[] InstructionSubSetFDCB =>
         m_instructionSubSetFDCB ??= GetFdCbInstructions().ToArray();
 
-    public Instruction Nop => m_nop ??= Instructions.First(t => t.Id == InstructionID.NOP);
+    public Instruction Nop => m_nop ??= new(InstructionID.NOP, "NOP", "00", 4);
     public Instruction NopNop => m_nopnop ??= Instructions.First(t => t.Id == InstructionID.NOPNOP);
     
     public Z80Instructions()
@@ -1288,6 +1288,16 @@ public partial class Z80Instructions
                 instr = Instructions[589];
                 return true;
             }
+            case 0x70: // IN (C)
+            {
+                instr = Instructions[817];
+                return true;
+            }
+            case 0x71: // OUT (C),0
+            {
+                instr = Instructions[818];
+                return true;
+            }
             case 0x72: // SBC HL,SP
             {
                 instr = Instructions[649];
@@ -1814,7 +1824,6 @@ public partial class Z80Instructions
             }
             case 0xCB: // DDCB prefix
             {
-                // todo - Check DD CB d 00 decompiles ok.
                 instr = null;
                 for (var i = 0; i < InstructionSubSetDDCB.Length; i++)
                 {

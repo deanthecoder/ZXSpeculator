@@ -22,6 +22,7 @@ public class FuseResult
     private readonly ushort[] m_registers;
     private readonly ushort[] m_state;
     private readonly string m_memory;
+    private readonly ushort m_tStates;
 
     public string TestId { get; }
 
@@ -30,7 +31,8 @@ public class FuseResult
     public FuseResult(string testId, string registers, string state, string memory)
     {
         m_registers = registers.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(o => Convert.ToUInt16(o, 16)).ToArray();
-        m_state = state.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(o => Convert.ToUInt16(o, 16)).ToArray();
+        m_state = state.Split(' ', StringSplitOptions.RemoveEmptyEntries).SkipLast(1).Select(o => Convert.ToUInt16(o, 16)).ToArray();
+        m_tStates = Convert.ToUInt16(state.Split(' ', StringSplitOptions.RemoveEmptyEntries).Last());
         m_memory = memory;
         TestId = testId;
     }
@@ -72,7 +74,7 @@ public class FuseResult
         });
 
         if (!relaxTStateChecks)
-            Assert.That(cpu.TStatesSinceCpuStart, Is.EqualTo(m_state[6]));
+            Assert.That(cpu.TStatesSinceCpuStart, Is.EqualTo(m_tStates));
     }
     
     private void VerifyRegisters(CPU cpu, bool relaxFlagChecks)

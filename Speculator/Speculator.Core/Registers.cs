@@ -85,6 +85,10 @@ public class Registers : ViewModelBase
             }
         }
         
+        /// <summary>
+        /// Assigns a byte to the specified register.
+        /// </summary>
+        /// <remarks>A no-op if the register name is '\0'.</remarks>
         public void SetRegister(char regName, byte value)
         {
             switch (regName)
@@ -113,7 +117,7 @@ public class Registers : ViewModelBase
                     L = value;
                     return;
                 default:
-                    throw new NotImplementedException();
+                    throw new ArgumentException("Unknown register name.", nameof(regName));
             }
         }
     }

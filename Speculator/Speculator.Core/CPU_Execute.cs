@@ -50,9 +50,7 @@ public partial class CPU
                     if (!m_opcodeWarningIssued)
                         Logger.Instance.Warn($"Ignoring {opcodeByte:X2} prefix for opcode {MainMemory.ReadAsHexString(TheRegisters.PC, 4, true)} (Disabling future warnings).");
                     var nop = ExecuteInstruction(InstructionSet.Nop, false); // Don't increment R - We did it above.
-                    
-                    var i = Tick(); // todo - Is any of this code ever hit now we support DD and FD prefixes?
-                    return nop + i;
+                    return nop + Tick();
 
                 case 0xED:
                     var nextByte = MainMemory.Peek((ushort)(TheRegisters.PC + 1));
@@ -64,7 +62,7 @@ public partial class CPU
                     else
                     {
                         // Not yet supported in this emulator.
-                        if (!m_opcodeWarningIssued) // todo - ever hit?
+                        if (!m_opcodeWarningIssued)
                             Logger.Instance.Warn($"Ignoring ED prefix for opcode {MainMemory.ReadAsHexString(TheRegisters.PC, 4, true)} (Disabling future warnings).");
                     }
                     
@@ -2136,6 +2134,9 @@ public partial class CPU
             }
                 return instruction.TStateCount;
 
+            case Z80Instructions.InstructionID.OUT_addr_C_0:
+                ThePortHandler?.Out(MainMemory.Peek(valueAddress), 0);
+                return instruction.TStateCount;
             case Z80Instructions.InstructionID.OUT_addr_n_A:
                 ThePortHandler?.Out(MainMemory.Peek(valueAddress), TheRegisters.Main.A);
                 return instruction.TStateCount;
@@ -2188,6 +2189,9 @@ public partial class CPU
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.IN_L_addr_C:
                 TheRegisters.Main.L = doIN_addrC();
+                return instruction.TStateCount;
+            case Z80Instructions.InstructionID.IN_addr_C:
+                doIN_addrC();
                 return instruction.TStateCount;
 
             case Z80Instructions.InstructionID.ADC_A_IXH:

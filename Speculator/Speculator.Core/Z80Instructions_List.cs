@@ -222,9 +222,9 @@ public partial class Z80Instructions
             new(InstructionID.EX_addrSP_IX, "EX (SP),IX", "DD E3", 23),
             new(InstructionID.EX_addrSP_IY, "EX (SP),IY", "FD E3", 23),
             new(InstructionID.HALT, "HALT", "76", 4),
-            new(InstructionID.IM0, "IM0", "ED 46", 4),
-            new(InstructionID.IM1, "IM1", "ED 56", 4),
-            new(InstructionID.IM2, "IM2", "ED 5E", 4),
+            new(InstructionID.IM0, "IM0", "ED 46", 8),
+            new(InstructionID.IM1, "IM1", "ED 56", 8),
+            new(InstructionID.IM2, "IM2", "ED 5E", 8),
             new(InstructionID.INC_A, "INC A", "3C", 4),
             new(InstructionID.INC_B, "INC B", "04", 4),
             new(InstructionID.INC_BC, "INC BC", "03", 6),
@@ -464,8 +464,8 @@ public partial class Z80Instructions
             new(InstructionID.LD_addr_IX, "LD (nn),IX", "DD 22 n n", 20),
             new(InstructionID.LD_addr_IY, "LD (nn),IY", "FD 22 n n", 20),
             new(InstructionID.LD_addr_SP, "LD (nn),SP", "ED 73 n n", 20),
-            new(InstructionID.NEG, "NEG", "ED 44", 4),
-            new(InstructionID.NOP, "NOP", "00", 4),
+            new(InstructionID.NEG, "NEG", "ED 44", 8),
+            Nop,
             new(InstructionID.NOPNOP, "NOP NOP", "00 00", 8),
             new(InstructionID.OR_A, "OR A", "B7", 4),
             new(InstructionID.OR_B, "OR B", "B0", 4),
@@ -670,7 +670,7 @@ public partial class Z80Instructions
             new(InstructionID.SBC_HL_DE, "SBC HL,DE", "ED 52", 15),
             new(InstructionID.SBC_HL_HL, "SBC HL,HL", "ED 62", 15),
             new(InstructionID.SBC_HL_SP, "SBC HL,SP", "ED 72", 15),
-            new(InstructionID.SCF, "SCF", "37", 2),
+            new(InstructionID.SCF, "SCF", "37", 4),
             new(InstructionID.SET_0_A, "SET 0,A", "CB C7", 8),
             new(InstructionID.SET_0_B, "SET 0,B", "CB C0", 8),
             new(InstructionID.SET_0_C, "SET 0,C", "CB C1", 8),
@@ -819,24 +819,26 @@ public partial class Z80Instructions
             new(InstructionID.XOR_addrIX_plus_d, "XOR (IX+d)", "DD AE d", 19),
             new(InstructionID.XOR_addrIY_plus_d, "XOR (IY+d)", "FD AE d", 19),
             new(InstructionID.XOR_n, "XOR n", "EE n", 7),
-            new(InstructionID.NEG, "NEG", "ED 4C", 4),    // Z80 duplicate of ED 44.
-            new(InstructionID.NEG, "NEG", "ED 54", 4),    // Z80 duplicate of ED 44.
-            new(InstructionID.NEG, "NEG", "ED 5C", 4),    // Z80 duplicate of ED 44.
-            new(InstructionID.NEG, "NEG", "ED 64", 4),    // Z80 duplicate of ED 44.
-            new(InstructionID.NEG, "NEG", "ED 6C", 4),    // Z80 duplicate of ED 44.
-            new(InstructionID.NEG, "NEG", "ED 74", 4),    // Z80 duplicate of ED 44.
-            new(InstructionID.NEG, "NEG", "ED 7C", 4),    // Z80 duplicate of ED 44.
-            new(InstructionID.IM0, "IM0", "ED 4E", 4),    // Z80 duplicate of ED 46.
-            new(InstructionID.IM0, "IM0", "ED 6E", 4),    // Z80 duplicate of ED 46.
+            new(InstructionID.NEG, "NEG", "ED 4C", 8),    // Z80 duplicate of ED 44.
+            new(InstructionID.NEG, "NEG", "ED 54", 8),    // Z80 duplicate of ED 44.
+            new(InstructionID.NEG, "NEG", "ED 5C", 8),    // Z80 duplicate of ED 44.
+            new(InstructionID.NEG, "NEG", "ED 64", 8),    // Z80 duplicate of ED 44.
+            new(InstructionID.NEG, "NEG", "ED 6C", 8),    // Z80 duplicate of ED 44.
+            new(InstructionID.NEG, "NEG", "ED 74", 8),    // Z80 duplicate of ED 44.
+            new(InstructionID.NEG, "NEG", "ED 7C", 8),    // Z80 duplicate of ED 44.
+            new(InstructionID.IM0, "IM0", "ED 4E", 8),    // Z80 duplicate of ED 46.
+            new(InstructionID.IM0, "IM0", "ED 6E", 8),    // Z80 duplicate of ED 46.
             new(InstructionID.RETN, "RETN", "ED 55", 14), // Z80 duplicate of ED 45.
             new(InstructionID.RETN, "RETN", "ED 5D", 14), // Z80 duplicate of ED 45.
             new(InstructionID.RETN, "RETN", "ED 65", 14), // Z80 duplicate of ED 45.
             new(InstructionID.RETN, "RETN", "ED 6D", 14), // Z80 duplicate of ED 45.
             new(InstructionID.RETN, "RETN", "ED 75", 14), // Z80 duplicate of ED 45.
             new(InstructionID.RETN, "RETN", "ED 7D", 14), // Z80 duplicate of ED 45.
-            new(InstructionID.IM0, "IM0", "ED 66", 4),    // Z80 duplicate of ED 46.
-            new(InstructionID.IM1, "IM1", "ED 76", 4),    // Z80 duplicate of ED 56.
-            new(InstructionID.IM2, "IM2", "ED 7E", 4),    // Z80 duplicate of ED 5E.
+            new(InstructionID.IM0, "IM0", "ED 66", 8),    // Z80 duplicate of ED 46.
+            new(InstructionID.IM1, "IM1", "ED 76", 8),    // Z80 duplicate of ED 56.
+            new(InstructionID.IM2, "IM2", "ED 7E", 8),    // Z80 duplicate of ED 5E.
+            new(InstructionID.IN_addr_C, "IN (C)", "ED 70", 12), // Undocumented.
+            new(InstructionID.OUT_addr_C_0, "OUT (C),0", "ED 71", 12), // Undocumented.
         };
     }
 }
