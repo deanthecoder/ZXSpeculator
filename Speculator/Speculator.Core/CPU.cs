@@ -290,16 +290,6 @@ public partial class CPU : ViewModelBase
         TheRegisters.SignFlag = i == 7 && !Alu.IsBytePositive(b);
     }
 
-    private ushort IXPlusD(byte d)
-    {
-        return (ushort)(TheRegisters.IX + Alu.FromTwosCompliment(d));
-    }
-
-    private ushort IYPlusD(byte d)
-    {
-        return (ushort)(TheRegisters.IY + Alu.FromTwosCompliment(d));
-    }
-
     private void doCPI()
     {
         var oldCarry = TheRegisters.CarryFlag;

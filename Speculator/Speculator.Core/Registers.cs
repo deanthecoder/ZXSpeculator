@@ -82,6 +82,36 @@ public class Registers : ViewModelBase
                 L = (byte)(value & 0x00FF);
             }
         }
+        
+        public void SetRegister(char regName, byte value)
+        {
+            switch (regName)
+            {
+                case 'A':
+                    A = value;
+                    return;
+                case 'B':
+                    B = value;
+                    return;
+                case 'C':
+                    C = value;
+                    return;
+                case 'D':
+                    D = value;
+                    return;
+                case 'E':
+                    E = value;
+                    return;
+                case 'H':
+                    H = value;
+                    return;
+                case 'L':
+                    L = value;
+                    return;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
     }
 
     public StorageRegisters Main => m_storageRegisters[MainRegIndex];
@@ -240,4 +270,10 @@ public class Registers : ViewModelBase
     }
     
     public void SetFlags53FromA() => SetFlags53From(Main.A);
+
+    public ushort IXPlusD(byte d) =>
+        (ushort)(IX + Alu.FromTwosCompliment(d));
+
+    public ushort IYPlusD(byte d) =>
+        (ushort)(IY + Alu.FromTwosCompliment(d));
 }

@@ -59,6 +59,11 @@ public class Instruction
             return m_valueByteOffset;
         }
     }
+    
+    /// <summary>
+    /// Callback function allowing the Instruction to handle its own action.
+    /// </summary>
+    public Func<Memory, Registers, Alu, ushort, int> Run { get; internal set; }
 
     private byte?[] m_opcodeBytes;
     

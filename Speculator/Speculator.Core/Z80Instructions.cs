@@ -19,7 +19,7 @@ public partial class Z80Instructions
     private Instruction m_nopnop;
 
     private Instruction[] InstructionSubSetDDCB =>
-        m_instructionSubSetDDCB ??= Instructions.Where(o => o.HexTemplate.Replace(" ", string.Empty).StartsWith("DDCB")).ToArray();
+        m_instructionSubSetDDCB ??= GetDdcbInstructions().ToArray();
 
     private Instruction[] InstructionSubSetFDCB =>
         m_instructionSubSetFDCB ??= Instructions.Where(o => o.HexTemplate.Replace(" ", string.Empty).StartsWith("FDCB")).ToArray();
@@ -1814,16 +1814,17 @@ public partial class Z80Instructions
             }
             case 0xCB: // DDCB prefix
             {
+                // todo - Check DD CB d 00 decompiles ok.
                 instr = null;
                 for (var i = 0; i < InstructionSubSetDDCB.Length; i++)
                 {
-                    var o = InstructionSubSetDDCB[i];
-                    if (!o.StartsWithOpcodeBytes(mainMemory, addr))
-                        continue;
-                    instr = o;
-                    break;
+                    instr = InstructionSubSetDDCB[i];
+                    if (instr.StartsWithOpcodeBytes(mainMemory, addr))
+                        return true;
                 }
-                return true;
+
+                instr = null;
+                return false;
             }
             case 0xE1: // POP IX
             {

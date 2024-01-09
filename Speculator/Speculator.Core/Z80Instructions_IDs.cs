@@ -363,6 +363,7 @@ public partial class Z80Instructions
         RLCA,
         RLC_addrHL,
         RLC_addrIX_plus_d,
+        RLC_addrIX_plus_d_undoc,
         RLC_addrIY_plus_d,
         RLD,
         RR_A,
