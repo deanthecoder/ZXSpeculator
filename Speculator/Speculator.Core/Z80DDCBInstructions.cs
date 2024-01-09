@@ -27,22 +27,22 @@ public partial class Z80Instructions
         };
         for (var i = 0; i < regs.Length; i++)
         {
-            var r = regs[i];
-            if (r == 0)
-                continue;
-            yield return CreateRlcIxPlusDInstruction(r, i);
-            yield return CreateRrcIxPlusDInstruction(r, i);
-            yield return CreateRlIxPlusDInstruction(r, i);
-            yield return CreateRrIxPlusDInstruction(r, i);
-            yield return CreateSlaIxPlusDInstruction(r, i);
-            yield return CreateSraIxPlusDInstruction(r, i);
+            var regSuffix = regs[i] != '\0' ? $",{regs}" : string.Empty;
+            yield return CreateRlcIxPlusDInstruction(regs[i], i, regSuffix);
+            yield return CreateRrcIxPlusDInstruction(regs[i], i, regSuffix);
+            yield return CreateRlIxPlusDInstruction(regs[i], i, regSuffix);
+            yield return CreateRrIxPlusDInstruction(regs[i], i, regSuffix);
+            yield return CreateSlaIxPlusDInstruction(regs[i], i, regSuffix);
+            yield return CreateSraIxPlusDInstruction(regs[i], i, regSuffix);
+            yield return CreateSllIxPlusDInstruction(regs[i], i, regSuffix);
+            yield return CreateSrlIxPlusDInstruction(regs[i], i, regSuffix);
         }
     }
     
-    private static Instruction CreateRlcIxPlusDInstruction(char regName, int regIndex)
+    private static Instruction CreateRlcIxPlusDInstruction(char regName, int regIndex, string regSuffix)
     {
         const int tStates = 23;
-        return new Instruction(InstructionID.RLC_addrIX_plus_d_undoc, $"RLC (IX+d),{regName}", $"DD CB d {0x00 + regIndex:X02}", tStates)
+        return new Instruction(InstructionID.RLC_addrIX_plus_d, $"RLC (IX+d){regSuffix}", $"DD CB d {0x00 + regIndex:X02}", tStates)
         {
             Run = Impl
         };
@@ -57,10 +57,10 @@ public partial class Z80Instructions
         }
     }
     
-    private static Instruction CreateRrcIxPlusDInstruction(char regName, int regIndex)
+    private static Instruction CreateRrcIxPlusDInstruction(char regName, int regIndex, string regSuffix)
     {
         const int tStates = 23;
-        return new Instruction(InstructionID.RRC_addrIX_plus_d_undoc, $"RRC (IX+d),{regName}", $"DD CB d {0x08 + regIndex:X02}", tStates)
+        return new Instruction(InstructionID.RRC_addrIX_plus_d, $"RRC (IX+d){regSuffix}", $"DD CB d {0x08 + regIndex:X02}", tStates)
         {
             Run = Impl
         };
@@ -75,10 +75,10 @@ public partial class Z80Instructions
         }
     }
 
-    private static Instruction CreateRlIxPlusDInstruction(char regName, int regIndex)
+    private static Instruction CreateRlIxPlusDInstruction(char regName, int regIndex, string regSuffix)
     {
         const int tStates = 23;
-        return new Instruction(InstructionID.RL_addrIX_plus_d_undoc, $"RL (IX+d),{regName}", $"DD CB d {0x10 + regIndex:X02}", tStates)
+        return new Instruction(InstructionID.RL_addrIX_plus_d, $"RL (IX+d){regSuffix}", $"DD CB d {0x10 + regIndex:X02}", tStates)
         {
             Run = Impl
         };
@@ -93,10 +93,10 @@ public partial class Z80Instructions
         }
     }
     
-    private static Instruction CreateRrIxPlusDInstruction(char regName, int regIndex)
+    private static Instruction CreateRrIxPlusDInstruction(char regName, int regIndex, string regSuffix)
     {
         const int tStates = 23;
-        return new Instruction(InstructionID.RR_addrIX_plus_d_undoc, $"RR (IX+d),{regName}", $"DD CB d {0x18 + regIndex:X02}", tStates)
+        return new Instruction(InstructionID.RR_addrIX_plus_d, $"RR (IX+d){regSuffix}", $"DD CB d {0x18 + regIndex:X02}", tStates)
         {
             Run = Impl
         };
@@ -111,10 +111,10 @@ public partial class Z80Instructions
         }
     }
     
-    private static Instruction CreateSlaIxPlusDInstruction(char regName, int regIndex)
+    private static Instruction CreateSlaIxPlusDInstruction(char regName, int regIndex, string regSuffix)
     {
         const int tStates = 23;
-        return new Instruction(InstructionID.SLA_addrIX_plus_d_undoc, $"SLA (IX+d),{regName}", $"DD CB d {0x20 + regIndex:X02}", tStates)
+        return new Instruction(InstructionID.SLA_addrIX_plus_d, $"SLA (IX+d){regSuffix}", $"DD CB d {0x20 + regIndex:X02}", tStates)
         {
             Run = Impl
         };
@@ -129,10 +129,10 @@ public partial class Z80Instructions
         }
     }
     
-    private static Instruction CreateSraIxPlusDInstruction(char regName, int regIndex)
+    private static Instruction CreateSraIxPlusDInstruction(char regName, int regIndex, string regSuffix)
     {
         const int tStates = 23;
-        return new Instruction(InstructionID.SRA_addrIX_plus_d_undoc, $"SRA (IX+d),{regName}", $"DD CB d {0x28 + regIndex:X02}", tStates)
+        return new Instruction(InstructionID.SRA_addrIX_plus_d, $"SRA (IX+d){regSuffix}", $"DD CB d {0x28 + regIndex:X02}", tStates)
         {
             Run = Impl
         };
@@ -141,6 +141,42 @@ public partial class Z80Instructions
         {
             var ixPlusD = registers.IXPlusD(memory.Peek(valueAddress));
             var result = alu.ShiftRightArithmetic(memory.Peek(ixPlusD));
+            memory.Poke(ixPlusD, result);
+            registers.Main.SetRegister(regName, result);
+            return tStates;
+        }
+    }
+    
+    private static Instruction CreateSllIxPlusDInstruction(char regName, int regIndex, string regSuffix)
+    {
+        const int tStates = 23;
+        return new Instruction(InstructionID.SLL_addrIX_plus_d, $"SLL (IX+d){regSuffix}", $"DD CB d {0x30 + regIndex:X02}", tStates)
+        {
+            Run = Impl
+        };
+
+        int Impl(Memory memory, Registers registers, Alu alu, ushort valueAddress)
+        {
+            var ixPlusD = registers.IXPlusD(memory.Peek(valueAddress));
+            var result = alu.ShiftLeftLogical(memory.Peek(ixPlusD));
+            memory.Poke(ixPlusD, result);
+            registers.Main.SetRegister(regName, result);
+            return tStates;
+        }
+    }
+    
+    private static Instruction CreateSrlIxPlusDInstruction(char regName, int regIndex, string regSuffix)
+    {
+        const int tStates = 23;
+        return new Instruction(InstructionID.SRL_addrIX_plus_d, $"SRL (IX+d){regSuffix}", $"DD CB d {0x38 + regIndex:X02}", tStates)
+        {
+            Run = Impl
+        };
+
+        int Impl(Memory memory, Registers registers, Alu alu, ushort valueAddress)
+        {
+            var ixPlusD = registers.IXPlusD(memory.Peek(valueAddress));
+            var result = alu.ShiftRightLogical(memory.Peek(ixPlusD));
             memory.Poke(ixPlusD, result);
             registers.Main.SetRegister(regName, result);
             return tStates;

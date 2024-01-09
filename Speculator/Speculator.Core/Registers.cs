@@ -87,6 +87,8 @@ public class Registers : ViewModelBase
         {
             switch (regName)
             {
+                case '\0':
+                    return; // No op
                 case 'A':
                     A = value;
                     return;

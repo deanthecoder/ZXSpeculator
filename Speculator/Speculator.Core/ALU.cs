@@ -593,6 +593,16 @@ public class Alu
     }
 
     /// <summary>
+    /// "operates like SLA, except that a 1 is inserted into the low bit of the operand."
+    /// </summary>
+    public byte ShiftLeftLogical(byte b)
+    {
+        b = (byte)(ShiftLeft(b) | 0x01);
+        TheRegisters.ParityFlag = IsEvenParity(b);
+        return b;
+    }
+    
+    /// <summary>
     /// Shift right, under-flowing into the carry flag.
     /// </summary>
     /// <remarks>

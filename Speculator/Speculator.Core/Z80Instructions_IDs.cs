@@ -9,6 +9,8 @@
 //
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
+// ReSharper disable IdentifierTypo
+// ReSharper disable InconsistentNaming
 namespace Speculator.Core;
 
 public partial class Z80Instructions
@@ -352,7 +354,6 @@ public partial class Z80Instructions
         RLA,
         RL_addrHL,
         RL_addrIX_plus_d,
-        RL_addrIX_plus_d_undoc,
         RL_addrIY_plus_d,
         RLC_A,
         RLC_B,
@@ -364,7 +365,6 @@ public partial class Z80Instructions
         RLCA,
         RLC_addrHL,
         RLC_addrIX_plus_d,
-        RLC_addrIX_plus_d_undoc,
         RLC_addrIY_plus_d,
         RLD,
         RR_A,
@@ -377,7 +377,6 @@ public partial class Z80Instructions
         RRA,
         RR_addrHL,
         RR_addrIX_plus_d,
-        RR_addrIX_plus_d_undoc,
         RR_addrIY_plus_d,
         RRC_A,
         RRC_B,
@@ -389,7 +388,6 @@ public partial class Z80Instructions
         RRCA,
         RRC_addrHL,
         RRC_addrIX_plus_d,
-        RRC_addrIX_plus_d_undoc,
         RRC_addrIY_plus_d,
         RRD,
         SLA_A,
@@ -401,7 +399,6 @@ public partial class Z80Instructions
         SLA_L,
         SLA_addrHL,
         SLA_addrIX_plus_d,
-        SLA_addrIX_plus_d_undoc,
         SLA_addrIY_plus_d,
         SRA_A,
         SRA_B,
@@ -412,7 +409,6 @@ public partial class Z80Instructions
         SRA_L,
         SRA_addrHL,
         SRA_addrIX_plus_d,
-        SRA_addrIX_plus_d_undoc,
         SRA_addrIY_plus_d,
         SRL_A,
         SRL_B,
@@ -432,6 +428,7 @@ public partial class Z80Instructions
         SLL_H,
         SLL_L,
         SLL_addrHL,
+        SLL_addrIX_plus_d,
 
         // Bit set, reset, and test group.
         BIT_0_A,

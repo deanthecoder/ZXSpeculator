@@ -1147,12 +1147,6 @@ public partial class CPU
             case Z80Instructions.InstructionID.RL_addrHL:
                 MainMemory.Poke(TheRegisters.Main.HL, TheAlu.RotateLeft(MainMemory.Peek(TheRegisters.Main.HL)));
                 return instruction.TStateCount;
-            case Z80Instructions.InstructionID.RL_addrIX_plus_d:
-            {
-                var ixPlusD = TheRegisters.IXPlusD(MainMemory.Peek(valueAddress));
-                MainMemory.Poke(ixPlusD, TheAlu.RotateLeft(MainMemory.Peek(ixPlusD)));
-                return instruction.TStateCount;
-            }
             case Z80Instructions.InstructionID.RL_addrIY_plus_d:
             {
                 var iyPlusD = TheRegisters.IYPlusD(MainMemory.Peek(valueAddress));
@@ -1205,12 +1199,6 @@ public partial class CPU
             case Z80Instructions.InstructionID.RLC_addrHL:
                 MainMemory.Poke(TheRegisters.Main.HL, TheAlu.RotateLeftCircular(MainMemory.Peek(TheRegisters.Main.HL)));
                 return instruction.TStateCount;
-            case Z80Instructions.InstructionID.RLC_addrIX_plus_d:
-            {
-                var ixPlusD = TheRegisters.IXPlusD(MainMemory.Peek(valueAddress));
-                MainMemory.Poke(ixPlusD, TheAlu.RotateLeftCircular(MainMemory.Peek(ixPlusD)));
-                return instruction.TStateCount;
-            }
             case Z80Instructions.InstructionID.RLC_addrIY_plus_d:
             {
                 var iyPlusD = TheRegisters.IYPlusD(MainMemory.Peek(valueAddress));
@@ -1241,12 +1229,6 @@ public partial class CPU
             case Z80Instructions.InstructionID.RR_addrHL:
                 MainMemory.Poke(TheRegisters.Main.HL, TheAlu.RotateRight(MainMemory.Peek(TheRegisters.Main.HL)));
                 return instruction.TStateCount;
-            case Z80Instructions.InstructionID.RR_addrIX_plus_d:
-            {
-                var ixPlusD = TheRegisters.IXPlusD(MainMemory.Peek(valueAddress));
-                MainMemory.Poke(ixPlusD, TheAlu.RotateRight(MainMemory.Peek(ixPlusD)));
-                return instruction.TStateCount;
-            }
             case Z80Instructions.InstructionID.RR_addrIY_plus_d:
             {
                 var iyPlusD = TheRegisters.IYPlusD(MainMemory.Peek(valueAddress));
@@ -1287,12 +1269,6 @@ public partial class CPU
             case Z80Instructions.InstructionID.RRC_addrHL:
                 MainMemory.Poke(TheRegisters.Main.HL, TheAlu.RotateRightCircular(MainMemory.Peek(TheRegisters.Main.HL)));
                 return instruction.TStateCount;
-            case Z80Instructions.InstructionID.RRC_addrIX_plus_d:
-            {
-                var ixPlusD = TheRegisters.IXPlusD(MainMemory.Peek(valueAddress));
-                MainMemory.Poke(ixPlusD, TheAlu.RotateRightCircular(MainMemory.Peek(ixPlusD)));
-                return instruction.TStateCount;
-            }
             case Z80Instructions.InstructionID.RRC_addrIY_plus_d:
             {
                 var iyPlusD = TheRegisters.IYPlusD(MainMemory.Peek(valueAddress));
@@ -1357,12 +1333,6 @@ public partial class CPU
             case Z80Instructions.InstructionID.SLL_addrHL:
                 MainMemory.Poke(TheRegisters.Main.HL, TheAlu.ShiftLeft(MainMemory.Peek(TheRegisters.Main.HL), 1));
                 return instruction.TStateCount;
-            case Z80Instructions.InstructionID.SLA_addrIX_plus_d:
-            {
-                var ixPlusD = TheRegisters.IXPlusD(MainMemory.Peek(valueAddress));
-                MainMemory.Poke(ixPlusD, TheAlu.ShiftLeft(MainMemory.Peek(ixPlusD)));
-                return instruction.TStateCount;
-            }
             case Z80Instructions.InstructionID.SLA_addrIY_plus_d:
             {
                 var iyPlusD = TheRegisters.IYPlusD(MainMemory.Peek(valueAddress));
@@ -1393,12 +1363,6 @@ public partial class CPU
             case Z80Instructions.InstructionID.SRA_addrHL:
                 MainMemory.Poke(TheRegisters.Main.HL, TheAlu.ShiftRightArithmetic(MainMemory.Peek(TheRegisters.Main.HL)));
                 return instruction.TStateCount;
-            case Z80Instructions.InstructionID.SRA_addrIX_plus_d:
-            {
-                var ixPlusD = TheRegisters.IXPlusD(MainMemory.Peek(valueAddress));
-                MainMemory.Poke(ixPlusD, TheAlu.ShiftRightArithmetic(MainMemory.Peek(ixPlusD)));
-                return instruction.TStateCount;
-            }
             case Z80Instructions.InstructionID.SRA_addrIY_plus_d:
             {
                 var iyPlusD = TheRegisters.IYPlusD(MainMemory.Peek(valueAddress));
@@ -1429,12 +1393,6 @@ public partial class CPU
             case Z80Instructions.InstructionID.SRL_addrHL:
                 MainMemory.Poke(TheRegisters.Main.HL, TheAlu.ShiftRightLogical(MainMemory.Peek(TheRegisters.Main.HL)));
                 return instruction.TStateCount;
-            case Z80Instructions.InstructionID.SRL_addrIX_plus_d:
-            {
-                var ixPlusD = TheRegisters.IXPlusD(MainMemory.Peek(valueAddress));
-                MainMemory.Poke(ixPlusD, TheAlu.ShiftRightLogical(MainMemory.Peek(ixPlusD)));
-                return instruction.TStateCount;
-            }
             case Z80Instructions.InstructionID.SRL_addrIY_plus_d:
             {
                 var iyPlusD = TheRegisters.IYPlusD(MainMemory.Peek(valueAddress));
