@@ -1591,30 +1591,6 @@ public partial class CPU
             case Z80Instructions.InstructionID.BIT_7_addrHL:
                 doBitTest(MainMemory.Peek(TheRegisters.Main.HL), 7);
                 return instruction.TStateCount;
-            case Z80Instructions.InstructionID.BIT_0_addrIX_plus_d:
-                doBitTest(MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))), 0);
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.BIT_1_addrIX_plus_d:
-                doBitTest(MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))), 1);
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.BIT_2_addrIX_plus_d:
-                doBitTest(MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))), 2);
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.BIT_3_addrIX_plus_d:
-                doBitTest(MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))), 3);
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.BIT_4_addrIX_plus_d:
-                doBitTest(MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))), 4);
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.BIT_5_addrIX_plus_d:
-                doBitTest(MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))), 5);
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.BIT_6_addrIX_plus_d:
-                doBitTest(MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))), 6);
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.BIT_7_addrIX_plus_d:
-                doBitTest(MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))), 7);
-                return instruction.TStateCount;
             case Z80Instructions.InstructionID.BIT_0_addrIY_plus_d:
                 doBitTest(MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))), 0);
                 return instruction.TStateCount;

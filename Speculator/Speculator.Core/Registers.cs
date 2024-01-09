@@ -10,6 +10,8 @@
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
 using CSharp.Utils.ViewModels;
+using Speculator.Core.Extensions;
+
 // ReSharper disable InconsistentNaming
 
 namespace Speculator.Core;
@@ -197,7 +199,7 @@ public class Registers : ViewModelBase
     public bool SignFlag
     {
         set => Main.F = value ? (byte)(Main.F | (1 << 7)) : (byte)(Main.F & ~(1 << 7));
-        get => (Main.F & (1 << 7)) != 0;
+        get => Main.F.IsBitSet(7);
     }
 
     /// <summary>
@@ -206,7 +208,7 @@ public class Registers : ViewModelBase
     public bool ZeroFlag
     {
         set => Main.F = value ? (byte)(Main.F | (1 << 6)) : (byte)(Main.F & ~(1 << 6));
-        get => (Main.F & (1 << 6)) != 0;
+        get => Main.F.IsBitSet(6);
     }
 
     /// <summary>
@@ -215,7 +217,7 @@ public class Registers : ViewModelBase
     public bool Flag5
     {
         private set => Main.F = value ? (byte)(Main.F | (1 << 5)) : (byte)(Main.F & ~(1 << 5));
-        get => (Main.F & (1 << 5)) != 0;
+        get => Main.F.IsBitSet(5);
     }
 
     /// <summary>
@@ -224,7 +226,7 @@ public class Registers : ViewModelBase
     public bool HalfCarryFlag
     {
         set => Main.F = value ? (byte)(Main.F | (1 << 4)) : (byte)(Main.F & ~(1 << 4));
-        get => (Main.F & (1 << 4)) != 0;
+        get => Main.F.IsBitSet(4);
     }
 
     /// <summary>
@@ -233,7 +235,7 @@ public class Registers : ViewModelBase
     public bool Flag3
     {
         private set => Main.F = value ? (byte)(Main.F | (1 << 3)) : (byte)(Main.F & ~(1 << 3));
-        get => (Main.F & (1 << 3)) != 0;
+        get => Main.F.IsBitSet(3);
     }
 
     /// <summary>
@@ -242,7 +244,7 @@ public class Registers : ViewModelBase
     public bool ParityFlag
     {
         set => Main.F = value ? (byte)(Main.F | (1 << 2)) : (byte)(Main.F & ~(1 << 2));
-        get => (Main.F & (1 << 2)) != 0;
+        get => Main.F.IsBitSet(2);
     }
 
     /// <summary>
@@ -251,7 +253,7 @@ public class Registers : ViewModelBase
     public bool SubtractFlag
     {
         set => Main.F = value ? (byte)(Main.F | (1 << 1)) : (byte)(Main.F & ~(1 << 1));
-        get => (Main.F & (1 << 1)) != 0;
+        get => Main.F.IsBitSet(1);
     }
 
     /// <summary>
@@ -260,7 +262,7 @@ public class Registers : ViewModelBase
     public bool CarryFlag
     {
         set => Main.F = value ? (byte)(Main.F | (1 << 0)) : (byte)(Main.F & ~(1 << 0));
-        get => (Main.F & (1 << 0)) != 0;
+        get => Main.F.IsBitSet(0);
     }
     
     public void SetFlags53From(ushort w) => SetFlags53From((byte)((w & 0xff00) >> 8));

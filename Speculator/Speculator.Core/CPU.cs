@@ -11,6 +11,7 @@
 
 using System.Diagnostics;
 using CSharp.Utils.ViewModels;
+using Speculator.Core.Extensions;
 
 // ReSharper disable InconsistentNaming
 namespace Speculator.Core;
@@ -278,10 +279,9 @@ public partial class CPU : ViewModelBase
         return (byte) (b & mask);
     }
 
-    private void doBitTest(byte b, int i)
+    private void doBitTest(byte b, byte i)
     {
-        Debug.Assert(i >= 0 && i <= 7, "Index out of range.");
-        TheRegisters.ZeroFlag = (b & (1 << i)) == 0;
+        TheRegisters.ZeroFlag = !b.IsBitSet(i);
         TheRegisters.SubtractFlag = false;
         TheRegisters.HalfCarryFlag = true;
 

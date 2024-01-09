@@ -9,6 +9,8 @@
 //
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
+using Speculator.Core.Extensions;
+
 namespace Speculator.Core;
 
 public partial class Z80Instructions
@@ -36,6 +38,9 @@ public partial class Z80Instructions
             yield return CreateSraIxPlusDInstruction(regs[i], i, regSuffix);
             yield return CreateSllIxPlusDInstruction(regs[i], i, regSuffix);
             yield return CreateSrlIxPlusDInstruction(regs[i], i, regSuffix);
+
+            for (byte bit = 0; bit < 8; bit++)
+                yield return CreateBitIxPlusDInstruction(i, bit);
         }
     }
     
@@ -179,6 +184,28 @@ public partial class Z80Instructions
             var result = alu.ShiftRightLogical(memory.Peek(ixPlusD));
             memory.Poke(ixPlusD, result);
             registers.Main.SetRegister(regName, result);
+            return tStates;
+        }
+    }
+    
+    private static Instruction CreateBitIxPlusDInstruction(int regIndex, byte bit)
+    {
+        const int tStates = 20;
+        return new Instruction(InstructionID.BIT_0_addrIX_plus_d + bit, $"BIT {bit},(IX+d)", $"DD CB d {0x40 + bit * 8 + regIndex:X02}", tStates)
+        {
+            Run = Impl
+        };
+
+        int Impl(Memory memory, Registers registers, Alu alu, ushort valueAddress)
+        {
+            var b = memory.Peek(registers.IXPlusD(memory.Peek(valueAddress)));
+            registers.ZeroFlag = !b.IsBitSet(bit);
+            registers.SubtractFlag = false;
+            registers.HalfCarryFlag = true;
+
+            // From 'undocumented' docs.
+            registers.ParityFlag = registers.ZeroFlag;
+            registers.SignFlag = bit == 7 && !Alu.IsBytePositive(b);
             return tStates;
         }
     }
