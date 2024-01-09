@@ -13,204 +13,7 @@ namespace Speculator.Core;
 
 public class Alu
 {
-    public Registers TheRegisters { get; }
-
-    internal Alu(Registers theRegisters)
-    {
-        TheRegisters = theRegisters;
-    }
-
-    internal byte SubtractAndSetFlags(byte a, byte b, bool subCarryFlag)
-    {
-        int v = a;
-        v -= b;
-
-        var needCarry = subCarryFlag && TheRegisters.CarryFlag;
-        if (needCarry)
-            v--;
-
-        var result = (byte) (v & 0xff);
-
-        TheRegisters.HalfCarryFlag = IsHalfCarry8(a, b, needCarry, false);
-        TheRegisters.CarryFlag = IsCarry8(v);
-        TheRegisters.SignFlag = !IsBytePositive(result);
-        TheRegisters.ZeroFlag = v == 0;
-        TheRegisters.ParityFlag = IsOverflow8(a, b, result, false);
-        TheRegisters.SubtractFlag = true;
-        TheRegisters.SetFlags53From((byte)v);
-        return (byte)v;
-    }
-
-    internal ushort SubtractAndSetFlags(int a, int b, bool subCarryFlag)
-    {
-        var v = a - b;
-        var needCarry = subCarryFlag && TheRegisters.CarryFlag;
-        if (needCarry)
-            v--;
-
-        var result = (ushort)(v & 0xffff);
-
-        TheRegisters.HalfCarryFlag = IsHalfCarry16((ushort) a, (ushort) b, needCarry, false);
-        TheRegisters.CarryFlag = IsCarry16(v);
-        TheRegisters.SignFlag = !IsWordPositive(result);
-        TheRegisters.ZeroFlag = v == 0;
-        TheRegisters.ParityFlag = IsOverflow16((ushort)a, (ushort)b, result, false);
-        TheRegisters.SubtractFlag = true;
-        TheRegisters.SetFlags53From(result);
-        return result;
-    }
-
-    internal byte AddAndSetFlags(byte a, byte b, bool addCarryFlag)
-    {
-        int v = a;
-        v += b;
-
-        var needCarry = addCarryFlag && TheRegisters.CarryFlag;
-        if (needCarry)
-            v++;
-
-        var result = (byte)v;
-
-        TheRegisters.SignFlag = !IsBytePositive(result);
-        TheRegisters.ZeroFlag = result == 0;
-        TheRegisters.ParityFlag = IsOverflow8(a, b, result, true);
-        TheRegisters.HalfCarryFlag = IsHalfCarry8(a, b, needCarry, true);
-        TheRegisters.CarryFlag = IsCarry8(v);
-        TheRegisters.SubtractFlag = false;
-        TheRegisters.SetFlags53From(result);
-
-        return result;
-    }
-
-    internal ushort AddAndSetFlags(ushort a, ushort b, bool addCarryFlag)
-    {
-        var v = a + b;
-        var needCarry = addCarryFlag && TheRegisters.CarryFlag;
-        if (needCarry)
-            v++;
-
-        var result = (ushort) v;
-
-        if (addCarryFlag)
-        {
-            TheRegisters.SignFlag = !IsWordPositive((ushort)v);
-            TheRegisters.ZeroFlag = result == 0;
-            TheRegisters.ParityFlag = IsOverflow16(a, b, result, true);
-        }
-
-        TheRegisters.HalfCarryFlag = IsHalfCarry16(a, b, needCarry, true);
-        TheRegisters.CarryFlag = IsCarry16(v);
-        TheRegisters.SubtractFlag = false;
-        TheRegisters.SetFlags53From(result);
-
-        return result;
-    }
-
-    internal static bool IsBytePositive(byte b)
-    {
-        return (b & 0x80) == 0;
-    }
-
-    private static bool IsWordPositive(int a)
-    {
-        return (a & 0x8000) == 0;
-    }
-
-    internal static sbyte FromTwosCompliment(byte b)
-    {
-        if ((b & 0x80) != 0)
-            return (sbyte)(-128 + (b & 0x7f));
-        return (sbyte)b;
-    }
-
-    public byte DecAndSetFlags(byte b)
-    {
-        int v = b;
-        v -= 0x01;
-
-        var result1 = (byte) (v & 0xff);
-        TheRegisters.HalfCarryFlag = IsHalfCarry8(b, 0x01, false, false);
-        TheRegisters.SignFlag = !IsBytePositive(result1);
-        TheRegisters.ZeroFlag = (byte)v == 0;
-        TheRegisters.SubtractFlag = true;
-        var result = (byte)v;
-        TheRegisters.ParityFlag = b == 0x80;
-        TheRegisters.SetFlags53From(result);
-        return result;
-    }
-
-    public byte IncAndSetFlags(byte b)
-    {
-        int v = b;
-        v += 0x01;
-        TheRegisters.HalfCarryFlag = IsHalfCarry8(b, 0x01, false, true);
-        TheRegisters.SignFlag = !IsBytePositive((byte)v);
-        TheRegisters.ZeroFlag = (byte)v == 0;
-        TheRegisters.SubtractFlag = false;
-        TheRegisters.ParityFlag = b == 0x7F;
-        TheRegisters.SetFlags53From((byte)v);
-        
-        return (byte)v;
-    }
-
-    public void And(byte b)
-    {
-        var r = (byte) (TheRegisters.Main.A & b);
-        TheRegisters.SignFlag = !IsBytePositive(r);
-        TheRegisters.ZeroFlag = r == 0;
-        TheRegisters.HalfCarryFlag = true;
-        TheRegisters.ParityFlag = IsEvenParity(r);
-        TheRegisters.SubtractFlag = false;
-        TheRegisters.CarryFlag = false;
-        TheRegisters.SetFlags53From(r);
-
-        TheRegisters.Main.A = r;
-    }
-
-    private static int CountBits(byte b)
-    {
-        var count = 0;
-        for (var i = 0; i < 8; i++)
-            count += ((1 << i) & b) != 0 ? 1 : 0;
-        return count;
-    }
-
-    internal static bool IsEvenParity(byte b)
-    {
-        return (CountBits(b) & 1) == 0;
-    }
-
-    public void Or(byte b)
-    {
-        var r = (byte)(TheRegisters.Main.A | b);
-        TheRegisters.SignFlag = !IsBytePositive(r);
-        TheRegisters.ZeroFlag = r == 0;
-        TheRegisters.HalfCarryFlag = false;
-        TheRegisters.ParityFlag = IsEvenParity(r);
-        TheRegisters.SubtractFlag = false;
-        TheRegisters.CarryFlag = false;
-        TheRegisters.Main.A = r;
-
-        TheRegisters.SetFlags53From(r);
-    }
-
-    public void Xor(byte b)
-    {
-        var r = (byte)(TheRegisters.Main.A ^ b);
-        TheRegisters.SignFlag = !IsBytePositive(r);
-        TheRegisters.ZeroFlag = r == 0;
-        TheRegisters.HalfCarryFlag = false;
-        TheRegisters.ParityFlag = IsEvenParity(r);
-        TheRegisters.SubtractFlag = false;
-        TheRegisters.CarryFlag = false;
-        TheRegisters.Main.A = r;
-        TheRegisters.SetFlags53From(r);
-    }
-
-    public void AdjustAccumulatorToBcd()
-    {
-        var daaTable = new ushort[]
-        {
+    private readonly ushort[] m_daaTable = {
             0x0044,0x0100,0x0200,0x0304,0x0400,0x0504,0x0604,0x0700,
             0x0808,0x090C,0x1010,0x1114,0x1214,0x1310,0x1414,0x1510,
             0x1000,0x1104,0x1204,0x1300,0x1404,0x1500,0x1600,0x1704,
@@ -468,12 +271,211 @@ public class Alu
             0x8A9B,0x8B9F,0x8C9B,0x8D9F,0x8E9F,0x8F9B,0x9087,0x9183,
             0x9283,0x9387,0x9483,0x9587,0x9687,0x9783,0x988B,0x998F
         };
+    
+    public Registers TheRegisters { get; }
 
+    internal Alu(Registers theRegisters)
+    {
+        TheRegisters = theRegisters;
+    }
+
+    internal byte SubtractAndSetFlags(byte a, byte b, bool subCarryFlag)
+    {
+        int v = a;
+        v -= b;
+
+        var needCarry = subCarryFlag && TheRegisters.CarryFlag;
+        if (needCarry)
+            v--;
+
+        var result = (byte) (v & 0xff);
+
+        TheRegisters.HalfCarryFlag = IsHalfCarry8(a, b, needCarry, false);
+        TheRegisters.CarryFlag = IsCarry8(v);
+        TheRegisters.SignFlag = !IsBytePositive(result);
+        TheRegisters.ZeroFlag = v == 0;
+        TheRegisters.ParityFlag = IsOverflow8(a, b, result, false);
+        TheRegisters.SubtractFlag = true;
+        TheRegisters.SetFlags53From((byte)v);
+        return (byte)v;
+    }
+
+    internal ushort SubtractAndSetFlags(int a, int b, bool subCarryFlag)
+    {
+        var v = a - b;
+        var needCarry = subCarryFlag && TheRegisters.CarryFlag;
+        if (needCarry)
+            v--;
+
+        var result = (ushort)(v & 0xffff);
+
+        TheRegisters.HalfCarryFlag = IsHalfCarry16((ushort) a, (ushort) b, needCarry, false);
+        TheRegisters.CarryFlag = IsCarry16(v);
+        TheRegisters.SignFlag = !IsWordPositive(result);
+        TheRegisters.ZeroFlag = v == 0;
+        TheRegisters.ParityFlag = IsOverflow16((ushort)a, (ushort)b, result, false);
+        TheRegisters.SubtractFlag = true;
+        TheRegisters.SetFlags53From(result);
+        return result;
+    }
+
+    internal byte AddAndSetFlags(byte a, byte b, bool addCarryFlag)
+    {
+        int v = a;
+        v += b;
+
+        var needCarry = addCarryFlag && TheRegisters.CarryFlag;
+        if (needCarry)
+            v++;
+
+        var result = (byte)v;
+
+        TheRegisters.SignFlag = !IsBytePositive(result);
+        TheRegisters.ZeroFlag = result == 0;
+        TheRegisters.ParityFlag = IsOverflow8(a, b, result, true);
+        TheRegisters.HalfCarryFlag = IsHalfCarry8(a, b, needCarry, true);
+        TheRegisters.CarryFlag = IsCarry8(v);
+        TheRegisters.SubtractFlag = false;
+        TheRegisters.SetFlags53From(result);
+
+        return result;
+    }
+
+    internal ushort AddAndSetFlags(ushort a, ushort b, bool addCarryFlag)
+    {
+        var v = a + b;
+        var needCarry = addCarryFlag && TheRegisters.CarryFlag;
+        if (needCarry)
+            v++;
+
+        var result = (ushort) v;
+
+        if (addCarryFlag)
+        {
+            TheRegisters.SignFlag = !IsWordPositive((ushort)v);
+            TheRegisters.ZeroFlag = result == 0;
+            TheRegisters.ParityFlag = IsOverflow16(a, b, result, true);
+        }
+
+        TheRegisters.HalfCarryFlag = IsHalfCarry16(a, b, needCarry, true);
+        TheRegisters.CarryFlag = IsCarry16(v);
+        TheRegisters.SubtractFlag = false;
+        TheRegisters.SetFlags53From(result);
+
+        return result;
+    }
+
+    internal static bool IsBytePositive(byte b)
+    {
+        return (b & 0x80) == 0;
+    }
+
+    private static bool IsWordPositive(int a)
+    {
+        return (a & 0x8000) == 0;
+    }
+
+    internal static sbyte FromTwosCompliment(byte b)
+    {
+        if ((b & 0x80) != 0)
+            return (sbyte)(-128 + (b & 0x7f));
+        return (sbyte)b;
+    }
+
+    public byte DecAndSetFlags(byte b)
+    {
+        int v = b;
+        v -= 0x01;
+
+        var result1 = (byte) (v & 0xff);
+        TheRegisters.HalfCarryFlag = IsHalfCarry8(b, 0x01, false, false);
+        TheRegisters.SignFlag = !IsBytePositive(result1);
+        TheRegisters.ZeroFlag = (byte)v == 0;
+        TheRegisters.SubtractFlag = true;
+        var result = (byte)v;
+        TheRegisters.ParityFlag = b == 0x80;
+        TheRegisters.SetFlags53From(result);
+        return result;
+    }
+
+    public byte IncAndSetFlags(byte b)
+    {
+        int v = b;
+        v += 0x01;
+        TheRegisters.HalfCarryFlag = IsHalfCarry8(b, 0x01, false, true);
+        TheRegisters.SignFlag = !IsBytePositive((byte)v);
+        TheRegisters.ZeroFlag = (byte)v == 0;
+        TheRegisters.SubtractFlag = false;
+        TheRegisters.ParityFlag = b == 0x7F;
+        TheRegisters.SetFlags53From((byte)v);
+        
+        return (byte)v;
+    }
+
+    public void And(byte b)
+    {
+        var r = (byte) (TheRegisters.Main.A & b);
+        TheRegisters.SignFlag = !IsBytePositive(r);
+        TheRegisters.ZeroFlag = r == 0;
+        TheRegisters.HalfCarryFlag = true;
+        TheRegisters.ParityFlag = IsEvenParity(r);
+        TheRegisters.SubtractFlag = false;
+        TheRegisters.CarryFlag = false;
+        TheRegisters.SetFlags53From(r);
+
+        TheRegisters.Main.A = r;
+    }
+
+    private static int CountBits(byte b)
+    {
+        var count = 0;
+        while (b != 0)
+        {
+            count += b & 1;
+            b >>= 1;
+        }
+        return count;
+    }
+
+    internal static bool IsEvenParity(byte b)
+    {
+        return (CountBits(b) & 1) == 0;
+    }
+
+    public void Or(byte b)
+    {
+        var r = (byte)(TheRegisters.Main.A | b);
+        TheRegisters.SignFlag = !IsBytePositive(r);
+        TheRegisters.ZeroFlag = r == 0;
+        TheRegisters.HalfCarryFlag = false;
+        TheRegisters.ParityFlag = IsEvenParity(r);
+        TheRegisters.SubtractFlag = false;
+        TheRegisters.CarryFlag = false;
+        TheRegisters.Main.A = r;
+
+        TheRegisters.SetFlags53From(r);
+    }
+
+    public void Xor(byte b)
+    {
+        var r = (byte)(TheRegisters.Main.A ^ b);
+        TheRegisters.SignFlag = !IsBytePositive(r);
+        TheRegisters.ZeroFlag = r == 0;
+        TheRegisters.HalfCarryFlag = false;
+        TheRegisters.ParityFlag = IsEvenParity(r);
+        TheRegisters.SubtractFlag = false;
+        TheRegisters.CarryFlag = false;
+        TheRegisters.Main.A = r;
+        TheRegisters.SetFlags53From(r);
+    }
+
+    public void AdjustAccumulatorToBcd()
+    {
         int lookupIndex = TheRegisters.Main.A;
         if (TheRegisters.CarryFlag) lookupIndex |= 256;
         if (TheRegisters.HalfCarryFlag) lookupIndex |= 512;
         if (TheRegisters.SubtractFlag) lookupIndex |= 1024;
-        TheRegisters.Main.AF = daaTable[lookupIndex];
+        TheRegisters.Main.AF = m_daaTable[lookupIndex];
     }
 
     /// <summary>
