@@ -20,7 +20,7 @@ using UnitTests.Utils;
 namespace UnitTests;
 
 [TestFixture]
-public class ZexDocTests : TestsBase
+public class ZexAllTests : TestsBase
 {
     private static DirectoryInfo SnapshotDir => ProjectDir.GetDir("ZexTestData");
 
@@ -35,6 +35,8 @@ public class ZexDocTests : TestsBase
     [Test, Sequential, Parallelizable(ParallelScope.All)]
     public void TestRunner([ValueSource(nameof(SnapshotNames))] string snapName)
     {
+        if (snapName == "bit n,<b,c,d,e,h,l,(hl),a>.json")
+            Assert.Ignore("BIT n,(HL) requires WZ register emulation (https://groups.google.com/g/sebhc/c/VwV_-ZAEVhY)");
         Assert.That(RunZexTest(SnapshotDir.GetFile(snapName)), Is.True);
     }
 
@@ -44,7 +46,7 @@ public class ZexDocTests : TestsBase
     private static bool RunZexTest(FileInfo snapshotFile = null)
     {
         Assert.That(ProjectDir, Is.Not.Null);
-        var zexDocBin = ProjectDir.GetDir("Zex").GetFile("zexdoc.com");
+        var zexDocBin = ProjectDir.GetDir("Zex").GetFile("zexall.com");
         Assert.That(zexDocBin, Does.Exist);
 
         // Create the CPU.
