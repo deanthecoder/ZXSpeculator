@@ -266,19 +266,6 @@ public partial class CPU : ViewModelBase
         return b;
     }
 
-    private static byte doSetBit(byte b, int i)
-    {
-        Debug.Assert(i >= 0 && i <= 7, "Index out of range.");
-        return (byte) (b | (1 << i));
-    }
-
-    private static byte doResetBit(byte b, int i)
-    {
-        Debug.Assert(i >= 0 && i <= 7, "Index out of range.");
-        var mask = (byte)~(1 << i);
-        return (byte) (b & mask);
-    }
-
     private void doBitTest(byte b, byte i)
     {
         TheRegisters.ZeroFlag = !b.IsBitSet(i);

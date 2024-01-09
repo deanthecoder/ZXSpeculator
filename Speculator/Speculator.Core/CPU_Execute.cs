@@ -10,6 +10,7 @@
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
 using CSharp.Utils;
+using Speculator.Core.Extensions;
 
 namespace Speculator.Core;
 
@@ -1616,484 +1617,439 @@ public partial class CPU
                 doBitTest(MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))), 7);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_0_A:
-                TheRegisters.Main.A = doResetBit(TheRegisters.Main.A, 0);
+                TheRegisters.Main.A = TheRegisters.Main.A.ResetBit(0);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_1_A:
-                TheRegisters.Main.A = doResetBit(TheRegisters.Main.A, 1);
+                TheRegisters.Main.A = TheRegisters.Main.A.ResetBit(1);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_2_A:
-                TheRegisters.Main.A = doResetBit(TheRegisters.Main.A, 2);
+                TheRegisters.Main.A = TheRegisters.Main.A.ResetBit(2);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_3_A:
-                TheRegisters.Main.A = doResetBit(TheRegisters.Main.A, 3);
+                TheRegisters.Main.A = TheRegisters.Main.A.ResetBit(3);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_4_A:
-                TheRegisters.Main.A = doResetBit(TheRegisters.Main.A, 4);
+                TheRegisters.Main.A = TheRegisters.Main.A.ResetBit(4);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_5_A:
-                TheRegisters.Main.A = doResetBit(TheRegisters.Main.A, 5);
+                TheRegisters.Main.A = TheRegisters.Main.A.ResetBit(5);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_6_A:
-                TheRegisters.Main.A = doResetBit(TheRegisters.Main.A, 6);
+                TheRegisters.Main.A = TheRegisters.Main.A.ResetBit(6);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_7_A:
-                TheRegisters.Main.A = doResetBit(TheRegisters.Main.A, 7);
+                TheRegisters.Main.A = TheRegisters.Main.A.ResetBit(7);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_0_B:
-                TheRegisters.Main.B = doResetBit(TheRegisters.Main.B, 0);
+                TheRegisters.Main.B = TheRegisters.Main.B.ResetBit(0);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_1_B:
-                TheRegisters.Main.B = doResetBit(TheRegisters.Main.B, 1);
+                TheRegisters.Main.B = TheRegisters.Main.B.ResetBit(1);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_2_B:
-                TheRegisters.Main.B = doResetBit(TheRegisters.Main.B, 2);
+                TheRegisters.Main.B = TheRegisters.Main.B.ResetBit(2);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_3_B:
-                TheRegisters.Main.B = doResetBit(TheRegisters.Main.B, 3);
+                TheRegisters.Main.B = TheRegisters.Main.B.ResetBit(3);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_4_B:
-                TheRegisters.Main.B = doResetBit(TheRegisters.Main.B, 4);
+                TheRegisters.Main.B = TheRegisters.Main.B.ResetBit(4);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_5_B:
-                TheRegisters.Main.B = doResetBit(TheRegisters.Main.B, 5);
+                TheRegisters.Main.B = TheRegisters.Main.B.ResetBit(5);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_6_B:
-                TheRegisters.Main.B = doResetBit(TheRegisters.Main.B, 6);
+                TheRegisters.Main.B = TheRegisters.Main.B.ResetBit(6);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_7_B:
-                TheRegisters.Main.B = doResetBit(TheRegisters.Main.B, 7);
+                TheRegisters.Main.B = TheRegisters.Main.B.ResetBit(7);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_0_C:
-                TheRegisters.Main.C = doResetBit(TheRegisters.Main.C, 0);
+                TheRegisters.Main.C = TheRegisters.Main.C.ResetBit(0);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_1_C:
-                TheRegisters.Main.C = doResetBit(TheRegisters.Main.C, 1);
+                TheRegisters.Main.C = TheRegisters.Main.C.ResetBit(1);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_2_C:
-                TheRegisters.Main.C = doResetBit(TheRegisters.Main.C, 2);
+                TheRegisters.Main.C = TheRegisters.Main.C.ResetBit(2);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_3_C:
-                TheRegisters.Main.C = doResetBit(TheRegisters.Main.C, 3);
+                TheRegisters.Main.C = TheRegisters.Main.C.ResetBit(3);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_4_C:
-                TheRegisters.Main.C = doResetBit(TheRegisters.Main.C, 4);
+                TheRegisters.Main.C = TheRegisters.Main.C.ResetBit(4);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_5_C:
-                TheRegisters.Main.C = doResetBit(TheRegisters.Main.C, 5);
+                TheRegisters.Main.C = TheRegisters.Main.C.ResetBit(5);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_6_C:
-                TheRegisters.Main.C = doResetBit(TheRegisters.Main.C, 6);
+                TheRegisters.Main.C = TheRegisters.Main.C.ResetBit(6);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_7_C:
-                TheRegisters.Main.C = doResetBit(TheRegisters.Main.C, 7);
+                TheRegisters.Main.C = TheRegisters.Main.C.ResetBit(7);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_0_D:
-                TheRegisters.Main.D = doResetBit(TheRegisters.Main.D, 0);
+                TheRegisters.Main.D = TheRegisters.Main.D.ResetBit(0);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_1_D:
-                TheRegisters.Main.D = doResetBit(TheRegisters.Main.D, 1);
+                TheRegisters.Main.D = TheRegisters.Main.D.ResetBit(1);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_2_D:
-                TheRegisters.Main.D = doResetBit(TheRegisters.Main.D, 2);
+                TheRegisters.Main.D = TheRegisters.Main.D.ResetBit(2);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_3_D:
-                TheRegisters.Main.D = doResetBit(TheRegisters.Main.D, 3);
+                TheRegisters.Main.D = TheRegisters.Main.D.ResetBit(3);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_4_D:
-                TheRegisters.Main.D = doResetBit(TheRegisters.Main.D, 4);
+                TheRegisters.Main.D = TheRegisters.Main.D.ResetBit(4);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_5_D:
-                TheRegisters.Main.D = doResetBit(TheRegisters.Main.D, 5);
+                TheRegisters.Main.D = TheRegisters.Main.D.ResetBit(5);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_6_D:
-                TheRegisters.Main.D = doResetBit(TheRegisters.Main.D, 6);
+                TheRegisters.Main.D = TheRegisters.Main.D.ResetBit(6);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_7_D:
-                TheRegisters.Main.D = doResetBit(TheRegisters.Main.D, 7);
+                TheRegisters.Main.D = TheRegisters.Main.D.ResetBit(7);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_0_E:
-                TheRegisters.Main.E = doResetBit(TheRegisters.Main.E, 0);
+                TheRegisters.Main.E = TheRegisters.Main.E.ResetBit(0);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_1_E:
-                TheRegisters.Main.E = doResetBit(TheRegisters.Main.E, 1);
+                TheRegisters.Main.E = TheRegisters.Main.E.ResetBit(1);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_2_E:
-                TheRegisters.Main.E = doResetBit(TheRegisters.Main.E, 2);
+                TheRegisters.Main.E = TheRegisters.Main.E.ResetBit(2);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_3_E:
-                TheRegisters.Main.E = doResetBit(TheRegisters.Main.E, 3);
+                TheRegisters.Main.E = TheRegisters.Main.E.ResetBit(3);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_4_E:
-                TheRegisters.Main.E = doResetBit(TheRegisters.Main.E, 4);
+                TheRegisters.Main.E = TheRegisters.Main.E.ResetBit(4);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_5_E:
-                TheRegisters.Main.E = doResetBit(TheRegisters.Main.E, 5);
+                TheRegisters.Main.E = TheRegisters.Main.E.ResetBit(5);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_6_E:
-                TheRegisters.Main.E = doResetBit(TheRegisters.Main.E, 6);
+                TheRegisters.Main.E = TheRegisters.Main.E.ResetBit(6);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_7_E:
-                TheRegisters.Main.E = doResetBit(TheRegisters.Main.E, 7);
+                TheRegisters.Main.E = TheRegisters.Main.E.ResetBit(7);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_0_H:
-                TheRegisters.Main.H = doResetBit(TheRegisters.Main.H, 0);
+                TheRegisters.Main.H = TheRegisters.Main.H.ResetBit(0);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_1_H:
-                TheRegisters.Main.H = doResetBit(TheRegisters.Main.H, 1);
+                TheRegisters.Main.H = TheRegisters.Main.H.ResetBit(1);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_2_H:
-                TheRegisters.Main.H = doResetBit(TheRegisters.Main.H, 2);
+                TheRegisters.Main.H = TheRegisters.Main.H.ResetBit(2);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_3_H:
-                TheRegisters.Main.H = doResetBit(TheRegisters.Main.H, 3);
+                TheRegisters.Main.H = TheRegisters.Main.H.ResetBit(3);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_4_H:
-                TheRegisters.Main.H = doResetBit(TheRegisters.Main.H, 4);
+                TheRegisters.Main.H = TheRegisters.Main.H.ResetBit(4);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_5_H:
-                TheRegisters.Main.H = doResetBit(TheRegisters.Main.H, 5);
+                TheRegisters.Main.H = TheRegisters.Main.H.ResetBit(5);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_6_H:
-                TheRegisters.Main.H = doResetBit(TheRegisters.Main.H, 6);
+                TheRegisters.Main.H = TheRegisters.Main.H.ResetBit(6);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_7_H:
-                TheRegisters.Main.H = doResetBit(TheRegisters.Main.H, 7);
+                TheRegisters.Main.H = TheRegisters.Main.H.ResetBit(7);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_0_L:
-                TheRegisters.Main.L = doResetBit(TheRegisters.Main.L, 0);
+                TheRegisters.Main.L = TheRegisters.Main.L.ResetBit(0);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_1_L:
-                TheRegisters.Main.L = doResetBit(TheRegisters.Main.L, 1);
+                TheRegisters.Main.L = TheRegisters.Main.L.ResetBit(1);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_2_L:
-                TheRegisters.Main.L = doResetBit(TheRegisters.Main.L, 2);
+                TheRegisters.Main.L = TheRegisters.Main.L.ResetBit(2);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_3_L:
-                TheRegisters.Main.L = doResetBit(TheRegisters.Main.L, 3);
+                TheRegisters.Main.L = TheRegisters.Main.L.ResetBit(3);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_4_L:
-                TheRegisters.Main.L = doResetBit(TheRegisters.Main.L, 4);
+                TheRegisters.Main.L = TheRegisters.Main.L.ResetBit(4);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_5_L:
-                TheRegisters.Main.L = doResetBit(TheRegisters.Main.L, 5);
+                TheRegisters.Main.L = TheRegisters.Main.L.ResetBit(5);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_6_L:
-                TheRegisters.Main.L = doResetBit(TheRegisters.Main.L, 6);
+                TheRegisters.Main.L = TheRegisters.Main.L.ResetBit(6);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_7_L:
-                TheRegisters.Main.L = doResetBit(TheRegisters.Main.L, 7);
+                TheRegisters.Main.L = TheRegisters.Main.L.ResetBit(7);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_0_addrHL:
-                MainMemory.Poke(TheRegisters.Main.HL, doResetBit(MainMemory.Peek(TheRegisters.Main.HL), 0));
+                MainMemory.Poke(TheRegisters.Main.HL, MainMemory.Peek(TheRegisters.Main.HL).ResetBit(0));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_1_addrHL:
-                MainMemory.Poke(TheRegisters.Main.HL, doResetBit(MainMemory.Peek(TheRegisters.Main.HL), 1));
+                MainMemory.Poke(TheRegisters.Main.HL, MainMemory.Peek(TheRegisters.Main.HL).ResetBit(1));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_2_addrHL:
-                MainMemory.Poke(TheRegisters.Main.HL, doResetBit(MainMemory.Peek(TheRegisters.Main.HL), 2));
+                MainMemory.Poke(TheRegisters.Main.HL, MainMemory.Peek(TheRegisters.Main.HL).ResetBit(2));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_3_addrHL:
-                MainMemory.Poke(TheRegisters.Main.HL, doResetBit(MainMemory.Peek(TheRegisters.Main.HL), 3));
+                MainMemory.Poke(TheRegisters.Main.HL, MainMemory.Peek(TheRegisters.Main.HL).ResetBit(3));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_4_addrHL:
-                MainMemory.Poke(TheRegisters.Main.HL, doResetBit(MainMemory.Peek(TheRegisters.Main.HL), 4));
+                MainMemory.Poke(TheRegisters.Main.HL, MainMemory.Peek(TheRegisters.Main.HL).ResetBit(4));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_5_addrHL:
-                MainMemory.Poke(TheRegisters.Main.HL, doResetBit(MainMemory.Peek(TheRegisters.Main.HL), 5));
+                MainMemory.Poke(TheRegisters.Main.HL, MainMemory.Peek(TheRegisters.Main.HL).ResetBit(5));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_6_addrHL:
-                MainMemory.Poke(TheRegisters.Main.HL, doResetBit(MainMemory.Peek(TheRegisters.Main.HL), 6));
+                MainMemory.Poke(TheRegisters.Main.HL, MainMemory.Peek(TheRegisters.Main.HL).ResetBit(6));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RES_7_addrHL:
-                MainMemory.Poke(TheRegisters.Main.HL, doResetBit(MainMemory.Peek(TheRegisters.Main.HL), 7));
+                MainMemory.Poke(TheRegisters.Main.HL, MainMemory.Peek(TheRegisters.Main.HL).ResetBit(7));
                 return instruction.TStateCount;
-            case Z80Instructions.InstructionID.RES_0_addrIX_plus_d:
-                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), doResetBit(MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))), 0));
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.RES_1_addrIX_plus_d:
-                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), doResetBit(MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))), 1));
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.RES_2_addrIX_plus_d:
-                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), doResetBit(MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))), 2));
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.RES_3_addrIX_plus_d:
-                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), doResetBit(MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))), 3));
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.RES_4_addrIX_plus_d:
-                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), doResetBit(MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))), 4));
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.RES_5_addrIX_plus_d:
-                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), doResetBit(MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))), 5));
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.RES_6_addrIX_plus_d:
-                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), doResetBit(MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))), 6));
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.RES_7_addrIX_plus_d:
-                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), doResetBit(MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))), 7));
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.RES_0_addrIY_plus_d:
-                MainMemory.Poke(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress)), doResetBit(MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))), 0));
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.RES_1_addrIY_plus_d:
-                MainMemory.Poke(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress)), doResetBit(MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))), 1));
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.RES_2_addrIY_plus_d:
-                MainMemory.Poke(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress)), doResetBit(MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))), 2));
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.RES_3_addrIY_plus_d:
-                MainMemory.Poke(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress)), doResetBit(MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))), 3));
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.RES_4_addrIY_plus_d:
-                MainMemory.Poke(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress)), doResetBit(MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))), 4));
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.RES_5_addrIY_plus_d:
-                MainMemory.Poke(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress)), doResetBit(MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))), 5));
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.RES_6_addrIY_plus_d:
-                MainMemory.Poke(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress)), doResetBit(MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))), 6));
-                return instruction.TStateCount;
-            case Z80Instructions.InstructionID.RES_7_addrIY_plus_d:
-                MainMemory.Poke(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress)), doResetBit(MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))), 7));
+            case Z80Instructions.InstructionID.RES_n_addrIX_plus_d:
+                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))).ResetBit(0));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_0_A:
-                TheRegisters.Main.A = doSetBit(TheRegisters.Main.A, 0);
+                TheRegisters.Main.A = TheRegisters.Main.A.SetBit(0);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_1_A:
-                TheRegisters.Main.A = doSetBit(TheRegisters.Main.A, 1);
+                TheRegisters.Main.A = TheRegisters.Main.A.SetBit(1);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_2_A:
-                TheRegisters.Main.A = doSetBit(TheRegisters.Main.A, 2);
+                TheRegisters.Main.A = TheRegisters.Main.A.SetBit(2);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_3_A:
-                TheRegisters.Main.A = doSetBit(TheRegisters.Main.A, 3);
+                TheRegisters.Main.A = TheRegisters.Main.A.SetBit(3);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_4_A:
-                TheRegisters.Main.A = doSetBit(TheRegisters.Main.A, 4);
+                TheRegisters.Main.A = TheRegisters.Main.A.SetBit(4);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_5_A:
-                TheRegisters.Main.A = doSetBit(TheRegisters.Main.A, 5);
+                TheRegisters.Main.A = TheRegisters.Main.A.SetBit(5);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_6_A:
-                TheRegisters.Main.A = doSetBit(TheRegisters.Main.A, 6);
+                TheRegisters.Main.A = TheRegisters.Main.A.SetBit(6);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_7_A:
-                TheRegisters.Main.A = doSetBit(TheRegisters.Main.A, 7);
+                TheRegisters.Main.A = TheRegisters.Main.A.SetBit(7);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_0_B:
-                TheRegisters.Main.B = doSetBit(TheRegisters.Main.B, 0);
+                TheRegisters.Main.B = TheRegisters.Main.B.SetBit(0);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_1_B:
-                TheRegisters.Main.B = doSetBit(TheRegisters.Main.B, 1);
+                TheRegisters.Main.B = TheRegisters.Main.B.SetBit(1);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_2_B:
-                TheRegisters.Main.B = doSetBit(TheRegisters.Main.B, 2);
+                TheRegisters.Main.B = TheRegisters.Main.B.SetBit(2);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_3_B:
-                TheRegisters.Main.B = doSetBit(TheRegisters.Main.B, 3);
+                TheRegisters.Main.B = TheRegisters.Main.B.SetBit(3);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_4_B:
-                TheRegisters.Main.B = doSetBit(TheRegisters.Main.B, 4);
+                TheRegisters.Main.B = TheRegisters.Main.B.SetBit(4);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_5_B:
-                TheRegisters.Main.B = doSetBit(TheRegisters.Main.B, 5);
+                TheRegisters.Main.B = TheRegisters.Main.B.SetBit(5);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_6_B:
-                TheRegisters.Main.B = doSetBit(TheRegisters.Main.B, 6);
+                TheRegisters.Main.B = TheRegisters.Main.B.SetBit(6);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_7_B:
-                TheRegisters.Main.B = doSetBit(TheRegisters.Main.B, 7);
+                TheRegisters.Main.B = TheRegisters.Main.B.SetBit(7);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_0_C:
-                TheRegisters.Main.C = doSetBit(TheRegisters.Main.C, 0);
+                TheRegisters.Main.C = TheRegisters.Main.C.SetBit(0);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_1_C:
-                TheRegisters.Main.C = doSetBit(TheRegisters.Main.C, 1);
+                TheRegisters.Main.C = TheRegisters.Main.C.SetBit(1);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_2_C:
-                TheRegisters.Main.C = doSetBit(TheRegisters.Main.C, 2);
+                TheRegisters.Main.C = TheRegisters.Main.C.SetBit(2);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_3_C:
-                TheRegisters.Main.C = doSetBit(TheRegisters.Main.C, 3);
+                TheRegisters.Main.C = TheRegisters.Main.C.SetBit(3);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_4_C:
-                TheRegisters.Main.C = doSetBit(TheRegisters.Main.C, 4);
+                TheRegisters.Main.C = TheRegisters.Main.C.SetBit(4);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_5_C:
-                TheRegisters.Main.C = doSetBit(TheRegisters.Main.C, 5);
+                TheRegisters.Main.C = TheRegisters.Main.C.SetBit(5);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_6_C:
-                TheRegisters.Main.C = doSetBit(TheRegisters.Main.C, 6);
+                TheRegisters.Main.C = TheRegisters.Main.C.SetBit(6);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_7_C:
-                TheRegisters.Main.C = doSetBit(TheRegisters.Main.C, 7);
+                TheRegisters.Main.C = TheRegisters.Main.C.SetBit(7);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_0_D:
-                TheRegisters.Main.D = doSetBit(TheRegisters.Main.D, 0);
+                TheRegisters.Main.D = TheRegisters.Main.D.SetBit(0);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_1_D:
-                TheRegisters.Main.D = doSetBit(TheRegisters.Main.D, 1);
+                TheRegisters.Main.D = TheRegisters.Main.D.SetBit(1);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_2_D:
-                TheRegisters.Main.D = doSetBit(TheRegisters.Main.D, 2);
+                TheRegisters.Main.D = TheRegisters.Main.D.SetBit(2);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_3_D:
-                TheRegisters.Main.D = doSetBit(TheRegisters.Main.D, 3);
+                TheRegisters.Main.D = TheRegisters.Main.D.SetBit(3);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_4_D:
-                TheRegisters.Main.D = doSetBit(TheRegisters.Main.D, 4);
+                TheRegisters.Main.D = TheRegisters.Main.D.SetBit(4);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_5_D:
-                TheRegisters.Main.D = doSetBit(TheRegisters.Main.D, 5);
+                TheRegisters.Main.D = TheRegisters.Main.D.SetBit(5);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_6_D:
-                TheRegisters.Main.D = doSetBit(TheRegisters.Main.D, 6);
+                TheRegisters.Main.D = TheRegisters.Main.D.SetBit(6);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_7_D:
-                TheRegisters.Main.D = doSetBit(TheRegisters.Main.D, 7);
+                TheRegisters.Main.D = TheRegisters.Main.D.SetBit(7);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_0_E:
-                TheRegisters.Main.E = doSetBit(TheRegisters.Main.E, 0);
+                TheRegisters.Main.E = TheRegisters.Main.E.SetBit(0);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_1_E:
-                TheRegisters.Main.E = doSetBit(TheRegisters.Main.E, 1);
+                TheRegisters.Main.E = TheRegisters.Main.E.SetBit(1);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_2_E:
-                TheRegisters.Main.E = doSetBit(TheRegisters.Main.E, 2);
+                TheRegisters.Main.E = TheRegisters.Main.E.SetBit(2);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_3_E:
-                TheRegisters.Main.E = doSetBit(TheRegisters.Main.E, 3);
+                TheRegisters.Main.E = TheRegisters.Main.E.SetBit(3);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_4_E:
-                TheRegisters.Main.E = doSetBit(TheRegisters.Main.E, 4);
+                TheRegisters.Main.E = TheRegisters.Main.E.SetBit(4);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_5_E:
-                TheRegisters.Main.E = doSetBit(TheRegisters.Main.E, 5);
+                TheRegisters.Main.E = TheRegisters.Main.E.SetBit(5);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_6_E:
-                TheRegisters.Main.E = doSetBit(TheRegisters.Main.E, 6);
+                TheRegisters.Main.E = TheRegisters.Main.E.SetBit(6);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_7_E:
-                TheRegisters.Main.E = doSetBit(TheRegisters.Main.E, 7);
+                TheRegisters.Main.E = TheRegisters.Main.E.SetBit(7);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_0_H:
-                TheRegisters.Main.H = doSetBit(TheRegisters.Main.H, 0);
+                TheRegisters.Main.H = TheRegisters.Main.H.SetBit(0);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_1_H:
-                TheRegisters.Main.H = doSetBit(TheRegisters.Main.H, 1);
+                TheRegisters.Main.H = TheRegisters.Main.H.SetBit(1);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_2_H:
-                TheRegisters.Main.H = doSetBit(TheRegisters.Main.H, 2);
+                TheRegisters.Main.H = TheRegisters.Main.H.SetBit(2);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_3_H:
-                TheRegisters.Main.H = doSetBit(TheRegisters.Main.H, 3);
+                TheRegisters.Main.H = TheRegisters.Main.H.SetBit(3);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_4_H:
-                TheRegisters.Main.H = doSetBit(TheRegisters.Main.H, 4);
+                TheRegisters.Main.H = TheRegisters.Main.H.SetBit(4);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_5_H:
-                TheRegisters.Main.H = doSetBit(TheRegisters.Main.H, 5);
+                TheRegisters.Main.H = TheRegisters.Main.H.SetBit(5);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_6_H:
-                TheRegisters.Main.H = doSetBit(TheRegisters.Main.H, 6);
+                TheRegisters.Main.H = TheRegisters.Main.H.SetBit(6);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_7_H:
-                TheRegisters.Main.H = doSetBit(TheRegisters.Main.H, 7);
+                TheRegisters.Main.H = TheRegisters.Main.H.SetBit(7);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_0_L:
-                TheRegisters.Main.L = doSetBit(TheRegisters.Main.L, 0);
+                TheRegisters.Main.L = TheRegisters.Main.L.SetBit(0);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_1_L:
-                TheRegisters.Main.L = doSetBit(TheRegisters.Main.L, 1);
+                TheRegisters.Main.L = TheRegisters.Main.L.SetBit(1);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_2_L:
-                TheRegisters.Main.L = doSetBit(TheRegisters.Main.L, 2);
+                TheRegisters.Main.L = TheRegisters.Main.L.SetBit(2);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_3_L:
-                TheRegisters.Main.L = doSetBit(TheRegisters.Main.L, 3);
+                TheRegisters.Main.L = TheRegisters.Main.L.SetBit(3);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_4_L:
-                TheRegisters.Main.L = doSetBit(TheRegisters.Main.L, 4);
+                TheRegisters.Main.L = TheRegisters.Main.L.SetBit(4);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_5_L:
-                TheRegisters.Main.L = doSetBit(TheRegisters.Main.L, 5);
+                TheRegisters.Main.L = TheRegisters.Main.L.SetBit(5);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_6_L:
-                TheRegisters.Main.L = doSetBit(TheRegisters.Main.L, 6);
+                TheRegisters.Main.L = TheRegisters.Main.L.SetBit(6);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_7_L:
-                TheRegisters.Main.L = doSetBit(TheRegisters.Main.L, 7);
+                TheRegisters.Main.L = TheRegisters.Main.L.SetBit(7);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_0_addrHL:
-                MainMemory.Poke(TheRegisters.Main.HL, doSetBit(MainMemory.Peek(TheRegisters.Main.HL), 0));
+                MainMemory.Poke(TheRegisters.Main.HL, MainMemory.Peek(TheRegisters.Main.HL).SetBit(0));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_1_addrHL:
-                MainMemory.Poke(TheRegisters.Main.HL, doSetBit(MainMemory.Peek(TheRegisters.Main.HL), 1));
+                MainMemory.Poke(TheRegisters.Main.HL, MainMemory.Peek(TheRegisters.Main.HL).SetBit(1));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_2_addrHL:
-                MainMemory.Poke(TheRegisters.Main.HL, doSetBit(MainMemory.Peek(TheRegisters.Main.HL), 2));
+                MainMemory.Poke(TheRegisters.Main.HL, MainMemory.Peek(TheRegisters.Main.HL).SetBit(2));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_3_addrHL:
-                MainMemory.Poke(TheRegisters.Main.HL, doSetBit(MainMemory.Peek(TheRegisters.Main.HL), 3));
+                MainMemory.Poke(TheRegisters.Main.HL, MainMemory.Peek(TheRegisters.Main.HL).SetBit(3));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_4_addrHL:
-                MainMemory.Poke(TheRegisters.Main.HL, doSetBit(MainMemory.Peek(TheRegisters.Main.HL), 4));
+                MainMemory.Poke(TheRegisters.Main.HL, MainMemory.Peek(TheRegisters.Main.HL).SetBit(4));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_5_addrHL:
-                MainMemory.Poke(TheRegisters.Main.HL, doSetBit(MainMemory.Peek(TheRegisters.Main.HL), 5));
+                MainMemory.Poke(TheRegisters.Main.HL, MainMemory.Peek(TheRegisters.Main.HL).SetBit(5));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_6_addrHL:
-                MainMemory.Poke(TheRegisters.Main.HL, doSetBit(MainMemory.Peek(TheRegisters.Main.HL), 6));
+                MainMemory.Poke(TheRegisters.Main.HL, MainMemory.Peek(TheRegisters.Main.HL).SetBit(6));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_7_addrHL:
-                MainMemory.Poke(TheRegisters.Main.HL, doSetBit(MainMemory.Peek(TheRegisters.Main.HL), 7));
+                MainMemory.Poke(TheRegisters.Main.HL, MainMemory.Peek(TheRegisters.Main.HL).SetBit(7));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_0_addrIX_plus_d:
-                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), doSetBit(MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))), 0));
+                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))).SetBit(0));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_1_addrIX_plus_d:
-                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), doSetBit(MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))), 1));
+                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))).SetBit(1));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_2_addrIX_plus_d:
-                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), doSetBit(MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))), 2));
+                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))).SetBit(2));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_3_addrIX_plus_d:
-                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), doSetBit(MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))), 3));
+                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))).SetBit(3));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_4_addrIX_plus_d:
-                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), doSetBit(MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))), 4));
+                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))).SetBit(4));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_5_addrIX_plus_d:
-                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), doSetBit(MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))), 5));
+                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))).SetBit(5));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_6_addrIX_plus_d:
-                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), doSetBit(MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))), 6));
+                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))).SetBit(6));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_7_addrIX_plus_d:
-                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), doSetBit(MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))), 7));
+                MainMemory.Poke(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress)), MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))).SetBit(7));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_0_addrIY_plus_d:
-                MainMemory.Poke(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress)), doSetBit(MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))), 0));
+                MainMemory.Poke(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress)), MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))).SetBit(0));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_1_addrIY_plus_d:
-                MainMemory.Poke(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress)), doSetBit(MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))), 1));
+                MainMemory.Poke(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress)), MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))).SetBit(1));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_2_addrIY_plus_d:
-                MainMemory.Poke(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress)), doSetBit(MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))), 2));
+                MainMemory.Poke(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress)), MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))).SetBit(2));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_3_addrIY_plus_d:
-                MainMemory.Poke(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress)), doSetBit(MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))), 3));
+                MainMemory.Poke(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress)), MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))).SetBit(3));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_4_addrIY_plus_d:
-                MainMemory.Poke(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress)), doSetBit(MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))), 4));
+                MainMemory.Poke(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress)), MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))).SetBit(4));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_5_addrIY_plus_d:
-                MainMemory.Poke(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress)), doSetBit(MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))), 5));
+                MainMemory.Poke(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress)), MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))).SetBit(5));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_6_addrIY_plus_d:
-                MainMemory.Poke(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress)), doSetBit(MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))), 6));
+                MainMemory.Poke(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress)), MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))).SetBit(6));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.SET_7_addrIY_plus_d:
-                MainMemory.Poke(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress)), doSetBit(MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))), 7));
+                MainMemory.Poke(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress)), MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))).SetBit(7));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.CALL_nn:
                 CallIfTrue(MainMemory.PeekWord(valueAddress), true);

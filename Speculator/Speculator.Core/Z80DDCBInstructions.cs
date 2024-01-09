@@ -40,7 +40,10 @@ public partial class Z80Instructions
             yield return CreateSrlIxPlusDInstruction(regs[i], i, regSuffix);
 
             for (byte bit = 0; bit < 8; bit++)
+            {
                 yield return CreateBitIxPlusDInstruction(i, bit);
+                yield return CreateResIxPlusDInstruction(regs[i], i, regSuffix, bit);
+            }
         }
     }
     
@@ -191,7 +194,7 @@ public partial class Z80Instructions
     private static Instruction CreateBitIxPlusDInstruction(int regIndex, byte bit)
     {
         const int tStates = 20;
-        return new Instruction(InstructionID.BIT_0_addrIX_plus_d + bit, $"BIT {bit},(IX+d)", $"DD CB d {0x40 + bit * 8 + regIndex:X02}", tStates)
+        return new Instruction(InstructionID.BIT_n_addrIX_plus_d, $"BIT {bit},(IX+d)", $"DD CB d {0x40 + bit * 8 + regIndex:X02}", tStates)
         {
             Run = Impl
         };
@@ -206,6 +209,24 @@ public partial class Z80Instructions
             // From 'undocumented' docs.
             registers.ParityFlag = registers.ZeroFlag;
             registers.SignFlag = bit == 7 && !Alu.IsBytePositive(b);
+            return tStates;
+        }
+    }
+
+    private static Instruction CreateResIxPlusDInstruction(char regName, int regIndex, string regSuffix, byte bit)
+    {
+        const int tStates = 23;
+        return new Instruction(InstructionID.SRL_addrIX_plus_d, $"RES {bit},(IX+d){regSuffix}", $"DD CB d {0x80 + bit * 8 + regIndex:X02}", tStates)
+        {
+            Run = Impl
+        };
+
+        int Impl(Memory memory, Registers registers, Alu alu, ushort valueAddress)
+        {
+            var ixPlusD = registers.IXPlusD(memory.Peek(valueAddress));
+            var result = memory.Peek(ixPlusD).ResetBit(bit);
+            memory.Poke(ixPlusD, result);
+            registers.Main.SetRegister(regName, result);
             return tStates;
         }
     }
