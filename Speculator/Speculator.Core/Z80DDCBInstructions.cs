@@ -17,8 +17,8 @@ public partial class Z80Instructions
     private IEnumerable<Instruction> GetDdcbInstructions()
     {
         // Handled explicitly?
-        foreach (var ddcb in Instructions.Where(o => o.HexTemplate.Replace(" ", string.Empty).StartsWith("DDCB")))
-            yield return ddcb;
+        foreach (var instr in Instructions.Where(o => o.HexTemplate.Replace(" ", string.Empty).StartsWith("DDCB")))
+            yield return instr;
 
         // Handled using Instruction callback method.
         var regs = new[]
@@ -32,6 +32,8 @@ public partial class Z80Instructions
                 continue;
             yield return CreateRlcIxPlusDInstruction(r, i);
             yield return CreateRrcIxPlusDInstruction(r, i);
+            yield return CreateRlIxPlusDInstruction(r, i);
+            yield return CreateRrIxPlusDInstruction(r, i);
         }
     }
     
@@ -65,6 +67,42 @@ public partial class Z80Instructions
         {
             var ixPlusD = registers.IXPlusD(memory.Peek(valueAddress));
             var result = alu.RotateRightCircular(memory.Peek(ixPlusD));
+            memory.Poke(ixPlusD, result);
+            registers.Main.SetRegister(regName, result);
+            return tStates;
+        }
+    }
+
+    private static Instruction CreateRlIxPlusDInstruction(char regName, int regIndex)
+    {
+        const int tStates = 23;
+        return new Instruction(InstructionID.RL_addrIX_plus_d_undoc, $"RL (IX+d),{regName}", $"DD CB d {0x10 + regIndex:X02}", tStates)
+        {
+            Run = Impl
+        };
+
+        int Impl(Memory memory, Registers registers, Alu alu, ushort valueAddress)
+        {
+            var ixPlusD = registers.IXPlusD(memory.Peek(valueAddress));
+            var result = alu.RotateLeft(memory.Peek(ixPlusD));
+            memory.Poke(ixPlusD, result);
+            registers.Main.SetRegister(regName, result);
+            return tStates;
+        }
+    }
+    
+    private static Instruction CreateRrIxPlusDInstruction(char regName, int regIndex)
+    {
+        const int tStates = 23;
+        return new Instruction(InstructionID.RR_addrIX_plus_d_undoc, $"RR (IX+d),{regName}", $"DD CB d {0x18 + regIndex:X02}", tStates)
+        {
+            Run = Impl
+        };
+
+        int Impl(Memory memory, Registers registers, Alu alu, ushort valueAddress)
+        {
+            var ixPlusD = registers.IXPlusD(memory.Peek(valueAddress));
+            var result = alu.RotateRight(memory.Peek(ixPlusD));
             memory.Poke(ixPlusD, result);
             registers.Main.SetRegister(regName, result);
             return tStates;
