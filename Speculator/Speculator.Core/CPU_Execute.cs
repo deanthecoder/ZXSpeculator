@@ -446,6 +446,7 @@ public partial class CPU
                 TheRegisters.HalfCarryFlag = false;
                 TheRegisters.ParityFlag = TheRegisters.IFF2;
                 TheRegisters.SubtractFlag = false;
+                TheRegisters.SetFlags53FromA();
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.LD_A_R:
                 TheRegisters.Main.A = TheRegisters.R;
@@ -1004,9 +1005,11 @@ public partial class CPU
             }
             case Z80Instructions.InstructionID.CP_addrIX_plus_d:
                 TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))), false);
+                TheRegisters.SetFlags53From(MainMemory.Peek(TheRegisters.IXPlusD(MainMemory.Peek(valueAddress))));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.CP_addrIY_plus_d:
                 TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))), false);
+                TheRegisters.SetFlags53From(MainMemory.Peek(TheRegisters.IYPlusD(MainMemory.Peek(valueAddress))));
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.OR_n:
                 TheAlu.Or(MainMemory.Peek(valueAddress));
@@ -2116,8 +2119,9 @@ public partial class CPU
                 TheRegisters.HalfCarryFlag = false;
                 TheRegisters.ParityFlag = Alu.IsEvenParity(TheRegisters.Main.A);
                 TheRegisters.SubtractFlag = false;
-            }
+                TheRegisters.SetFlags53FromA();
                 return instruction.TStateCount;
+            }
             case Z80Instructions.InstructionID.RRD:
             {
                 int valueAtHL = MainMemory.Peek(TheRegisters.Main.HL);
@@ -2131,8 +2135,9 @@ public partial class CPU
                 TheRegisters.HalfCarryFlag = false;
                 TheRegisters.ParityFlag = Alu.IsEvenParity(TheRegisters.Main.A);
                 TheRegisters.SubtractFlag = false;
-            }
+                TheRegisters.SetFlags53FromA();
                 return instruction.TStateCount;
+            }
 
             case Z80Instructions.InstructionID.OUT_addr_C_0:
                 ThePortHandler?.Out(MainMemory.Peek(valueAddress), 0);
@@ -2232,15 +2237,19 @@ public partial class CPU
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.CP_IXH:
                 TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IXH, false);
+                TheRegisters.SetFlags53From(TheRegisters.IXH);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.CP_IXL:
                 TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IXL, false);
+                TheRegisters.SetFlags53From(TheRegisters.IXL);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.CP_IYH:
                 TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IYH, false);
+                TheRegisters.SetFlags53From(TheRegisters.IYH);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.CP_IYL:
                 TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, TheRegisters.IYL, false);
+                TheRegisters.SetFlags53From(TheRegisters.IYL);
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.DEC_IXL:
                 TheRegisters.IXL = TheAlu.DecAndSetFlags(TheRegisters.IXL);

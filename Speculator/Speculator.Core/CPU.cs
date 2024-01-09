@@ -228,6 +228,7 @@ public partial class CPU : ViewModelBase
         TheRegisters.HalfCarryFlag = false;
         TheRegisters.ParityFlag = Alu.IsEvenParity(b);
         TheRegisters.SubtractFlag = false;
+        TheRegisters.SetFlags53From(b);
         return b;
     }
 
@@ -275,50 +276,67 @@ public partial class CPU : ViewModelBase
         // From 'undocumented' docs.
         TheRegisters.ParityFlag = TheRegisters.ZeroFlag;
         TheRegisters.SignFlag = i == 7 && !Alu.IsBytePositive(b);
+        TheRegisters.SetFlags53From(b);
     }
 
     private void doCPI()
     {
         var oldCarry = TheRegisters.CarryFlag;
+        var v = (byte)(TheRegisters.Main.A - MainMemory.Peek(TheRegisters.Main.HL));
         TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(TheRegisters.Main.HL), false);
+        if (TheRegisters.HalfCarryFlag)
+            v--;
         TheRegisters.Main.HL++;
         TheRegisters.Main.BC--;
         TheRegisters.ParityFlag = TheRegisters.Main.BC != 0;
         TheRegisters.SubtractFlag = true;
         TheRegisters.CarryFlag = oldCarry;
+        TheRegisters.Flag3 = v.IsBitSet(3);
+        TheRegisters.Flag5 = v.IsBitSet(1);
     }
         
     private void doCPD()
     {
         var oldCarry = TheRegisters.CarryFlag;
+        var v = (byte)(TheRegisters.Main.A - MainMemory.Peek(TheRegisters.Main.HL));
         TheAlu.SubtractAndSetFlags(TheRegisters.Main.A, MainMemory.Peek(TheRegisters.Main.HL), false);
+        if (TheRegisters.HalfCarryFlag)
+            v--;
         TheRegisters.Main.HL--;
         TheRegisters.Main.BC--;
         TheRegisters.ParityFlag = TheRegisters.Main.BC != 0;
         TheRegisters.SubtractFlag = true;
         TheRegisters.CarryFlag = oldCarry;
+        TheRegisters.Flag3 = v.IsBitSet(3);
+        TheRegisters.Flag5 = v.IsBitSet(1);
     }
 
     private void doLDI()
     {
-        MainMemory.Poke(TheRegisters.Main.DE, MainMemory.Peek(TheRegisters.Main.HL));
+        var v = MainMemory.Peek(TheRegisters.Main.HL);
+        MainMemory.Poke(TheRegisters.Main.DE, v);
         TheRegisters.Main.HL++;
         TheRegisters.Main.DE++;
         TheRegisters.Main.BC--;
         TheRegisters.HalfCarryFlag = false;
         TheRegisters.ParityFlag = TheRegisters.Main.BC != 0;
         TheRegisters.SubtractFlag = false;
+        TheRegisters.Flag5 = ((byte)(v + TheRegisters.Main.A)).IsBitSet(1);
+        TheRegisters.Flag3 = ((byte)(v + TheRegisters.Main.A)).IsBitSet(3);
     }
 
     private void doLDD()
     {
-        MainMemory.Poke(TheRegisters.Main.DE, MainMemory.Peek(TheRegisters.Main.HL));
+        var b = MainMemory.Peek(TheRegisters.Main.HL);
+        MainMemory.Poke(TheRegisters.Main.DE, b);
         TheRegisters.Main.HL--;
         TheRegisters.Main.DE--;
         TheRegisters.Main.BC--;
         TheRegisters.HalfCarryFlag = false;
         TheRegisters.ParityFlag = TheRegisters.Main.BC != 0;
         TheRegisters.SubtractFlag = false;
+        TheRegisters.Flag3 = ((byte)(b + TheRegisters.Main.A)).IsBitSet(3);
+        TheRegisters.Flag5 = ((byte)(b + TheRegisters.Main.A)).IsBitSet(1);
     }
 
     public double UpTime => TStatesSinceCpuStart / TStatesPerSecond;

@@ -9,6 +9,8 @@
 //
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
+using Speculator.Core.Extensions;
+
 namespace Speculator.Core;
 
 public class Alu
@@ -496,6 +498,7 @@ public class Alu
         TheRegisters.ParityFlag = IsEvenParity(b);
         TheRegisters.SubtractFlag = false;
         TheRegisters.CarryFlag = oldHighBit != 0x00;
+        TheRegisters.SetFlags53From(b);
         return b;
     }
 
@@ -555,6 +558,7 @@ public class Alu
         TheRegisters.HalfCarryFlag = false;
         TheRegisters.ParityFlag = IsEvenParity(b);
         TheRegisters.SubtractFlag = false;
+        TheRegisters.SetFlags53From(b);
         return b;
     }
 
@@ -573,6 +577,7 @@ public class Alu
         TheRegisters.HalfCarryFlag = false;
         TheRegisters.ParityFlag = IsEvenParity(b);
         TheRegisters.SubtractFlag = false;
+        TheRegisters.SetFlags53From(b);
         return b;
     }
 
@@ -591,6 +596,7 @@ public class Alu
         TheRegisters.HalfCarryFlag = false;
         TheRegisters.ParityFlag = IsEvenParity(b);
         TheRegisters.SubtractFlag = false;
+        TheRegisters.SetFlags53From(b);
         return b;
     }
 
@@ -619,6 +625,7 @@ public class Alu
         TheRegisters.HalfCarryFlag = false;
         TheRegisters.ParityFlag = IsEvenParity(b);
         TheRegisters.SubtractFlag = false;
+        TheRegisters.SetFlags53From(b);
         return b;
     }
 

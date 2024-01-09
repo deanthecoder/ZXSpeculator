@@ -220,7 +220,7 @@ public class Registers : ViewModelBase
     /// </summary>
     public bool Flag5
     {
-        private set => Main.F = value ? (byte)(Main.F | (1 << 5)) : (byte)(Main.F & ~(1 << 5));
+        internal set => Main.F = value ? (byte)(Main.F | (1 << 5)) : (byte)(Main.F & ~(1 << 5));
         get => Main.F.IsBitSet(5);
     }
 
@@ -238,7 +238,7 @@ public class Registers : ViewModelBase
     /// </summary>
     public bool Flag3
     {
-        private set => Main.F = value ? (byte)(Main.F | (1 << 3)) : (byte)(Main.F & ~(1 << 3));
+        internal set => Main.F = value ? (byte)(Main.F | (1 << 3)) : (byte)(Main.F & ~(1 << 3));
         get => Main.F.IsBitSet(3);
     }
 
@@ -273,8 +273,8 @@ public class Registers : ViewModelBase
 
     public void SetFlags53From(byte b)
     {
-        Flag5 = (b & 0x20) != 0;
-        Flag3 = (b & 0x08) != 0;
+        Flag5 = b.IsBitSet(5);
+        Flag3 = b.IsBitSet(3);
     }
     
     public void SetFlags53FromA() => SetFlags53From(Main.A);

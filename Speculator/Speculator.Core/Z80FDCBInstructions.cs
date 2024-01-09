@@ -201,7 +201,8 @@ public partial class Z80Instructions
 
         int Impl(Memory memory, Registers registers, Alu alu, ushort valueAddress)
         {
-            var b = memory.Peek(registers.IYPlusD(memory.Peek(valueAddress)));
+            var iyPlusD = registers.IYPlusD(memory.Peek(valueAddress));
+            var b = memory.Peek(iyPlusD);
             registers.ZeroFlag = !b.IsBitSet(bit);
             registers.SubtractFlag = false;
             registers.HalfCarryFlag = true;
@@ -209,6 +210,7 @@ public partial class Z80Instructions
             // From 'undocumented' docs.
             registers.ParityFlag = registers.ZeroFlag;
             registers.SignFlag = bit == 7 && !Alu.IsBytePositive(b);
+            registers.SetFlags53From((byte)(iyPlusD >> 8));
             return tStates;
         }
     }

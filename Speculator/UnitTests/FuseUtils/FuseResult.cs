@@ -37,11 +37,11 @@ public class FuseResult
         TestId = testId;
     }
     
-    public void Verify(CPU cpu, bool relaxFlagChecks)
+    public void Verify(CPU cpu)
     {
         Assert.Multiple(() =>
         {
-            VerifyRegisters(cpu, relaxFlagChecks);
+            VerifyRegisters(cpu);
             VerifyCpuState(cpu);
             VerifyMemory(cpu);
         });
@@ -72,19 +72,13 @@ public class FuseResult
         Assert.That(cpu.TStatesSinceCpuStart, Is.EqualTo(m_tStates));
     }
     
-    private void VerifyRegisters(CPU cpu, bool relaxFlagChecks)
+    private void VerifyRegisters(CPU cpu)
     {
         var registers = m_registers;
         Assert.That(cpu.TheRegisters.Main.A, Is.EqualTo((registers[0] & 0xff00) >> 8), "Register mismatch: A");
             
         var mainF = cpu.TheRegisters.Main.F;
         var expected = registers[0] & 0x00ff;
-        if (relaxFlagChecks)
-        {
-            // Ignore bit 3 and 5.
-            mainF &= 0b11010111;
-            expected &= 0b11010111;
-        }
         Assert.That(mainF, Is.EqualTo(expected), "Flags (F): SZ5H3PNC\n" +
                                                  $"Actual:    {Convert.ToString(mainF, 2).PadLeft(8, '0')}\n" +
                                                  $"Expected:  {Convert.ToString(expected, 2).PadLeft(8, '0')}");
@@ -96,12 +90,6 @@ public class FuseResult
 
         var altF = cpu.TheRegisters.Alt.F;
         expected = registers[4] & 0x00ff;
-        if (relaxFlagChecks)
-        {
-            // Ignore bit 3 and 5.
-            altF &= 0b11010111;
-            expected &= 0b11010111;
-        }
         Assert.That(altF, Is.EqualTo(expected), "Flags (F'): SZ5H3PNC\n" +
                                                 $"Actual:     {Convert.ToString(altF, 2).PadLeft(8, '0')}\n" +
                                                 $"Expected:   {Convert.ToString(expected, 2).PadLeft(8, '0')}");
