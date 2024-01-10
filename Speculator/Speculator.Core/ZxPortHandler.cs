@@ -12,6 +12,7 @@
 using CSharp.Utils.ViewModels;
 using SharpHook;
 using SharpHook.Native;
+using Speculator.Core.Extensions;
 using Speculator.Core.Tape;
 
 namespace Speculator.Core;
@@ -122,8 +123,7 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
 
             // Read from the tape, if loaded.
             m_tapeSignal = m_tapeLoader.GetTapeSignal();
-            if (m_tapeSignal.HasValue)
-                result = (byte)((result & 0b10111111) + (m_tapeSignal.Value ? 0x40 : 0x00));
+            result = m_tapeSignal == true ? result.SetBit(6) : result.ResetBit(6);
         } 
         else if ((portAddress & 0x001F) == 0x1F)
         {
