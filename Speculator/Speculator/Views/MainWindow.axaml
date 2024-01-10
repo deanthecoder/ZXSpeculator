@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:Speculator.Views"
         xmlns:dialogHostAvalonia="clr-namespace:DialogHostAvalonia;assembly=DialogHost.Avalonia"
+        xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
         mc:Ignorable="d"
         d:DesignWidth="600"
         d:DesignHeight="650"
@@ -46,22 +47,44 @@
                     </MenuItem>
 
                     <MenuItem Header="_Hardware">
-                        <MenuItem Header="Enable _Sound" Command="{Binding ToggleSound}"
-                                  IsVisible="{Binding !Speccy.SoundHandler.IsEnabled}"
-                                  IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}" />
-                        <MenuItem Header="Disable _Sound" Command="{Binding ToggleSound}"
-                                  IsVisible="{Binding Speccy.SoundHandler.IsEnabled}"
-                                  IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}" />
-                        <MenuItem Header="Full Speed" Command="{Binding ToggleFullThrottle}"
-                                  IsVisible="{Binding !IsFullThrottle}"
-                                  IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}" />
-                        <MenuItem Header="Accurate Speed" Command="{Binding ToggleFullThrottle}"
-                                  IsVisible="{Binding IsFullThrottle}"
-                                  IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}" />
-                        <MenuItem Header="Use Cursor Joystick" Command="{Binding ToggleCursorJoystick}"
-                                  IsVisible="{Binding !Speccy.PortHandler.EmulateCursorJoystick}" />
-                        <MenuItem Header="Use Kempston Joystick" Command="{Binding ToggleCursorJoystick}"
-                                  IsVisible="{Binding Speccy.PortHandler.EmulateCursorJoystick}" />
+                        <MenuItem Header="Sound" IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}">
+                            <MenuItem Header="Enabled" Command="{Binding ToggleSound}">
+                                <MenuItem.Icon>
+                                    <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding Speccy.SoundHandler.IsEnabled}" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Disabled" Command="{Binding ToggleSound}">
+                                <MenuItem.Icon>
+                                    <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding !Speccy.SoundHandler.IsEnabled}" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                        </MenuItem>
+                        
+                        <MenuItem Header="Speed" IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}">
+                            <MenuItem Header="Accurate" Command="{Binding ToggleFullThrottle}">
+                                <MenuItem.Icon>
+                                    <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding !IsFullThrottle}" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Maximum" Command="{Binding ToggleFullThrottle}">
+                                <MenuItem.Icon>
+                                    <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding IsFullThrottle}" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                        </MenuItem>
+                        
+                        <MenuItem Header="Joysticks">
+                            <MenuItem Header="Kempston" Command="{Binding ToggleCursorJoystick}">
+                                <MenuItem.Icon>
+                                    <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding !Speccy.PortHandler.EmulateCursorJoystick}" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Cursor" Command="{Binding ToggleCursorJoystick}">
+                                <MenuItem.Icon>
+                                    <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding Speccy.PortHandler.EmulateCursorJoystick}"/>
+                                </MenuItem.Icon>
+                            </MenuItem>
+                        </MenuItem>
                         <MenuItem Header="_Reset Emulator" Command="{Binding ResetMachine}"
                                   InputGesture="{OnPlatform 'escape'}" />
                         <MenuItem Header="Show Debugger" Command="{Binding Speccy.TheDebugger.Show}"
