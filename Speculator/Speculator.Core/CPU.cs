@@ -31,6 +31,7 @@ public partial class CPU : ViewModelBase
     private int m_previousScanline;
 
     public event EventHandler PoweredOff;
+    public event EventHandler LoadRequested;
 
     public const double TStatesPerSecond = 3494400;
     public long TStatesSinceCpuStart { get; private set; }
@@ -166,12 +167,12 @@ public partial class CPU : ViewModelBase
         var oldIFF = TheRegisters.IFF1;
 
         // Execute instruction.
-        var TStates = Tick();
-        TStatesSinceCpuStart += TStates;
-        m_TStatesSinceInterrupt += TStates;
+        var tStates = Tick();
+        TStatesSinceCpuStart += tStates;
+        m_TStatesSinceInterrupt += tStates;
             
         // Record speaker state.
-        m_soundHandler?.SampleSpeakerState(TStates);
+        m_soundHandler?.SampleSpeakerState(tStates);
 
         // Screen build-up.
         var scanline = m_TStatesSinceInterrupt / 224;
@@ -180,6 +181,11 @@ public partial class CPU : ViewModelBase
             m_previousScanline = scanline;
             RenderScanline?.Invoke(this, (MainMemory, scanline));
         }
+        
+        // Special case 'LOAD ""' instruction.
+        // (Double-checking the BASIC ROM is loaded...)
+        if (TheRegisters.PC == 0x056A && MainMemory.Peek(TheRegisters.PC) == 0xBF)
+            LoadRequested?.Invoke(this, EventArgs.Empty);
 
         // Time to handle interrupts?
         if (TStatesPerInterrupt == 0 || m_TStatesSinceInterrupt < TStatesPerInterrupt)

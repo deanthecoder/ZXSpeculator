@@ -11,6 +11,7 @@
 
 using System;
 using Avalonia;
+using Avalonia.Threading;
 using CSharp.Utils.Commands;
 using CSharp.Utils.Extensions;
 using CSharp.Utils.ViewModels;
@@ -28,6 +29,12 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     {
         Display = new ZxDisplay();
         Speccy = new ZxSpectrum(Display).LoadBasicRom();
+
+        Speccy.TheCpu.LoadRequested += (_, _) =>
+        {
+            if (!Speccy.TheTapeLoader.IsLoading)
+                Dispatcher.UIThread.InvokeAsync(LoadRom);
+        };
     }
 
     public void LoadRom()

@@ -19,7 +19,9 @@ public class TapeLoader
     private List<TapeBlock> m_tapeBlocks;
     private FileInfo m_tapeFile;
     private CPU m_theCpu;
-    
+
+    public bool IsLoading => m_tapeFile?.Exists == true;
+
     public void SetCpu(CPU cpu)
     {
         m_theCpu = cpu;
