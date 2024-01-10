@@ -23,8 +23,8 @@ public class SoundHandler : ViewModelBase, IDisposable
 {
     private byte m_soundLevel;
     private const int SampleHz = 11025;
-    private const int TicksPerSample = (int)(CPU.TStatesPerSecond / SampleHz);
-    private long m_lastTStateCount;
+    private const double TicksPerSample = CPU.TStatesPerSecond / SampleHz;
+    private double m_ticksUntilSample = TicksPerSample;
     private readonly int[] m_soundLevels = new int[4];
     private readonly SoundDevice m_soundDevice;
     private bool m_isDisposed;
@@ -88,12 +88,12 @@ public class SoundHandler : ViewModelBase, IDisposable
         // Update the count of on/off speaker states.
         m_soundLevels[m_soundLevel]++;
 
-        var elapsedTicks = tStateCount - m_lastTStateCount;
-        if (elapsedTicks < TicksPerSample)
+        m_ticksUntilSample -= tStateCount;
+        if (m_ticksUntilSample > 0)
             return; // Not enough time elapsed - Keep collecting speaker states.
 
         // We've collected enough samples for averaging to occur.
-        m_lastTStateCount += TicksPerSample;
+        m_ticksUntilSample += TicksPerSample;
         var sampleValue = 0.0;
         var sampleCount = 0.0;
         for (var i = 0; i < m_soundLevels.Length; i++)

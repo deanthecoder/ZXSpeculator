@@ -168,7 +168,7 @@ public partial class CPU : ViewModelBase
         m_TStatesSinceInterrupt += TStates;
             
         // Record speaker state.
-        m_soundHandler?.SampleSpeakerState(TStatesSinceCpuStart);
+        m_soundHandler?.SampleSpeakerState(TStates);
 
         // Screen build-up.
         var scanline = m_TStatesSinceInterrupt / 224;

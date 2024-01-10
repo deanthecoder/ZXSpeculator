@@ -236,10 +236,10 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
             return;
         
         // Sounds.
-        var speakerState = (byte)((b & 0x18) >> 3);
+        var speakerState = (byte)((b & 0x10) >> 3);
         if (m_tapeSignal.HasValue)
         {
-            // Tape loading is active, so ensure the sound it piped out.
+            // Tape loading is active, so ensure the sound is piped out.
             speakerState = (byte)((speakerState & 0xfe) + (m_tapeSignal.Value ? 1 : 0));
         }
         

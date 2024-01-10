@@ -9,8 +9,6 @@
 //
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
-using Speculator.Core.Extensions;
-
 namespace Speculator.Core;
 
 public class Alu

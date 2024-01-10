@@ -23,11 +23,12 @@ public class SoundDevice
     private readonly int[] m_buffers;
     private readonly int m_sampleRate;
     private bool m_isSoundEnabled = true;
+    private byte m_lastWrittenSample;
 
     /// <summary>
     /// Data received from the CPU, copied into m_transferBuffer for transfer to the sound card.
     /// </summary>
-    private readonly List<byte> m_cpuBuffer = new List<byte>(8192);
+    private readonly List<byte> m_cpuBuffer = new List<byte>(4096);
 
     /// <summary>
     /// The number of device buffers we can queue.
@@ -38,7 +39,7 @@ public class SoundDevice
     /// Fixed buffer for interop with the sound card. Used to fill the device buffers.
     /// </summary>
     private readonly byte[] m_transferBuffer;
-
+    
     public SoundDevice(int sampleHz)
     {
         m_sampleRate = sampleHz;
@@ -52,11 +53,17 @@ public class SoundDevice
         m_buffers = AL.GenBuffers(BufferCount);
         m_source = AL.GenSource();
 
-        m_transferBuffer = new byte[m_sampleRate / (20 * BufferCount)];
+        // Enough data for 0.1 seconds of play, split between all buffers.
+        var bufferSize = (int)(m_sampleRate * 0.1 / BufferCount);
+        m_transferBuffer = new byte[bufferSize];
     }
 
     public void SoundLoop(Func<bool> isCancelled)
-    { 
+    {
+        // Wait for 'real' sound data to appear.
+        while (!isCancelled() && !IsEnoughDataFromCpuBuffered(BufferCount))
+            Thread.Sleep(10);
+        
         // Pre-fill all buffers with initial data.
         foreach (var bufferId in m_buffers)
             UpdateBufferData(bufferId);
@@ -67,7 +74,6 @@ public class SoundDevice
         CheckSoundError();
 
         var gain = 0.0f;
-
         while (!isCancelled())
         {
             Thread.Sleep(10);
@@ -109,7 +115,7 @@ public class SoundDevice
         Mute();
         AL.SourceStop(m_source);
     }
-    
+
     public void Mute() =>
         AL.Source(m_source, ALSourcef.Gain, 0.0f);
 
@@ -125,16 +131,32 @@ public class SoundDevice
 
     private void UpdateBufferData(int bufferId)
     {
+        int realDataCount;
         lock (m_cpuBuffer)
         {
-            // Pad CPU sound buffer if not filled to capacity.
-            while (!IsEnoughDataFromCpuBuffered())
-                m_cpuBuffer.Add((byte)(m_cpuBuffer.Count > 0 ? m_cpuBuffer[^1] : 0));
-            
             // Move the CPU sound buffer data to the device's buffer.
-            m_cpuBuffer.CopyTo(0, m_transferBuffer, 0, m_transferBuffer.Length);
-            m_cpuBuffer.RemoveRange(0, m_transferBuffer.Length);
+            realDataCount = Math.Min(m_cpuBuffer.Count, m_transferBuffer.Length);
+            if (realDataCount > 0)
+            {
+                m_cpuBuffer.CopyTo(0, m_transferBuffer, 0, realDataCount);
+                m_cpuBuffer.RemoveRange(0, realDataCount);
+            }
+            
+            // Too much data? Crop blank samples (to prevent latency).
+            if (IsEnoughDataFromCpuBuffered(BufferCount + 1))
+            {
+                var isBlankData = true;
+                for (var i = 1; i < m_transferBuffer.Length && isBlankData; i++)
+                    isBlankData = m_cpuBuffer[i] == m_cpuBuffer[0];
+
+                if (isBlankData)
+                    m_cpuBuffer.RemoveRange(0, m_transferBuffer.Length);
+            }
         }
+
+        // Pad transfer buffer if necessary.
+        for (var i = realDataCount; i < m_transferBuffer.Length; i++)
+            m_transferBuffer[i] = m_lastWrittenSample;
 
         // Fill the device buffer with data.
         AL.BufferData(bufferId, ALFormat.Mono8, m_transferBuffer, m_sampleRate);
@@ -147,9 +169,9 @@ public class SoundDevice
 
     public void AddSample(double sampleValue)
     {
-        var sample = (byte)(m_isSoundEnabled ? sampleValue * byte.MaxValue : 0);
+        m_lastWrittenSample = (byte)(m_isSoundEnabled ? sampleValue * byte.MaxValue : 0);
         lock (m_cpuBuffer)
-            m_cpuBuffer.Add(sample);
+            m_cpuBuffer.Add(m_lastWrittenSample);
     }
 
     public void SetEnabled(bool isSoundEnabled)
@@ -164,5 +186,6 @@ public class SoundDevice
     {
         lock (m_cpuBuffer)
             m_cpuBuffer.Clear();
+        m_lastWrittenSample = 0;
     }
 }
