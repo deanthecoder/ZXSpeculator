@@ -20,7 +20,7 @@ public static class ZipExtractor
     {
         // Find the first entry that matches the valid extensions.
         using var zip = ZipFile.Read(zipFile.FullName);
-        var entry = zip.Entries.FirstOrDefault(e => ZxFileIo.FileFilters.Any(ext => ext.Trim('*').Equals(Path.GetExtension(e.FileName), StringComparison.OrdinalIgnoreCase)));
+        var entry = zip.Entries.FirstOrDefault(e => ZxFileIo.OpenFilters.Any(ext => ext.Trim('*').Equals(Path.GetExtension(e.FileName), StringComparison.OrdinalIgnoreCase)));
 
         if (entry == null)
         {

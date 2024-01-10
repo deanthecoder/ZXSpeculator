@@ -72,8 +72,13 @@ public class ZxSpectrum : IDisposable
     
     public ZxSpectrum LoadRom(FileInfo romFile)
     {
-        using var _ = PortHandler.CreateKeyBlocker();
         new ZxFileIo(TheCpu, TheDisplay, TheTapeLoader).LoadFile(romFile);
+        return this;
+    }
+    
+    public ZxSpectrum SaveRom(FileInfo romFile)
+    {
+        new ZxFileIo(TheCpu, TheDisplay, TheTapeLoader).SaveFile(romFile);
         return this;
     }
 }

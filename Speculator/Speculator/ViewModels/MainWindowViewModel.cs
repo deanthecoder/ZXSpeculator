@@ -32,11 +32,39 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 
     public void LoadRom()
     {
-        var command = new FileOpenCommand("Load ROM file", "ROM Files", ZxFileIo.FileFilters);
+        var keyBlocker = Speccy.PortHandler.CreateKeyBlocker();
+        var command = new FileOpenCommand("Load ROM file", "ROM Files", ZxFileIo.OpenFilters);
         command.FileSelected += (_, info) =>
         {
-            Speccy.LoadRom(info);
+            try
+            {
+                Speccy.LoadRom(info);
+            }
+            finally
+            {
+                keyBlocker.Dispose();
+            }
         };
+        command.Cancelled += (_, _) => keyBlocker.Dispose();
+        command.Execute(null);
+    }
+    
+    public void SaveRom()
+    {
+        var keyBlocker = Speccy.PortHandler.CreateKeyBlocker();
+        var command = new FileSaveCommand("Save ROM file", "ROM Files", ZxFileIo.SaveFilters);
+        command.FileSelected += (_, info) =>
+        {
+            try
+            {
+                Speccy.SaveRom(info);
+            }
+            finally
+            {
+                keyBlocker.Dispose();
+            }
+        };
+        command.Cancelled += (_, _) => keyBlocker.Dispose();
         command.Execute(null);
     }
     

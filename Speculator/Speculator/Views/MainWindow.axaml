@@ -27,6 +27,7 @@
 
     <Window.KeyBindings>
         <KeyBinding Command="{Binding LoadRom}" Gesture="{OnPlatform 'ctrl+o', macOS='⌘+o'}" />
+        <KeyBinding Command="{Binding SaveRom}" Gesture="{OnPlatform 'ctrl+s', macOS='⌘+s'}" />
         <KeyBinding Command="{Binding ResetMachine}" Gesture="{OnPlatform 'escape'}" />
     </Window.KeyBindings>
 
@@ -40,8 +41,10 @@
                         </Style>
                     </Menu.Styles>
                     <MenuItem Header="_File">
-                        <MenuItem Header="_Load ROM" Command="{Binding LoadRom}"
+                        <MenuItem Header="_Open..." Command="{Binding LoadRom}"
                                   InputGesture="{OnPlatform 'ctrl+o', macOS='⌘+o'}" />
+                        <MenuItem Header="_Save As..." Command="{Binding SaveRom}"
+                                  InputGesture="{OnPlatform 'ctrl+s', macOS='⌘+s'}" />
                         <Separator />
                         <MenuItem Header="_Exit" Command="{Binding CloseCommand}" />
                     </MenuItem>

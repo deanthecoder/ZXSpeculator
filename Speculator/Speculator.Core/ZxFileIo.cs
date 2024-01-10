@@ -24,7 +24,8 @@ public class ZxFileIo
     private readonly ZxDisplay m_zxDisplay;
     private readonly TapeLoader m_tapeLoader;
     
-    public static string[] FileFilters { get; } = { "*.z80", "*.bin", "*.scr", "*.sna", "*.zip", "*.tap" };
+    public static string[] OpenFilters { get; } = { "*.z80", "*.bin", "*.scr", "*.sna", "*.zip", "*.tap" };
+    public static string[] SaveFilters { get; } = { "*.sna" };
 
     public ZxFileIo(CPU cpu, ZxDisplay zxDisplay, TapeLoader tapeLoader)
     {
@@ -306,7 +307,6 @@ public class ZxFileIo
             stream.WriteByte(m_zxDisplay.BorderAttr);
             for (var i = 16384; i <= 65535; i++)
                 stream.WriteByte(m_cpu.MainMemory.Peek((ushort)i));
-
         }
         finally
         {

@@ -25,6 +25,7 @@ public class FileSaveCommand : CommandBase
     private readonly Func<bool> m_canExecute;
 
     public event EventHandler<FileInfo> FileSelected;
+    public event EventHandler<FileInfo> Cancelled;
 
     public FileSaveCommand(string title, string filterName, string[] filterExtensions, string defaultName = null, Func<bool> canExecute = null)
     {
@@ -65,5 +66,7 @@ public class FileSaveCommand : CommandBase
                                      });
         if (selectedFile != null)
             FileSelected?.Invoke(this, new FileInfo(selectedFile.Path.AbsolutePath));
+        else
+            Cancelled?.Invoke(this, null);
     }
 }

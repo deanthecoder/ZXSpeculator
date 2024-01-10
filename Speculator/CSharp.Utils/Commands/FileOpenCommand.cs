@@ -23,6 +23,7 @@ public class FileOpenCommand : CommandBase
     private readonly string[] m_filterExtensions;
     
     public event EventHandler<FileInfo> FileSelected;
+    public event EventHandler<FileInfo> Cancelled;
 
     public FileOpenCommand(string title, string filterName, string[] filterExtensions)
     {
@@ -57,5 +58,7 @@ public class FileOpenCommand : CommandBase
         var selectedFile = files.FirstOrDefault();
         if (selectedFile != null)
             FileSelected?.Invoke(this, new FileInfo(selectedFile.Path.LocalPath));
+        else
+            Cancelled?.Invoke(this, null);
     }
 }
