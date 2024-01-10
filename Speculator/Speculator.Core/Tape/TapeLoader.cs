@@ -18,8 +18,13 @@ public class TapeLoader
     private int m_currentTapeBlockIndex;
     private List<TapeBlock> m_tapeBlocks;
     private FileInfo m_tapeFile;
-
-    public CPU TheCpu { get; set; }
+    private CPU m_theCpu;
+    
+    public void SetCpu(CPU cpu)
+    {
+        m_theCpu = cpu;
+        m_theCpu.PoweredOff += (_, _) => Stop();
+    }
 
     public void Load(FileInfo tapeFile)
     {
@@ -32,7 +37,7 @@ public class TapeLoader
         if (m_tapeFile?.Exists != true)
         {
             // No tape.
-            m_tapeBlocks = null;
+            Stop();
             return null;
         }
 
@@ -58,8 +63,8 @@ public class TapeLoader
         while (!signal.HasValue && m_tapeFile != null)
         {
             signal = m_tapeBlocks[m_currentTapeBlockIndex]
-                .PopulateTones(TheCpu.TStatesSinceCpuStart)
-                .GetSignal(TheCpu.TStatesSinceCpuStart);
+                .PopulateTones(m_theCpu.TStatesSinceCpuStart)
+                .GetSignal(m_theCpu.TStatesSinceCpuStart);
             
             if (signal != null)
                 continue; // We have a signal.
@@ -70,10 +75,16 @@ public class TapeLoader
                 continue;
             
             // No more tape!
-            m_tapeFile = null;
+            Stop();
             return false;
         }
 
         return signal;
+    }
+
+    private void Stop()
+    {
+        m_tapeBlocks = null;
+        m_tapeFile = null;
     }
 }

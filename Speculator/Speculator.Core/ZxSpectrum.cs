@@ -38,7 +38,7 @@ public class ZxSpectrum : IDisposable
         {
             TStatesPerInterrupt = TStatesPerRenderFrame
         };
-        TheTapeLoader.TheCpu = TheCpu;
+        TheTapeLoader.SetCpu(TheCpu);
         TheDebugger = new Debugger.Debugger(TheCpu);
 
         TheCpu.RenderScanline += TheDisplay.OnRenderScanline;

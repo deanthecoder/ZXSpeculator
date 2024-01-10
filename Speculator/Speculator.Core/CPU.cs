@@ -30,6 +30,8 @@ public partial class CPU : ViewModelBase
     private bool m_isDebuggerActive;
     private int m_previousScanline;
 
+    public event EventHandler PoweredOff;
+
     public const double TStatesPerSecond = 3494400;
     public long TStatesSinceCpuStart { get; private set; }
 
@@ -87,6 +89,7 @@ public partial class CPU : ViewModelBase
 
     public void PowerOffAsync()
     {
+        PoweredOff?.Invoke(this, EventArgs.Empty);
         m_shutdownRequested = true;
     }
 
