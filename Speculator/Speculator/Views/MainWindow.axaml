@@ -134,13 +134,22 @@
                 </Grid>
             </Grid>
 
-            <Image Grid.Row="1" Grid.Column="0"
-                   Source="{Binding Display.Bitmap}" Loaded="OnScreenBitmapLoaded">
-                <Image.RenderTransform>
-                    <ScaleTransform ScaleX="4" ScaleY="1"/>
-                </Image.RenderTransform>
-            </Image>
-
+            <LayoutTransformControl Grid.Row="1" Grid.Column="0">
+                <LayoutTransformControl.LayoutTransform>
+                    <ScaleTransform ScaleX="4" ScaleY="1" />
+                </LayoutTransformControl.LayoutTransform>
+                <Panel>
+                    <Image Source="{Binding Display.Bitmap}" Loaded="OnScreenBitmapLoaded" />
+                    <Image Source="{Binding Display.Bitmap}"
+                           IsVisible="{Binding IsCrt}"
+                           Opacity="0.4">
+                        <Image.Effect>
+                            <BlurEffect Radius="0.1"/>
+                        </Image.Effect>
+                    </Image>
+                </Panel>
+            </LayoutTransformControl>
+            
             <views:DebugPane DataContext="{Binding Speccy.TheDebugger}"
                              Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"
                              IsVisible="{Binding IsVisible}" />
