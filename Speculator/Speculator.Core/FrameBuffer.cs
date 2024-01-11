@@ -22,10 +22,10 @@ public static class FrameBuffer
         return new Span<byte>(framePtr + offset, bytesPerPixel);
     }
 
-    public unsafe static void SetPixel(byte* framePtr, int framerBufferStride, int x, int y, Color color)
+    public unsafe static void SetPixel(byte* framePtr, int framerBufferStride, int x, int y, Color color, double f = 1.0)
     {
         var pixel = GetPixel(framePtr, framerBufferStride, x, y);
-        var alpha = color.A / 255.0;
+        var alpha = color.A / 255.0 * f;
         pixel[0] = (byte)(color.R * alpha);
         pixel[1] = (byte)(color.G * alpha);
         pixel[2] = (byte)(color.B * alpha);

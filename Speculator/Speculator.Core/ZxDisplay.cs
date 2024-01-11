@@ -26,21 +26,21 @@ public class ZxDisplay
     private const int BottomMargin = 24;
     private const int WriteableWidth = 256;
     private const int WritableHeight = 192;
+    private const int FramesPerFlash = 16;
+    private int m_flashFrameCount;
+    private bool m_isFlashing;
+    private bool m_isCrt = true;
 
     /// <summary>
     /// Buffer of pixels, each byte a palette index.
     /// </summary>
     private readonly byte[][] m_screenBuffer = Enumerable.Range(0, TopMargin + WritableHeight + BottomMargin).Select(_ => new byte[LeftMargin + WriteableWidth + RightMargin]).ToArray();
 
-    private const int FramesPerFlash = 16;
-    private int m_flashFrameCount;
-    private bool m_isFlashing;
-    
     /// <summary>
     /// Used to prevent unnecessary UI screen refreshes.
     /// </summary>
     private bool m_didPixelsChange;
-
+    
     private static readonly List<Color> Colors = new List<Color>
     {
         Color.FromRgb(0x00, 0x00, 0x00),  // Black
@@ -61,9 +61,21 @@ public class ZxDisplay
         Color.FromRgb(0xFF, 0xFF, 0xFF)   // Bright White
     };
 
-    public WriteableBitmap Bitmap { get; } = new WriteableBitmap(new PixelSize(LeftMargin + WriteableWidth + RightMargin, TopMargin + WritableHeight + BottomMargin), new Vector(96, 96), PixelFormat.Rgba8888);
+    public WriteableBitmap Bitmap { get; } = new WriteableBitmap(new PixelSize(LeftMargin + WriteableWidth + RightMargin, (TopMargin + WritableHeight + BottomMargin) * 4), new Vector(96, 96), PixelFormat.Rgba8888);
 
     public byte BorderAttr { get; set; }
+
+    public bool IsCrt
+    {
+        get => m_isCrt;
+        set
+        {
+            if (m_isCrt == value)
+                return;
+            m_isCrt = value;
+            m_didPixelsChange = true;
+        }
+    }
 
     public event EventHandler Refreshed;
 
@@ -160,11 +172,46 @@ public class ZxDisplay
         {
             var framePtr = (byte*)frameBuffer.Address;
             var framerBufferStride = frameBuffer.RowBytes;
+            var w = m_screenBuffer[0].Length;
+            var h = m_screenBuffer.Length;
 
-            for (var y = 0; y < m_screenBuffer.Length; y++)
+            if (IsCrt)
             {
-                for (var x = 0; x < m_screenBuffer[0].Length; x++)
-                    FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y, Colors[m_screenBuffer[y][x]]);
+                // Software pixel shader.
+                for (var y = 0; y < h; y++)
+                {
+                    var row = m_screenBuffer[y];
+                    var v = (y - h * 0.5) / h;
+                    v *= v;
+                    for (var x = 0; x < w; x++)
+                    {
+                        var color = Colors[row[x]];
+                        var u = (x - w * 0.5) / w;
+                        var vignette = u * u + v;
+                        vignette *= vignette * vignette;
+                        vignette = 1.0 - vignette * 2.0;
+                        FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y * 4, color, vignette);
+                        FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y * 4 + 1, color, vignette);
+                        FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y * 4 + 2, color, vignette);
+                        FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y * 4 + 3, color, 0.85 * vignette);
+                    }
+                }
+            }
+            else
+            {
+                // Straight blit - No FX.
+                for (var y = 0; y < h; y++)
+                {
+                    var row = m_screenBuffer[y];
+                    for (var x = 0; x < w; x++)
+                    {
+                        var color = Colors[row[x]];
+                        FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y * 4, color);
+                        FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y * 4 + 1, color);
+                        FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y * 4 + 2, color);
+                        FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y * 4 + 3, color);
+                    }
+                }
             }
         }
 

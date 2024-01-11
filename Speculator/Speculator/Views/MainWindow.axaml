@@ -50,6 +50,19 @@
                     </MenuItem>
 
                     <MenuItem Header="_Hardware">
+                        <MenuItem Header="Display">
+                            <MenuItem Header="CRT" Command="{Binding ToggleCrt}">
+                                <MenuItem.Icon>
+                                    <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding IsCrt}" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                            <MenuItem Header="Standard" Command="{Binding ToggleCrt}">
+                                <MenuItem.Icon>
+                                    <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding !IsCrt}" />
+                                </MenuItem.Icon>
+                            </MenuItem>
+                        </MenuItem>
+                        
                         <MenuItem Header="Sound" IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}">
                             <MenuItem Header="Enabled" Command="{Binding ToggleSound}">
                                 <MenuItem.Icon>
@@ -122,7 +135,11 @@
             </Grid>
 
             <Image Grid.Row="1" Grid.Column="0"
-                   Source="{Binding Display.Bitmap}" Loaded="OnScreenBitmapLoaded" />
+                   Source="{Binding Display.Bitmap}" Loaded="OnScreenBitmapLoaded">
+                <Image.RenderTransform>
+                    <ScaleTransform ScaleX="4" ScaleY="1"/>
+                </Image.RenderTransform>
+            </Image>
 
             <views:DebugPane DataContext="{Binding Speccy.TheDebugger}"
                              Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"

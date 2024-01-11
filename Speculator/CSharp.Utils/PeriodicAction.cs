@@ -41,10 +41,17 @@ public class PeriodicAction : IDisposable
     {
         m_task ??= Task.Run(() =>
         {
-            while (true)
+            try
             {
-                m_action();
-                Thread.Sleep((int)m_period.TotalMilliseconds);
+                while (true)
+                {
+                    m_action();
+                    Thread.Sleep((int)m_period.TotalMilliseconds);
+                }
+            }
+            catch (TaskCanceledException)
+            {
+                // This is ok.
             }
         }, m_tokenSource.Token);
         return this;

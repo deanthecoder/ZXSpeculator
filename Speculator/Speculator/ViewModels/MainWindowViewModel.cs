@@ -24,6 +24,16 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     public ZxSpectrum Speccy { get; }
     public ZxDisplay Display { get; }
     public bool IsFullThrottle { get; private set; }
+    
+    public bool IsCrt
+    {
+        get => Display.IsCrt;
+        private set
+        {
+            Display.IsCrt = value;
+            OnPropertyChanged();
+        }
+    }
 
     public MainWindowViewModel()
     {
@@ -83,6 +93,9 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 
     public void CloseCommand() =>
         Application.Current.GetMainWindow().Close();
+
+    public void ToggleCrt() =>
+        IsCrt = !IsCrt;
 
     public void ToggleSound()
     {
