@@ -7,11 +7,16 @@ ZX Speculator is a ZX Spectrum 48K emulator, written in C#. It leverages the [Av
 ## Features
 - **Platform Independent**: Built using [Avalonia](https://avaloniaui.net/), ensuring compatibility across various platforms.
 - **File Format Support**: Compatible with .z80, .bin, .scr, .tap, and .sna files.
-- **Integrated Debugger**: Comes with a built-in debugger for examination of the Z80 CPU state, including step-through instruction capabilities.
-- **Sound Libraries**: Utilizes [OpanAL](https://www.openal.org/) on Mac and Windows for sound emulation.
+- **Integrated Debugger**: Comes with a built-in debugger for examination of the Z80 CPU state, including:
+  - Instruction stepping.
+  - Breakpoints.
+  - Instruction history.
+- **Sound Libraries**: Utilizes [OpenAL](https://www.openal.org/) on Mac and Windows for sound emulation.
+- **Display**: Optional CRT TV effect.
+- **Joysticks**: Kempston and Cursor joystick support.
 
 ## Development and Testing
-Developed on a Mac environment, ZX Speculator is also tested on Windows, albeit with limited scope. The project passes _nearly_ all the ZEXDOC tests but does not emulate memory cycles and other aspects with 100% accuracy.
+Developed on a Mac environment, ZX Speculator is also tested on Windows, albeit with limited scope, and passes all the ZEXDOC tests and FUSE emulator tests.
 
 ![Jetpac published by Ultimate Play the Game](img/Jetpac.png?raw=true "Jetpac")
 
@@ -28,7 +33,7 @@ The project is provided as C# source code:
 
 ### Loading .tap Files
 1. Type `Load ""` in BASIC.
-2. Use File->Open to load the .tap file.
+2. The File->Open dialog will automatically open, allowing a .tap file to be specified.
 3. Enjoy the loading experience.
 
 ## Contribution and Improvements
