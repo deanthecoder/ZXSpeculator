@@ -61,7 +61,7 @@ public class SoundDevice
     public void SoundLoop(Func<bool> isCancelled)
     {
         // Wait for 'real' sound data to appear.
-        while (!isCancelled() && !IsEnoughDataFromCpuBuffered(BufferCount))
+        while (!isCancelled() && m_cpuBuffer.Count < m_transferBuffer.Length * BufferCount)
             Thread.Sleep(10);
         
         // Pre-fill all buffers with initial data.
@@ -125,40 +125,33 @@ public class SoundDevice
         if (err != ALError.NoError)
             Logger.Instance.Error($"Sound device error: {err}");
     }
-    
-    private bool IsEnoughDataFromCpuBuffered(int bufferCountToFill = 1) =>
-        m_cpuBuffer.Count >= m_transferBuffer.Length * bufferCountToFill;
 
     private void UpdateBufferData(int bufferId)
     {
-        int realDataCount;
+        var dstIndex = 0;
         lock (m_cpuBuffer)
         {
+            // Compensate if sound data is generated faster than we can consume it.
+            var excessBytes = m_cpuBuffer.Count - BufferCount * m_transferBuffer.Length;
+            excessBytes = Math.Max(0, excessBytes);
+            var speedUp = 1.0 + 0.4 * excessBytes / m_transferBuffer.Length;
+
             // Move the CPU sound buffer data to the device's buffer.
-            realDataCount = Math.Min(m_cpuBuffer.Count, m_transferBuffer.Length);
-            if (realDataCount > 0)
+            var srcIndex = 0.0;
+            while (srcIndex < m_cpuBuffer.Count && dstIndex < m_transferBuffer.Length)
             {
-                m_cpuBuffer.CopyTo(0, m_transferBuffer, 0, realDataCount);
-                m_cpuBuffer.RemoveRange(0, realDataCount);
+                m_transferBuffer[dstIndex++] = m_cpuBuffer[(int)srcIndex];
+                srcIndex += speedUp;
             }
             
-            // Too much data? Crop blank samples (to prevent latency).
-            if (IsEnoughDataFromCpuBuffered(BufferCount + 1))
-            {
-                var isBlankData = true;
-                for (var i = 1; i < m_transferBuffer.Length && isBlankData; i++)
-                    isBlankData = m_cpuBuffer[i] == m_cpuBuffer[0];
-
-                if (isBlankData)
-                    m_cpuBuffer.RemoveRange(0, m_transferBuffer.Length);
-            }
+            m_cpuBuffer.RemoveRange(0, (int)srcIndex);
         }
 
         // Pad transfer buffer if necessary.
-        for (var i = realDataCount; i < m_transferBuffer.Length; i++)
+        for (var i = dstIndex; i < m_transferBuffer.Length; i++)
             m_transferBuffer[i] = m_lastWrittenSample;
 
-        // Fill the device buffer with data.
+        // Load the device buffer with data.
         AL.BufferData(bufferId, ALFormat.Mono8, m_transferBuffer, m_sampleRate);
         CheckSoundError();
 
@@ -166,7 +159,7 @@ public class SoundDevice
         AL.SourceQueueBuffer(m_source, bufferId);
         CheckSoundError();
     }
-
+    
     public void AddSample(double sampleValue)
     {
         m_lastWrittenSample = (byte)(m_isSoundEnabled ? sampleValue * byte.MaxValue : 0);

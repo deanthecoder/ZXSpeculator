@@ -97,21 +97,12 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     public void ToggleCrt() =>
         IsCrt = !IsCrt;
 
-    public void ToggleSound()
-    {
+    public void ToggleSound() =>
         Speccy.SoundHandler.IsEnabled = !Speccy.SoundHandler.IsEnabled;
-        
-        if (Speccy.SoundHandler.IsEnabled && IsFullThrottle)
-            ToggleFullThrottle(); // Enabling sound turns off full throttle.
-    }
 
     public void ToggleFullThrottle()
     {
         IsFullThrottle = !IsFullThrottle;
-        
-        if (IsFullThrottle)
-            Speccy.SoundHandler.IsEnabled = false; // Full throttle turns off sound.
-        
         OnPropertyChanged(nameof(IsFullThrottle));
         Speccy.TheCpu.FullThrottle = IsFullThrottle;
     }
