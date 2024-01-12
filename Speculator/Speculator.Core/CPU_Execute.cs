@@ -2108,11 +2108,11 @@ public partial class CPU
                 return instruction.TStateCount;
             case Z80Instructions.InstructionID.RLD:
             {
-                int valueAtHL = MainMemory.Peek(TheRegisters.Main.HL);
-                var newValueAtHL = ((valueAtHL & 0x0f) << 4) + (TheRegisters.Main.A & 0x0f);
-                var newA = (TheRegisters.Main.A & 0xf0) + ((valueAtHL & 0xf0) >> 4);
+                int valueAtHl = MainMemory.Peek(TheRegisters.Main.HL);
+                var newValueAtHl = ((valueAtHl & 0x0f) << 4) + (TheRegisters.Main.A & 0x0f);
+                var newA = (TheRegisters.Main.A & 0xf0) + ((valueAtHl & 0xf0) >> 4);
                 TheRegisters.Main.A = (byte)newA;
-                MainMemory.Poke(TheRegisters.Main.HL, (byte)newValueAtHL);
+                MainMemory.Poke(TheRegisters.Main.HL, (byte)newValueAtHl);
 
                 TheRegisters.SignFlag = !Alu.IsBytePositive(TheRegisters.Main.A);
                 TheRegisters.ZeroFlag = TheRegisters.Main.A == 0;
@@ -2124,11 +2124,11 @@ public partial class CPU
             }
             case Z80Instructions.InstructionID.RRD:
             {
-                int valueAtHL = MainMemory.Peek(TheRegisters.Main.HL);
-                var newValueAtHL = ((TheRegisters.Main.A & 0x0f) << 4) + ((valueAtHL & 0xf0) >> 4);
-                var newA = (TheRegisters.Main.A & 0xf0) + (valueAtHL & 0x0f);
+                int valueAtHl = MainMemory.Peek(TheRegisters.Main.HL);
+                var newValueAtHl = ((TheRegisters.Main.A & 0x0f) << 4) + ((valueAtHl & 0xf0) >> 4);
+                var newA = (TheRegisters.Main.A & 0xf0) + (valueAtHl & 0x0f);
                 TheRegisters.Main.A = (byte)newA;
-                MainMemory.Poke(TheRegisters.Main.HL, (byte)newValueAtHL);
+                MainMemory.Poke(TheRegisters.Main.HL, (byte)newValueAtHl);
 
                 TheRegisters.SignFlag = !Alu.IsBytePositive(TheRegisters.Main.A);
                 TheRegisters.ZeroFlag = TheRegisters.Main.A == 0;

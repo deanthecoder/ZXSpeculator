@@ -15,7 +15,7 @@ namespace Speculator.Core;
 
 public class Instruction
 {
-    public Instruction(Z80Instructions.InstructionID id, string mnemonicTemplate, string hexTemplate, int TStateCount = 0)
+    public Instruction(Z80Instructions.InstructionID id, string mnemonicTemplate, string hexTemplate, int tStateCount = 0)
     {
         Id = id;
         MnemonicTemplate = mnemonicTemplate;
@@ -24,7 +24,7 @@ public class Instruction
         Debug.Assert(!hexTemplate.Contains("nn"), "Invalid hex template. (Should be 'n n'?)");
         HexTemplate = hexTemplate;
         ByteCount = (byte)HexTemplate.Split(' ').Length;
-        this.TStateCount = TStateCount;
+        this.TStateCount = tStateCount;
     }
 
     public string MnemonicTemplate { get; }

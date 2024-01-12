@@ -60,13 +60,13 @@ public class ZxFileIo
                 return;
             }
             case ".bin":
-                LoadBIN(fileInfo);
+                LoadBin(fileInfo);
                 return;
             case ".sna":
-                LoadSNA(fileInfo);
+                LoadSna(fileInfo);
                 return;
             case ".scr":
-                LoadSCR(fileInfo);
+                LoadScr(fileInfo);
                 return;
             case ".z80":
                 LoadZ80(fileInfo);
@@ -224,7 +224,7 @@ public class ZxFileIo
         return false;
     }
 
-    private void LoadSCR(FileInfo file) =>
+    private void LoadScr(FileInfo file) =>
         m_cpu.MainMemory.LoadData(file.ReadAllBytes(), ZxDisplay.ScreenBase);
 
     public void SaveFile(FileInfo file)
@@ -235,13 +235,13 @@ public class ZxFileIo
             switch (file.Extension)
             {
                 case ".sna":
-                    SaveSNA(file);
+                    SaveSna(file);
                     return;
             }
         }
     }
     
-    private void LoadSNA(FileInfo file)
+    private void LoadSna(FileInfo file)
     {
         using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
         {
@@ -256,8 +256,8 @@ public class ZxFileIo
             m_cpu.TheRegisters.Main.BC = ReadZxWord(stream);
             m_cpu.TheRegisters.IY = ReadZxWord(stream);
             m_cpu.TheRegisters.IX = ReadZxWord(stream);
-            var IFF = (byte)stream.ReadByte();
-            m_cpu.TheRegisters.IFF1 = m_cpu.TheRegisters.IFF2 = (IFF & 0x02) != 0;
+            var iff = (byte)stream.ReadByte();
+            m_cpu.TheRegisters.IFF1 = m_cpu.TheRegisters.IFF2 = (iff & 0x02) != 0;
             m_cpu.TheRegisters.R = (byte)stream.ReadByte();
             m_cpu.TheRegisters.Main.AF = ReadZxWord(stream);
             m_cpu.TheRegisters.SP = ReadZxWord(stream);
@@ -275,13 +275,13 @@ public class ZxFileIo
         return (ushort)(stream.ReadByte() + (stream.ReadByte() << 8));
     }
 
-    private static void WriteSNAWord(Stream stream, int n)
+    private static void WriteSnaWord(Stream stream, int n)
     {
         stream.WriteByte((byte)(n & 0x00FF));
         stream.WriteByte((byte)(n >> 8 & 0xFF));
     }
 
-    private void SaveSNA(FileInfo file)
+    private void SaveSna(FileInfo file)
     {
         using var stream = new FileStream(file.FullName, FileMode.Create, FileAccess.Write);
         try
@@ -290,19 +290,19 @@ public class ZxFileIo
             m_cpu.MainMemory.Poke(m_cpu.TheRegisters.SP, m_cpu.TheRegisters.PC);
 
             stream.WriteByte(m_cpu.TheRegisters.I);
-            WriteSNAWord(stream, m_cpu.TheRegisters.Alt.HL);
-            WriteSNAWord(stream, m_cpu.TheRegisters.Alt.DE);
-            WriteSNAWord(stream, m_cpu.TheRegisters.Alt.BC);
-            WriteSNAWord(stream, m_cpu.TheRegisters.Alt.AF);
-            WriteSNAWord(stream, m_cpu.TheRegisters.Main.HL);
-            WriteSNAWord(stream, m_cpu.TheRegisters.Main.DE);
-            WriteSNAWord(stream, m_cpu.TheRegisters.Main.BC);
-            WriteSNAWord(stream, m_cpu.TheRegisters.IY);
-            WriteSNAWord(stream, m_cpu.TheRegisters.IX);
+            WriteSnaWord(stream, m_cpu.TheRegisters.Alt.HL);
+            WriteSnaWord(stream, m_cpu.TheRegisters.Alt.DE);
+            WriteSnaWord(stream, m_cpu.TheRegisters.Alt.BC);
+            WriteSnaWord(stream, m_cpu.TheRegisters.Alt.AF);
+            WriteSnaWord(stream, m_cpu.TheRegisters.Main.HL);
+            WriteSnaWord(stream, m_cpu.TheRegisters.Main.DE);
+            WriteSnaWord(stream, m_cpu.TheRegisters.Main.BC);
+            WriteSnaWord(stream, m_cpu.TheRegisters.IY);
+            WriteSnaWord(stream, m_cpu.TheRegisters.IX);
             stream.WriteByte((byte)(m_cpu.TheRegisters.IFF2 ? 0x02 : 0x00));
             stream.WriteByte(m_cpu.TheRegisters.R);
-            WriteSNAWord(stream, m_cpu.TheRegisters.Main.AF);
-            WriteSNAWord(stream, m_cpu.TheRegisters.SP);
+            WriteSnaWord(stream, m_cpu.TheRegisters.Main.AF);
+            WriteSnaWord(stream, m_cpu.TheRegisters.SP);
             stream.WriteByte(m_cpu.TheRegisters.IM);
             stream.WriteByte(m_zxDisplay.BorderAttr);
             for (var i = 16384; i <= 65535; i++)
@@ -314,7 +314,7 @@ public class ZxFileIo
         }
     }
 
-    private void LoadBIN(FileInfo file)
+    private void LoadBin(FileInfo file)
     {
         m_cpu.MainMemory.LoadData(file.ReadAllBytes(), 0x8000);
         m_cpu.TheRegisters.PC = 0x8000;

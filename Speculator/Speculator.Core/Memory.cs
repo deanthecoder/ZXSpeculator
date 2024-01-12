@@ -10,6 +10,7 @@
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
 using System.Diagnostics;
+using CSharp.Utils;
 using CSharp.Utils.Extensions;
 
 namespace Speculator.Core;
@@ -63,16 +64,18 @@ public class Memory
 
     public void LoadRom(string systemRom)
     {
-        Debug.WriteLine($"Loading ROM '{systemRom}'.");
-
+        Logger.Instance.Info($"Loading ROM '{systemRom}'.");
         Debug.Assert(File.Exists(systemRom), "ROM file does not exist: " + systemRom);
 
-        var fileStream = File.OpenRead(systemRom);
-        Debug.WriteLine("ROM size: {0} bytes.", fileStream.Length);
-        Debug.Assert(fileStream.Length <= 0xffff, "ROM is too large to fit in memory.");
+        var romBytes = new FileInfo(systemRom).ReadAllBytes();
+        Logger.Instance.Info($"ROM size: {romBytes.Length} bytes.");
+        if (romBytes.Length > 0xffff)
+        {
+            Logger.Instance.Error("ROM is too large to fit in memory.");
+            return;
+        }
 
         Array.Clear(Data);
-        var romBytes = new FileInfo(systemRom).ReadAllBytes();
         m_romSize = romBytes.Length;
         LoadData(romBytes, 0x0000);
     }
