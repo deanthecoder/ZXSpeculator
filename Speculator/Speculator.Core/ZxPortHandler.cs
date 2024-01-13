@@ -37,7 +37,7 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
     /// The keyboard hooks work regardless of whether the app has focus.
     /// This flag ensures we ignore events we don't want.
     /// </summary>
-    public bool HandleKeyEvents
+    private bool HandleKeyEvents
     {
         get => m_handleKeyEvents;
         set
@@ -45,7 +45,9 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
             if (m_handleKeyEvents == value)
                 return;
             m_handleKeyEvents = value;
-            m_realKeysPressed.Clear();
+            
+            lock (m_realKeysPressed)
+                m_realKeysPressed.Clear();
         }
     }
 
@@ -122,17 +124,15 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
 
         if ((portAddress & 0x00FF) == 0xFE)
         {
-            lock (m_realKeysPressed)
-                result = ReadKeyboardPort(portAddress);
+            result = ReadKeyboardPort(portAddress);
 
             // Read from the tape, if loaded.
             m_tapeSignal = m_tapeLoader.GetTapeSignal();
             result = m_tapeSignal == true ? result.SetBit(6) : result.ResetBit(6);
-        } 
+        }
         else if ((portAddress & 0x001F) == 0x1F)
         {
-            lock (m_realKeysPressed)
-                result = ReadJoystickPort();
+            result = ReadJoystickPort();
         }
 
         return result;
@@ -140,98 +140,104 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
 
     private byte ReadJoystickPort()
     {
-        byte b = 0x00;
-        if (IsZxKeyPressed(KeyCode.VcBackQuote))
-            b = (byte)(b | 0x10); // Fire.
-        if (IsZxKeyPressed(KeyCode.VcUp))
-            b = (byte)(b | 0x8);
-        if (IsZxKeyPressed(KeyCode.VcDown))
-            b = (byte)(b | 0x4);
-        if (IsZxKeyPressed(KeyCode.VcLeft))
-            b = (byte)(b | 0x2);
-        if (IsZxKeyPressed(KeyCode.VcRight))
-            b = (byte)(b | 0x1);
-        return b;
+        lock (m_realKeysPressed)
+        {
+            byte b = 0x00;
+            if (IsZxKeyPressed(KeyCode.VcBackQuote))
+                b = (byte)(b | 0x10); // Fire.
+            if (IsZxKeyPressed(KeyCode.VcUp))
+                b = (byte)(b | 0x8);
+            if (IsZxKeyPressed(KeyCode.VcDown))
+                b = (byte)(b | 0x4);
+            if (IsZxKeyPressed(KeyCode.VcLeft))
+                b = (byte)(b | 0x2);
+            if (IsZxKeyPressed(KeyCode.VcRight))
+                b = (byte)(b | 0x1);
+            return b;
+        }
     }
 
     private byte ReadKeyboardPort(ushort portAddress)
     {
-        byte result = 0x00;
-        var hi = (byte)(portAddress >> 8);
-
-        if ((hi & 0x80) == 0)
+        lock (m_realKeysPressed)
         {
-            if (IsZxKeyPressed(KeyCode.VcB)) result |= 1 << 4;
-            if (IsZxKeyPressed(KeyCode.VcN)) result |= 1 << 3;
-            if (IsZxKeyPressed(KeyCode.VcM)) result |= 1 << 2;
-            if (IsZxKeyPressed(KeyCode.VcRightShift)) result |= 1 << 1;
-            if (IsZxKeyPressed(KeyCode.VcSpace)) result |= 1 << 0;
-        } 
+            byte result = 0x00;
+            var hi = (byte)(portAddress >> 8);
 
-        if ((hi & 0x08) == 0)
-        {
-            if (IsZxKeyPressed(KeyCode.Vc1)) result |= 1 << 0;
-            if (IsZxKeyPressed(KeyCode.Vc2)) result |= 1 << 1;
-            if (IsZxKeyPressed(KeyCode.Vc3)) result |= 1 << 2;
-            if (IsZxKeyPressed(KeyCode.Vc4)) result |= 1 << 3;
-            if (IsZxKeyPressed(KeyCode.Vc5)) result |= 1 << 4;
+            if ((hi & 0x80) == 0)
+            {
+                if (IsZxKeyPressed(KeyCode.VcB)) result |= 1 << 4;
+                if (IsZxKeyPressed(KeyCode.VcN)) result |= 1 << 3;
+                if (IsZxKeyPressed(KeyCode.VcM)) result |= 1 << 2;
+                if (IsZxKeyPressed(KeyCode.VcRightShift)) result |= 1 << 1;
+                if (IsZxKeyPressed(KeyCode.VcSpace)) result |= 1 << 0;
+            } 
+
+            if ((hi & 0x08) == 0)
+            {
+                if (IsZxKeyPressed(KeyCode.Vc1)) result |= 1 << 0;
+                if (IsZxKeyPressed(KeyCode.Vc2)) result |= 1 << 1;
+                if (IsZxKeyPressed(KeyCode.Vc3)) result |= 1 << 2;
+                if (IsZxKeyPressed(KeyCode.Vc4)) result |= 1 << 3;
+                if (IsZxKeyPressed(KeyCode.Vc5)) result |= 1 << 4;
+            }
+
+            if ((hi & 0x10) == 0)
+            {
+                if (IsZxKeyPressed(KeyCode.Vc6)) result |= 1 << 4;
+                if (IsZxKeyPressed(KeyCode.Vc7)) result |= 1 << 3;
+                if (IsZxKeyPressed(KeyCode.Vc8)) result |= 1 << 2;
+                if (IsZxKeyPressed(KeyCode.Vc9)) result |= 1 << 1;
+                if (IsZxKeyPressed(KeyCode.Vc0)) result |= 1 << 0;
+            }
+
+            if ((hi & 0x04) == 0)
+            {
+                if (IsZxKeyPressed(KeyCode.VcQ)) result |= 1 << 0;
+                if (IsZxKeyPressed(KeyCode.VcW)) result |= 1 << 1;
+                if (IsZxKeyPressed(KeyCode.VcE)) result |= 1 << 2;
+                if (IsZxKeyPressed(KeyCode.VcR)) result |= 1 << 3;
+                if (IsZxKeyPressed(KeyCode.VcT)) result |= 1 << 4;
+            }
+
+            if ((hi & 0x20) == 0)
+            {
+                if (IsZxKeyPressed(KeyCode.VcY)) result |= 1 << 4;
+                if (IsZxKeyPressed(KeyCode.VcU)) result |= 1 << 3;
+                if (IsZxKeyPressed(KeyCode.VcI)) result |= 1 << 2;
+                if (IsZxKeyPressed(KeyCode.VcO)) result |= 1 << 1;
+                if (IsZxKeyPressed(KeyCode.VcP)) result |= 1 << 0;
+            }
+
+            if ((hi & 0x02) == 0)
+            {
+                if (IsZxKeyPressed(KeyCode.VcA)) result |= 1 << 0;
+                if (IsZxKeyPressed(KeyCode.VcS)) result |= 1 << 1;
+                if (IsZxKeyPressed(KeyCode.VcD)) result |= 1 << 2;
+                if (IsZxKeyPressed(KeyCode.VcF)) result |= 1 << 3;
+                if (IsZxKeyPressed(KeyCode.VcG)) result |= 1 << 4;
+            }
+
+            if ((hi & 0x40) == 0)
+            {
+                if (IsZxKeyPressed(KeyCode.VcH)) result |= 1 << 4;
+                if (IsZxKeyPressed(KeyCode.VcJ)) result |= 1 << 3;
+                if (IsZxKeyPressed(KeyCode.VcK)) result |= 1 << 2;
+                if (IsZxKeyPressed(KeyCode.VcL)) result |= 1 << 1;
+                if (IsZxKeyPressed(KeyCode.VcEnter)) result |= 1 << 0;
+            }
+
+            if ((hi & 0x01) == 0)
+            {
+                if (IsZxKeyPressed(KeyCode.VcLeftShift)) result |= 1 << 0;
+                if (IsZxKeyPressed(KeyCode.VcZ)) result |= 1 << 1;
+                if (IsZxKeyPressed(KeyCode.VcX)) result |= 1 << 2;
+                if (IsZxKeyPressed(KeyCode.VcC)) result |= 1 << 3;
+                if (IsZxKeyPressed(KeyCode.VcV)) result |= 1 << 4;
+            }
+
+            return (byte)~result;
         }
-
-        if ((hi & 0x10) == 0)
-        {
-            if (IsZxKeyPressed(KeyCode.Vc6)) result |= 1 << 4;
-            if (IsZxKeyPressed(KeyCode.Vc7)) result |= 1 << 3;
-            if (IsZxKeyPressed(KeyCode.Vc8)) result |= 1 << 2;
-            if (IsZxKeyPressed(KeyCode.Vc9)) result |= 1 << 1;
-            if (IsZxKeyPressed(KeyCode.Vc0)) result |= 1 << 0;
-        }
-
-        if ((hi & 0x04) == 0)
-        {
-            if (IsZxKeyPressed(KeyCode.VcQ)) result |= 1 << 0;
-            if (IsZxKeyPressed(KeyCode.VcW)) result |= 1 << 1;
-            if (IsZxKeyPressed(KeyCode.VcE)) result |= 1 << 2;
-            if (IsZxKeyPressed(KeyCode.VcR)) result |= 1 << 3;
-            if (IsZxKeyPressed(KeyCode.VcT)) result |= 1 << 4;
-        }
-
-        if ((hi & 0x20) == 0)
-        {
-            if (IsZxKeyPressed(KeyCode.VcY)) result |= 1 << 4;
-            if (IsZxKeyPressed(KeyCode.VcU)) result |= 1 << 3;
-            if (IsZxKeyPressed(KeyCode.VcI)) result |= 1 << 2;
-            if (IsZxKeyPressed(KeyCode.VcO)) result |= 1 << 1;
-            if (IsZxKeyPressed(KeyCode.VcP)) result |= 1 << 0;
-        }
-
-        if ((hi & 0x02) == 0)
-        {
-            if (IsZxKeyPressed(KeyCode.VcA)) result |= 1 << 0;
-            if (IsZxKeyPressed(KeyCode.VcS)) result |= 1 << 1;
-            if (IsZxKeyPressed(KeyCode.VcD)) result |= 1 << 2;
-            if (IsZxKeyPressed(KeyCode.VcF)) result |= 1 << 3;
-            if (IsZxKeyPressed(KeyCode.VcG)) result |= 1 << 4;
-        }
-
-        if ((hi & 0x40) == 0)
-        {
-            if (IsZxKeyPressed(KeyCode.VcH)) result |= 1 << 4;
-            if (IsZxKeyPressed(KeyCode.VcJ)) result |= 1 << 3;
-            if (IsZxKeyPressed(KeyCode.VcK)) result |= 1 << 2;
-            if (IsZxKeyPressed(KeyCode.VcL)) result |= 1 << 1;
-            if (IsZxKeyPressed(KeyCode.VcEnter)) result |= 1 << 0;
-        }
-
-        if ((hi & 0x01) == 0)
-        {
-            if (IsZxKeyPressed(KeyCode.VcLeftShift)) result |= 1 << 0;
-            if (IsZxKeyPressed(KeyCode.VcZ)) result |= 1 << 1;
-            if (IsZxKeyPressed(KeyCode.VcX)) result |= 1 << 2;
-            if (IsZxKeyPressed(KeyCode.VcC)) result |= 1 << 3;
-            if (IsZxKeyPressed(KeyCode.VcV)) result |= 1 << 4;
-        }
-
-        return (byte)~result;
     }
 
     public void Out(byte port, byte b)
@@ -295,7 +301,17 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
     private void SetKeyUp(KeyCode keyCode)
     {
         lock (m_realKeysPressed)
+        {
+            if (keyCode is KeyCode.VcLeftShift or KeyCode.VcRightShift)
+            {
+                // Special case - Key detection only reporting one key up event in this case.
+                m_realKeysPressed.Remove(KeyCode.VcLeftShift);
+                m_realKeysPressed.Remove(KeyCode.VcRightShift);
+                return;
+            }
+            
             m_realKeysPressed.Remove(keyCode);
+        }
     }
 
     public void Dispose() =>
@@ -304,7 +320,7 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
     public IDisposable CreateKeyBlocker() => new KeyBlocker(this);
 
     /// <summary>
-    /// Blocks keyboard input for being registered.
+    /// Blocks keyboard input from being registered.
     /// Useful when we know the Speccy doesn't have focus (like when a file open dialog is active).
     /// </summary>
     private class KeyBlocker : IDisposable
