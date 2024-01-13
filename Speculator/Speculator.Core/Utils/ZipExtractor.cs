@@ -16,6 +16,10 @@ namespace Speculator.Core.Utils;
 
 public static class ZipExtractor
 {
+    /// <summary>
+    /// Return the ROM file extracted from the archive.
+    /// </summary>
+    /// <remarks>The file will automatically be deleted when the app closes.</remarks>
     public static FileInfo ExtractZxFile(FileInfo zipFile)
     {
         // Find the first entry that matches the valid extensions.
@@ -28,23 +32,11 @@ public static class ZipExtractor
             return null;
         }
 
-        // Make a temp folder.
-        var tempFile = Path.GetTempFileName();
-        File.Delete(tempFile);
-        var tempDir = new DirectoryInfo(tempFile);
-        tempDir.Create();
-
-        // Extract the file to the temp folder.
-        entry.Extract(tempDir.FullName, ExtractExistingFileAction.OverwriteSilently);
+        // Extract the file to a temp folder.
+        var tempDir = new TempDirectory();
+        LazyDisposer.Instance.Add(tempDir);
+        entry.Extract(tempDir, ExtractExistingFileAction.OverwriteSilently);
         
-        // Move up a level.
-        var romFile = tempDir.EnumerateFiles().First();
-        var newRomFile = Path.Combine(Path.GetTempPath(), romFile.Name);
-        File.Move(romFile.FullName, newRomFile, true);
-        
-        // Remove the temp folder.
-        tempDir.Delete(true);
-        
-        return new FileInfo(newRomFile);
+        return tempDir.EnumerateFiles().First();
     }
 }

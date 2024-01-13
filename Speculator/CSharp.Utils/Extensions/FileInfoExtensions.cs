@@ -28,9 +28,23 @@ public static class FileInfoExtensions
         return file;
     }
 
-    public static bool ReallyExists(this FileInfo file)
+    public static bool ReallyExists(this FileSystemInfo info)
     {
-        file.Refresh();
-        return file.Exists;
+        info.Refresh();
+        return info.Exists;
+    }
+
+    public static bool TryDelete(this FileInfo file)
+    {
+        try
+        {
+            file.Delete();
+        }
+        catch
+        {
+            // This is ok.
+        }
+
+        return !File.Exists(file.FullName);
     }
 }

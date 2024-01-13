@@ -52,11 +52,9 @@ public class ZxFileIo
         {
             case ".zip":
             {
-                var tempFile = ZipExtractor.ExtractZxFile(fileInfo);
-                if (tempFile?.Exists != true)
-                    return;
-                LoadFileInternal(tempFile);
-                tempFile.Delete();
+                var romFile = ZipExtractor.ExtractZxFile(fileInfo);
+                if (romFile?.ReallyExists() == true)
+                    LoadFileInternal(romFile);
                 return;
             }
             case ".bin":
