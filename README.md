@@ -36,6 +36,15 @@ The project is provided as C# source code:
 2. The File->Open dialog will automatically open, allowing a .tap file to be specified.
 3. Enjoy the loading experience.
 
+### Keyboard
+Move the mouse pointer to the small keyboard icon at the top-right of the screen to see a representation of the ZX Spectrum keyboard.
+![Keyboard](img/Keyboard.png?raw=true "Keyboard")
+Many keys on a modern keyboard are automatically mapped to their ZX Spectrum equivalent.  For example, backspace, square brackets, braces, math symbols etc.
+
+The left shift key maps to **CAPS SHIFT** on the Spectrum, and the right shift key maps to **SYMBOL SHIFT**.
+
+ESCape will reset the machine.
+
 ## Contribution and Improvements
 ZX Speculator is an ongoing project and contributions are welcome. Whether it's improving emulation accuracy, testing on different platforms, or enhancing existing features, your input is valuable (although I can't always promise a fast response, as this is a side project).
 
