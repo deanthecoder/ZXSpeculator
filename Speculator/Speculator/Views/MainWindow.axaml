@@ -33,7 +33,7 @@
 
     <dialogHostAvalonia:DialogHost x:Name="host" OverlayBackground="Black">
         <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,*">
-            <Grid ColumnDefinitions="*,Auto">
+            <Grid ColumnDefinitions="*,Auto,Auto">
                 <Menu Tag="{Binding WindowState, ElementName=self}">
                     <Menu.Styles>
                         <Style Selector="Menu[Tag=FullScreen]">
@@ -120,7 +120,13 @@
                     </MenuItem>
                 </Menu>
 
-                <Grid Grid.Column="1"
+                <avalonia:MaterialIcon Grid.Column="1"
+                                       Width="30" Height="30" Margin="30,0"
+                                       Background="Transparent"
+                                       Kind="KeyboardVariant"
+                                       Loaded="OnKeyboardIconLoaded"/>
+                
+                <Grid Grid.Column="2"
                       Margin="8,0"
                       RenderTransformOrigin="0.5,0.5" ColumnDefinitions="10,10,10,10">
                     <Grid.RenderTransform>
@@ -149,6 +155,23 @@
                     </Image>
                 </Panel>
             </LayoutTransformControl>
+            
+            <Image x:Name="Keyboard"
+                   Grid.Row="1" Grid.Column="0"
+                   VerticalAlignment="Top"
+                   IsVisible="False"
+                   Opacity="0.0"
+                   MaxWidth="1024"
+                   Source="../Assets/Keyboard.png" Margin="24">
+                <Image.Effect>
+                    <DropShadowEffect OffsetX="4" OffsetY="4" BlurRadius="10"/>
+                </Image.Effect>
+                <Image.Transitions>
+                    <Transitions>
+                        <DoubleTransition Property="Opacity" Duration="0:0:0.25" />
+                    </Transitions>
+                </Image.Transitions>
+            </Image>
             
             <views:DebugPane DataContext="{Binding Speccy.TheDebugger}"
                              Grid.Row="0" Grid.Column="1" Grid.RowSpan="2"

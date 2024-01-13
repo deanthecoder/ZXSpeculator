@@ -15,6 +15,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
+using Material.Icons.Avalonia;
 using Speculator.ViewModels;
 // ReSharper disable UnusedParameter.Local
 
@@ -52,4 +53,15 @@ public partial class MainWindow : Window
     
     private void OnAboutDialogClicked(object sender, PointerPressedEventArgs e) =>
         host.CloseDialogCommand.Execute(sender);
+
+    private void OnKeyboardIconLoaded(object sender, RoutedEventArgs e)
+    {
+        var icon = (MaterialIcon)sender;
+        icon.PointerEntered += (_, _) =>
+        {
+            Keyboard.IsVisible = true;
+            Keyboard.Opacity = 1.0;
+        };
+        icon.PointerExited += (_, _) => Keyboard.Opacity = 0.0;
+    }
 }
