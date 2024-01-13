@@ -83,10 +83,14 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
             [K(KeyCode.VcSemicolon)] = K(KeyCode.VcRightShift, KeyCode.VcO),
             [K(KeyCode.VcSemicolon, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.VcZ),
             [K(KeyCode.VcLeftAlt)] = K(KeyCode.VcLeftShift, KeyCode.VcRightShift),
-            [K(KeyCode.Vc7, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.Vc6),
-            [K(KeyCode.Vc8, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.VcB),
-            [K(KeyCode.Vc9, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.Vc8),
-            [K(KeyCode.Vc0, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.Vc9)
+            
+            // Note: Left shift will act like CAPS SHIFT to allow access to the Speccy's
+            // special keys (cursors, GRAPHICS, etc).
+            // Right-shift maps PC keys to Speccy equivalent. (E.g. Round brackets)
+            [K(KeyCode.Vc7, KeyCode.VcRightShift)] = K(KeyCode.VcRightShift, KeyCode.Vc6),
+            [K(KeyCode.Vc8, KeyCode.VcRightShift)] = K(KeyCode.VcRightShift, KeyCode.VcB),
+            [K(KeyCode.Vc9, KeyCode.VcRightShift)] = K(KeyCode.VcRightShift, KeyCode.Vc8),
+            [K(KeyCode.Vc0, KeyCode.VcRightShift)] = K(KeyCode.VcRightShift, KeyCode.Vc9)
         };
 
         // Make right-shift mirror left shift.
@@ -127,7 +131,8 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
         } 
         else if ((portAddress & 0x001F) == 0x1F)
         {
-            result = ReadJoystickPort();
+            lock (m_realKeysPressed)
+                result = ReadJoystickPort();
         }
 
         return result;
@@ -255,21 +260,24 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
         if (!HandleKeyEvents)
             return false;
 
-        if (m_realKeysPressed.Contains(KeyCode.VcLeftMeta) || m_realKeysPressed.Contains(KeyCode.VcRightMeta))
-            return false; // Mac user probably triggering a menu item.
-        
         if (!m_realKeysPressed.Any())
             return false; // Nothing pressed.
+
+        if (m_realKeysPressed.Contains(KeyCode.VcLeftMeta) || m_realKeysPressed.Contains(KeyCode.VcRightMeta))
+            return false; // Mac user probably triggering a menu item.
 
         var zxPressed = m_realKeysPressed.ToList();
         var keyMap = EmulateCursorJoystick ? m_pcToSpectrumKeyMapWithJoystick : m_pcToSpectrumKeyMap;
         foreach (var map in keyMap)
         {
-            if (map.Key.All(o => m_realKeysPressed.Contains(o)))
-            {
-                zxPressed.Remove(key);
-                zxPressed.AddRange(map.Value);
-            }
+            var allKeysPressed = true;
+            for (var i = 0; i < map.Key.Length && allKeysPressed; i++)
+                allKeysPressed = m_realKeysPressed.Contains(map.Key[i]);
+
+            if (!allKeysPressed)
+                continue;
+            zxPressed.Remove(key);
+            zxPressed.AddRange(map.Value);
         }
 
         return zxPressed.Contains(key);
@@ -311,9 +319,7 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
             portHandler.HandleKeyEvents = false;
         }
         
-        public void Dispose()
-        {
+        public void Dispose() =>
             m_portHandler.HandleKeyEvents = m_oldHandleKeyEvents;
-        }
     }
 }
