@@ -14,7 +14,9 @@ using Avalonia;
 using Avalonia.Threading;
 using CSharp.Utils.Commands;
 using CSharp.Utils.Extensions;
+using CSharp.Utils.UI;
 using CSharp.Utils.ViewModels;
+using Material.Icons;
 using Speculator.Core;
 
 namespace Speculator.ViewModels;
@@ -86,7 +88,13 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     }
     
     public void ResetMachine() =>
-        Speccy.TheCpu.ResetAsync();
+        DialogService.Instance.Warn(
+            "Reset Emulator?",
+            "This will simulate a restart of the ZX Spectrum.",
+            "CANCEL",
+            "RESET",
+            () => Speccy.TheCpu.ResetAsync(),
+            MaterialIconKind.Power);
 
     public void ToggleCursorJoystick() =>
         Speccy.PortHandler.EmulateCursorJoystick = !Speccy.PortHandler.EmulateCursorJoystick;

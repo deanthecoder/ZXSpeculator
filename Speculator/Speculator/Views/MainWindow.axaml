@@ -14,7 +14,7 @@
         Icon="/Assets/app.ico"
         Title="ZX Speculator"
         Width="1066" Height="634"
-        x:Name="self">
+        x:Name="Self">
     <Design.DataContext>
         <vm:MainWindowViewModel />
     </Design.DataContext>
@@ -31,10 +31,10 @@
         <KeyBinding Command="{Binding ResetMachine}" Gesture="{OnPlatform 'escape'}" />
     </Window.KeyBindings>
 
-    <dialogHostAvalonia:DialogHost x:Name="host" OverlayBackground="Black">
+    <dialogHostAvalonia:DialogHost x:Name="Host" OverlayBackground="Black">
         <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,*">
             <Grid ColumnDefinitions="*,Auto,Auto">
-                <Menu Tag="{Binding WindowState, ElementName=self}">
+                <Menu Tag="{Binding WindowState, ElementName=Self}">
                     <Menu.Styles>
                         <Style Selector="Menu[Tag=FullScreen]">
                             <Setter Property="IsVisible" Value="False" />
@@ -112,7 +112,7 @@
                     <MenuItem Header="Help">
                         <MenuItem Header="Open Project Page..." Command="{Binding OpenProjectPage}" />
                         <MenuItem Header="About..."
-                                  Command="{Binding OpenDialogCommand, ElementName=host}">
+                                  Command="{Binding OpenDialogCommand, ElementName=Host}">
                             <MenuItem.CommandParameter>
                                 <views:AboutDialogContent PointerPressed="OnAboutDialogClicked" />
                             </MenuItem.CommandParameter>

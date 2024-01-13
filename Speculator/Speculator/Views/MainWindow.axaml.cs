@@ -52,7 +52,7 @@ public partial class MainWindow : Window
     }
     
     private void OnAboutDialogClicked(object sender, PointerPressedEventArgs e) =>
-        host.CloseDialogCommand.Execute(sender);
+        Host.CloseDialogCommand.Execute(sender);
 
     private void OnKeyboardIconLoaded(object sender, RoutedEventArgs e)
     {
