@@ -1,6 +1,6 @@
 [![Twitter URL](https://img.shields.io/twitter/url/https/twitter.com/deanthecoder.svg?style=social&label=Follow%20%40deanthecoder)](https://twitter.com/deanthecoder)
 # ZX Speculator
-ZX Speculator is a ZX Spectrum 48K emulator, written in C#. It leverages the [Avalonia](https://avaloniaui.net/) library for cross-platform capabilities. Initially developed on Mac, but has seen limited testing on Windows.
+ZX Speculator is a ZX Spectrum 48K emulator, written in C#. It leverages the [Avalonia](https://avaloniaui.net/) library for cross-platform capabilities. Initially developed on Mac, but has seen testing on Windows.
 
 ![Main UI](img/MainUI.png?raw=true "Main UI")
 
@@ -16,7 +16,7 @@ ZX Speculator is a ZX Spectrum 48K emulator, written in C#. It leverages the [Av
 - **Joysticks**: Kempston and Cursor joystick support.
 
 ## Development and Testing
-Developed on a Mac environment, ZX Speculator is also tested on Windows, albeit with limited scope, and passes all the ZEXDOC tests and FUSE emulator tests.
+Developed on a Mac environment, ZX Speculator is also tested on Windows and passes all the ZEXDOC tests and FUSE emulator tests.
 
 ![Jetpac published by Ultimate Play the Game](img/Jetpac.png?raw=true "Jetpac")
 
@@ -48,14 +48,13 @@ ESCape will reset the machine.
 ## Contribution and Improvements
 ZX Speculator is an ongoing project and contributions are welcome. Whether it's improving emulation accuracy, testing on different platforms, or enhancing existing features, your input is valuable (although I can't always promise a fast response, as this is a side project).
 
-## Limitations
-- Emulation is not 100% accurate in terms of memory cycles and other specifics.
-- Limited testing on Windows; there may be undiscovered issues - Sound support is known to be a bit sketchy.
-
-## Future Plans
-- Further testing.
-- Refinement of emulation accuracy and performance.
-
+## Useful Resources
+- [The Undocumented Z80 Documented](http://www.z80.info/zip/z80-documented.pdf)
+- [Z80 Undocumented Instructions (World Of Spectrum)](https://worldofspectrum.org/z88forever/dn327/z80undoc.htm)
+- [ClrHome's Z80 Opcode Table](https://clrhome.org/table/#%20)
+- [ZX Spectrum Keyboard Cheat Sheet](http://slady.net/Sinclair-ZX-Spectrum-keyboard/)
+- [Z80 Instruction Exerciser (zexall, zexdoc)](https://mdfs.net/Software/Z80/Exerciser/Spectrum/)
+- [JSMoo Z80 tests](https://github.com/raddad772/jsmoo/tree/main/misc/tests/GeneratedTests/z80)
 ---
 
 Feel free to follow me on Twitter for more updates: [@deanthecoder](https://twitter.com/deanthecoder)
