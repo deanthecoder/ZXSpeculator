@@ -108,6 +108,7 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
         m_pcToSpectrumKeyMapWithJoystick[K(KeyCode.VcLeft)] = K(KeyCode.Vc5);
         m_pcToSpectrumKeyMapWithJoystick[K(KeyCode.VcRight)] = K(KeyCode.Vc8);
         m_pcToSpectrumKeyMapWithJoystick[K(KeyCode.VcBackQuote)] = K(KeyCode.Vc0);
+        m_pcToSpectrumKeyMapWithJoystick[K(KeyCode.VcBackslash)] = K(KeyCode.Vc0);
         
         m_keyboardHook = new SimpleGlobalHook();
         m_keyboardHook.KeyPressed += (_, args) => SetKeyDown(args.Data.KeyCode);
@@ -143,7 +144,7 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
         lock (m_realKeysPressed)
         {
             byte b = 0x00;
-            if (IsZxKeyPressed(KeyCode.VcBackQuote))
+            if (IsZxKeyPressed(KeyCode.VcBackQuote) || IsZxKeyPressed(KeyCode.VcBackslash))
                 b = (byte)(b | 0x10); // Fire.
             if (IsZxKeyPressed(KeyCode.VcUp))
                 b = (byte)(b | 0x8);

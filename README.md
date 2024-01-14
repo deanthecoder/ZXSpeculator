@@ -45,6 +45,11 @@ The left shift key maps to **CAPS SHIFT** on the Spectrum, and the right shift k
 
 ESCape will reset the machine.
 
+### Joystick
+The emulator can minic either a Kempston or Cursor joystick.
+
+In both cases the keyboard arrow keys are used for direction control, and the backslash or backtick keys will 'fire'.
+
 ## Contribution and Improvements
 ZX Speculator is an ongoing project and contributions are welcome. Whether it's improving emulation accuracy, testing on different platforms, or enhancing existing features, your input is valuable (although I can't always promise a fast response, as this is a side project).
 
