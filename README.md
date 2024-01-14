@@ -50,6 +50,14 @@ The emulator can minic either a Kempston or Cursor joystick.
 
 In both cases the keyboard arrow keys are used for direction control, and the backslash or backtick keys will 'fire'.
 
+## Videos
+There's a [YouTube playlist](https://www.youtube.com/playlist?list=PLPA1ndSnAZTwt7cQjDNwwsPjS89Dd3yqv) showing some classic games played in the emulator.
+
+![](img/ManicMiner.png)
+![](img/ChuckieEgg.png)
+![](img/BoulderDash.png)
+![](img/Tapper.png)
+
 ## Contribution and Improvements
 ZX Speculator is an ongoing project and contributions are welcome. Whether it's improving emulation accuracy, testing on different platforms, or enhancing existing features, your input is valuable (although I can't always promise a fast response, as this is a side project).
 
