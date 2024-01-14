@@ -39,7 +39,7 @@ The project is provided as C# source code:
 ### Keyboard
 Move the mouse pointer to the small keyboard icon at the top-right of the screen to see a representation of the ZX Spectrum keyboard.
 ![Keyboard](img/Keyboard.png?raw=true "Keyboard")
-Many keys on a modern keyboard are automatically mapped to their ZX Spectrum equivalent.  For example, backspace, square brackets, braces, math symbols etc.
+Many keys on a modern keyboard are automatically mapped to their ZX Spectrum equivalent.  For example, backspace, quotes, math symbols etc.
 
 The left shift key maps to **CAPS SHIFT** on the Spectrum, and the right shift key maps to **SYMBOL SHIFT**.
 

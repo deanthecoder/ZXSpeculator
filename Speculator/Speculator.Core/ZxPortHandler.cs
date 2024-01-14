@@ -108,7 +108,7 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
         m_pcToSpectrumKeyMapWithJoystick[K(KeyCode.VcLeft)] = K(KeyCode.Vc5);
         m_pcToSpectrumKeyMapWithJoystick[K(KeyCode.VcRight)] = K(KeyCode.Vc8);
         m_pcToSpectrumKeyMapWithJoystick[K(KeyCode.VcBackQuote)] = K(KeyCode.Vc0);
-
+        
         m_keyboardHook = new SimpleGlobalHook();
         m_keyboardHook.KeyPressed += (_, args) => SetKeyDown(args.Data.KeyCode);
         m_keyboardHook.KeyReleased += (_, args) => SetKeyUp(args.Data.KeyCode);
@@ -272,20 +272,26 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
         if (m_realKeysPressed.Contains(KeyCode.VcLeftMeta) || m_realKeysPressed.Contains(KeyCode.VcRightMeta))
             return false; // Mac user probably triggering a menu item.
 
-        var zxPressed = m_realKeysPressed.ToList();
         var keyMap = EmulateCursorJoystick ? m_pcToSpectrumKeyMapWithJoystick : m_pcToSpectrumKeyMap;
-        foreach (var map in keyMap)
+
+        var zxPressed = m_realKeysPressed.ToList();
+        foreach (var comboLength in new[] { 2, 1 }) // Match double key press combos first.
         {
-            var allKeysPressed = true;
-            for (var i = 0; i < map.Key.Length && allKeysPressed; i++)
-                allKeysPressed = m_realKeysPressed.Contains(map.Key[i]);
+            var didRemap = false;
+            var sourceKeyCombo = keyMap.Where(o => o.Key.Length == comboLength);
+            var combosToRemap = sourceKeyCombo.Where(o => o.Key.All(k => m_realKeysPressed.Contains(k)));
+            foreach (var (keyCodes, replacements) in combosToRemap)
+            {
+                foreach (var toRemove in keyCodes)
+                    zxPressed.Remove(toRemove);
+                zxPressed.AddRange(replacements);
+                didRemap = true;
+            }
 
-            if (!allKeysPressed)
-                continue;
-            zxPressed.Remove(key);
-            zxPressed.AddRange(map.Value);
+            if (didRemap)
+                break;
         }
-
+        
         return zxPressed.Contains(key);
     }
 
