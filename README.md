@@ -4,6 +4,10 @@ ZX Speculator is a ZX Spectrum 48K emulator, written in C#. It leverages the [Av
 
 ![Main UI](img/MainUI.png?raw=true "Main UI")
 
+* Download from the [Releases](https://github.com/deanthecoder/ZXSpeculator/releases) section.
+* May require the [.NET Desktop runtime](https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-desktop-7.0.0-windows-x64-installer), if not already installed.
+* Mac users may need to run the following command to unblock the application:<br>`xattr -d com.apple.quarantine /Applications/ZX\ Speculator.app`
+
 ## Features
 - **Platform Independent**: Built using [Avalonia](https://avaloniaui.net/), ensuring compatibility across various platforms.
 - **File Format Support**: Compatible with .z80, .bin, .scr, .tap, and .sna files.
@@ -46,7 +50,7 @@ The left shift key maps to **CAPS SHIFT** on the Spectrum, and the right shift k
 ESCape will reset the machine.
 
 ### Joystick
-The emulator can minic either a Kempston or Cursor joystick.
+The emulator can mimic either a Kempston or Cursor joystick.
 
 In both cases the keyboard arrow keys are used for direction control, and the backslash or backtick keys will 'fire'.
 
