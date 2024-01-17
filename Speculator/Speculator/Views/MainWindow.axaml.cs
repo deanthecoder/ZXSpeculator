@@ -23,6 +23,7 @@ namespace Speculator.Views;
 
 public partial class MainWindow : Window
 {
+    private bool m_isLoaded;
     private MainWindowViewModel ViewModel => (MainWindowViewModel)DataContext;
     
     public MainWindow()
@@ -31,14 +32,24 @@ public partial class MainWindow : Window
 
         Closed += (_, _) => (DataContext as IDisposable)?.Dispose();
     }
-    
-    private void OnScreenBitmapLoaded(object sender, RoutedEventArgs e)
+
+    override protected void OnLoaded(RoutedEventArgs e)
     {
-        if (DataContext == null)
-            return;
+        base.OnLoaded(e);
         
+        if (m_isLoaded)
+            return;
+        m_isLoaded = true;
+
         // Kick the UI to update the screen when the emulator updates it.
-        var action = new Action(() => (sender as Image)?.InvalidateVisual());
+        var action = new Action(() =>
+        {
+            if (AmbientDisplay.IsVisible)
+                AmbientDisplay.InvalidateVisual();
+            MainDisplay.InvalidateVisual();
+            if (CrtOverlay.IsVisible)
+                CrtOverlay.InvalidateVisual();
+        });
         ViewModel.Display.Refreshed += (_, _) =>
         {
             try
@@ -50,7 +61,7 @@ public partial class MainWindow : Window
             }
         };
     }
-    
+
     private void OnAboutDialogClicked(object sender, PointerPressedEventArgs e) =>
         Host.CloseDialogCommand.Execute(sender);
 

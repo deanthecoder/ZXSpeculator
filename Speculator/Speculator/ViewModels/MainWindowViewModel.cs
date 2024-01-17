@@ -23,6 +23,8 @@ namespace Speculator.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase, IDisposable
 {
+    private bool m_isAmbientBlurred;
+    
     public ZxSpectrum Speccy { get; }
     public ZxDisplay Display { get; }
     public bool IsFullThrottle { get; private set; }
@@ -35,6 +37,12 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
             Display.IsCrt = value;
             OnPropertyChanged();
         }
+    }
+
+    public bool IsAmbientBlurred
+    {
+        get => m_isAmbientBlurred;
+        set => SetField(ref m_isAmbientBlurred, value);
     }
 
     public MainWindowViewModel()
@@ -114,6 +122,9 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         OnPropertyChanged(nameof(IsFullThrottle));
         Speccy.TheCpu.FullThrottle = IsFullThrottle;
     }
+
+    public void ToggleAmbientBlur() =>
+        IsAmbientBlurred = !IsAmbientBlurred;
 
     public void OpenProjectPage() => new Uri("https://github.com/deanthecoder/ZXSpeculator").Open();
     
