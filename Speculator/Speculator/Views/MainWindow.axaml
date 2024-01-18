@@ -56,12 +56,12 @@
                         <MenuItem Header="Display">
                             <MenuItem Header="CRT" Command="{Binding ToggleCrt}">
                                 <MenuItem.Icon>
-                                    <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding IsCrt}" />
+                                    <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding Settings.IsCrt}" />
                                 </MenuItem.Icon>
                             </MenuItem>
                             <MenuItem Header="Standard" Command="{Binding ToggleCrt}">
                                 <MenuItem.Icon>
-                                    <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding !IsCrt}" />
+                                    <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding !Settings.IsCrt}" />
                                 </MenuItem.Icon>
                             </MenuItem>
                             <Separator/>
@@ -70,7 +70,7 @@
                                     <BlurEffect Radius="2"/>
                                 </MenuItem.Effect>
                                 <MenuItem.Icon>
-                                    <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding IsAmbientBlurred}" />
+                                    <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding Settings.IsAmbientBlurred}" />
                                 </MenuItem.Icon>
                             </MenuItem>
                         </MenuItem>
@@ -78,12 +78,12 @@
                         <MenuItem Header="Sound" IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}">
                             <MenuItem Header="Enabled" Command="{Binding ToggleSound}">
                                 <MenuItem.Icon>
-                                    <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding Speccy.SoundHandler.IsEnabled}" />
+                                    <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding Settings.IsSoundEnabled}" />
                                 </MenuItem.Icon>
                             </MenuItem>
                             <MenuItem Header="Disabled" Command="{Binding ToggleSound}">
                                 <MenuItem.Icon>
-                                    <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding !Speccy.SoundHandler.IsEnabled}" />
+                                    <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding !Settings.IsSoundEnabled}" />
                                 </MenuItem.Icon>
                             </MenuItem>
                         </MenuItem>
@@ -104,12 +104,12 @@
                         <MenuItem Header="Joysticks">
                             <MenuItem Header="Kempston" Command="{Binding ToggleCursorJoystick}">
                                 <MenuItem.Icon>
-                                    <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding !Speccy.PortHandler.EmulateCursorJoystick}" />
+                                    <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding !Settings.EmulateCursorJoystick}" />
                                 </MenuItem.Icon>
                             </MenuItem>
                             <MenuItem Header="Cursor" Command="{Binding ToggleCursorJoystick}">
                                 <MenuItem.Icon>
-                                    <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding Speccy.PortHandler.EmulateCursorJoystick}"/>
+                                    <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding Settings.EmulateCursorJoystick}"/>
                                 </MenuItem.Icon>
                             </MenuItem>
                         </MenuItem>
@@ -158,7 +158,7 @@
                    Margin="-200,0"
                    Stretch="UniformToFill"
                    Opacity="0.6"
-                   IsVisible="{Binding IsAmbientBlurred}">
+                   IsVisible="{Binding Settings.IsAmbientBlurred}">
                 <Image.Effect>
                     <BlurEffect Radius="200" />
                 </Image.Effect>
@@ -173,7 +173,7 @@
                            Source="{Binding Display.Bitmap}" />
                     <Image x:Name="CrtOverlay"
                            Source="{Binding Display.Bitmap}"
-                           IsVisible="{Binding IsCrt}"
+                           IsVisible="{Binding Settings.IsCrt}"
                            Opacity="0.4">
                         <Image.Effect>
                             <BlurEffect Radius="0.1" />

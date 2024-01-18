@@ -10,10 +10,10 @@
     </PropertyGroup>
     
     <ItemGroup>
-      <PackageReference Include="Avalonia" Version="11.0.6" />
+      <PackageReference Include="Avalonia" Version="11.0.7" />
       <PackageReference Include="DotNetZip" Version="1.16.0" />
       <PackageReference Include="OpenTK.Audio.OpenAL" Version="4.8.2" />
-      <PackageReference Include="SharpHook" Version="5.2.0" />
+      <PackageReference Include="SharpHook" Version="5.2.2" />
     </ItemGroup>
 
     <ItemGroup>

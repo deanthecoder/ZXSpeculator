@@ -14,6 +14,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using CSharp.Utils.Settings;
 using Speculator.ViewModels;
 
 namespace Speculator.Views;
@@ -50,6 +51,8 @@ public partial class App : Application
             {
                 viewModel.Speccy.PortHandler.StartKeyboardHook();
                 viewModel.Speccy.PowerOnAsync();
+
+                desktop.MainWindow.Closed += (_, _) => Settings.Instance.Dispose();
             }
         }
 

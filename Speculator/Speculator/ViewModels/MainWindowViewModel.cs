@@ -23,38 +23,32 @@ namespace Speculator.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase, IDisposable
 {
-    private bool m_isAmbientBlurred;
-    
     public ZxSpectrum Speccy { get; }
     public ZxDisplay Display { get; }
     public bool IsFullThrottle { get; private set; }
-    
-    public bool IsCrt
-    {
-        get => Display.IsCrt;
-        private set
-        {
-            Display.IsCrt = value;
-            OnPropertyChanged();
-        }
-    }
-
-    public bool IsAmbientBlurred
-    {
-        get => m_isAmbientBlurred;
-        set => SetField(ref m_isAmbientBlurred, value);
-    }
+    public Settings Settings => Settings.Instance;
 
     public MainWindowViewModel()
     {
         Display = new ZxDisplay();
         Speccy = new ZxSpectrum(Display).LoadBasicRom();
-
+        Speccy.PortHandler.EmulateCursorJoystick = Settings.EmulateCursorJoystick;
         Speccy.TheCpu.LoadRequested += (_, _) =>
         {
             if (!Speccy.TheTapeLoader.IsLoading)
                 Dispatcher.UIThread.InvokeAsync(LoadRom);
         };
+
+        Settings.PropertyChanged += (_, _) => OnSettingsChanged();
+        OnSettingsChanged();
+        return;
+        
+        void OnSettingsChanged()
+        {
+            Display.IsCrt = Settings.IsCrt;
+            Speccy.PortHandler.EmulateCursorJoystick = Settings.EmulateCursorJoystick;
+            Speccy.SoundHandler.IsEnabled = Settings.IsSoundEnabled;
+        }
     }
 
     public void LoadRom()
@@ -105,16 +99,16 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
             MaterialIconKind.Power);
 
     public void ToggleCursorJoystick() =>
-        Speccy.PortHandler.EmulateCursorJoystick = !Speccy.PortHandler.EmulateCursorJoystick;
+        Settings.EmulateCursorJoystick = !Settings.EmulateCursorJoystick;
 
     public void CloseCommand() =>
         Application.Current.GetMainWindow().Close();
 
     public void ToggleCrt() =>
-        IsCrt = !IsCrt;
+        Settings.IsCrt = !Settings.IsCrt;
 
     public void ToggleSound() =>
-        Speccy.SoundHandler.IsEnabled = !Speccy.SoundHandler.IsEnabled;
+        Settings.IsSoundEnabled = !Settings.IsSoundEnabled;
 
     public void ToggleFullThrottle()
     {
@@ -124,7 +118,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     }
 
     public void ToggleAmbientBlur() =>
-        IsAmbientBlurred = !IsAmbientBlurred;
+        Settings.IsAmbientBlurred = !Settings.IsAmbientBlurred;
 
     public void OpenProjectPage() => new Uri("https://github.com/deanthecoder/ZXSpeculator").Open();
     
