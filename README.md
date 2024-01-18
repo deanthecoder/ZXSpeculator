@@ -1,40 +1,31 @@
 [![Twitter URL](https://img.shields.io/twitter/url/https/twitter.com/deanthecoder.svg?style=social&label=Follow%20%40deanthecoder)](https://twitter.com/deanthecoder)
 # ZX Speculator
-ZX Speculator is a ZX Spectrum 48K emulator, written in C#. It leverages the [Avalonia](https://avaloniaui.net/) library for cross-platform capabilities. Initially developed on Mac, but has seen testing on Windows.
-
+ZX Speculator is a cross-platform ZX Spectrum 48K emulator written in C#.
 ![Main UI](img/MainUI.png?raw=true "Main UI")
 
-* Download from the [Releases](https://github.com/deanthecoder/ZXSpeculator/releases) section.
-* May require the [.NET Desktop runtime](https://dotnet.microsoft.com/download/dotnet/thank-you/runtime-desktop-7.0.0-windows-x64-installer), if not already installed.
-* Mac users may need to run the following command to unblock the application:<br>`xattr -d com.apple.quarantine /Applications/ZX\ Speculator.app`
-
 ## Features
-- **Platform Independent**: Built using [Avalonia](https://avaloniaui.net/), ensuring compatibility across various platforms.
+- **Cross Platfom**: Built using [Avalonia](https://avaloniaui.net/), ensuring compatibility across various platforms.
 - **File Format Support**: Compatible with .z80, .bin, .scr, .tap, and .sna files.
 - **Archive Support**: Load files directly from `.zip` archives.
-- **Integrated Debugger**: Comes with a built-in debugger for examination of the Z80 CPU state, including:
+- **Display**: Optional CRT TV and 'Ambient Blur' effects.
+- **Joysticks**: Kempston and Cursor joystick support.
+- **Sound**: Utilizes [OpenAL](https://www.openal.org/) on Mac and Windows for sound emulation.
+- **Integrated Debugger**: Includes a built-in debugger for examination of the Z80 CPU state, including:
   - Instruction stepping.
   - Breakpoints.
   - Instruction history.
-- **Display**: Optional CRT TV and 'Ambient Blur' effects.
-- **Joysticks**: Kempston and Cursor joystick support.
-- **Sound Libraries**: Utilizes [OpenAL](https://www.openal.org/) on Mac and Windows for sound emulation.
+
+## Download
+* Download from the [Releases](https://github.com/deanthecoder/ZXSpeculator/releases) section.
+* Mac users may need to run the following command to unblock the application:<br>`xattr -d com.apple.quarantine /Applications/ZX\ Speculator.app`
 
 ## Development and Testing
 Developed on a Mac environment, ZX Speculator is also tested on Windows and passes all the ZEXDOC tests and FUSE emulator tests.
-
 ![Jetpac published by Ultimate Play the Game](img/Jetpac.png?raw=true "Jetpac")
 
 ## Getting Started
-### Prerequisites
-- .NET compatible IDE, such as [JetBrains Rider](https://www.jetbrains.com/rider/) or [Visual Studio 2022](https://visualstudio.microsoft.com/vs/).
-- Basic knowledge of C# and emulation concepts.
-
-### Setup
-The project is provided as C# source code:
-1. Clone the repository from GitHub.
-2. Open the project in your preferred IDE.
-3. Build and run the application.
+### Loading Files
+Common ZX Spectrum image files (.z80, .sna, etc) can be opened from the File->Open menu.
 
 ### Loading .tap Files
 1. Type `Load ""` in BASIC.
@@ -51,13 +42,23 @@ The left shift key maps to **CAPS SHIFT** on the Spectrum, and the right shift k
 ESCape will reset the machine.
 
 ### Joystick
-The emulator can mimic either a Kempston or Cursor joystick.
+The emulator will mimic either a Kempston or Cursor joystick.
 
 In both cases the keyboard arrow keys are used for direction control, and the backslash or backtick keys will 'fire'.
 
+## Building From Source
+### Prerequisites
+- .NET compatible IDE, such as [JetBrains Rider](https://www.jetbrains.com/rider/) or [Visual Studio 2022](https://visualstudio.microsoft.com/vs/).
+- Basic knowledge of C# and emulation concepts.
+
+### Setup
+The project is provided as C# source code:
+1. Clone the repository from GitHub.
+2. Open the solution (`Speculator.sln`) in your preferred IDE.
+3. Build and run the application.
+
 ## Videos
 There's a [YouTube playlist](https://www.youtube.com/playlist?list=PLPA1ndSnAZTwt7cQjDNwwsPjS89Dd3yqv) showing some classic games played in the emulator.
-
 ![](img/ManicMiner.png)
 ![](img/ChuckieEgg.png)
 ![](img/BoulderDash.png)
@@ -74,5 +75,4 @@ ZX Speculator is an ongoing project and contributions are welcome. Whether it's 
 - [Z80 Instruction Exerciser (zexall, zexdoc)](https://mdfs.net/Software/Z80/Exerciser/Spectrum/)
 - [JSMoo Z80 tests](https://github.com/raddad772/jsmoo/tree/main/misc/tests/GeneratedTests/z80)
 ---
-
 Feel free to follow me on Twitter for more updates: [@deanthecoder](https://twitter.com/deanthecoder)
