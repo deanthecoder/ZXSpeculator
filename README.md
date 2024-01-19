@@ -64,6 +64,16 @@ There's a [YouTube playlist](https://www.youtube.com/playlist?list=PLPA1ndSnAZTw
 ![](img/BoulderDash.png)
 ![](img/Tapper.png)
 
+## Experiments
+As my other hobby is writing GLSL shaders on [ShaderToy](https://www.shadertoy.com/user/dean_the_coder) (See [here](https://github.com/deanthecoder/GLSLShaderShrinker) for my GLSL Shader Shrinker application), I thought it'd be interesting to try a 'cross over' project.
+
+I've taken inspiration from the [Human Shader](https://humanshader.com/) project and recreated the algorithm using ZX Spectrum BASIC, using this emulator.
+
+Here's the result:
+![](Experiments/HumanShader/Pass2_Final.png)
+I've included a `.sna` snapshot of the code [here](Experiments/HumanShader/HumanShader.sna).
+![](Experiments/HumanShader/Code.png)
+
 ## Contribution and Improvements
 ZX Speculator is an ongoing project and contributions are welcome. Whether it's improving emulation accuracy, testing on different platforms, or enhancing existing features, your input is valuable (although I can't always promise a fast response, as this is a side project).
 
