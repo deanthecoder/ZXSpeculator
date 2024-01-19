@@ -43,7 +43,7 @@
                             <Setter Property="IsVisible" Value="False" />
                         </Style>
                     </Menu.Styles>
-                    <MenuItem Header="_File">
+                    <MenuItem Header="File">
                         <MenuItem Header="_Open..." Command="{Binding LoadRom}"
                                   InputGesture="{OnPlatform 'ctrl+o', macOS='⌘+o'}" />
                         <MenuItem Header="_Save As..." Command="{Binding SaveRom}"
@@ -52,8 +52,8 @@
                         <MenuItem Header="_Exit" Command="{Binding CloseCommand}" />
                     </MenuItem>
 
-                    <MenuItem Header="_Hardware">
-                        <MenuItem Header="Display">
+                    <MenuItem Header="Hardware">
+                        <MenuItem Header="_Display">
                             <MenuItem Header="CRT" Command="{Binding ToggleCrt}">
                                 <MenuItem.Icon>
                                     <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding Settings.IsCrt}" />
@@ -75,7 +75,7 @@
                             </MenuItem>
                         </MenuItem>
                         
-                        <MenuItem Header="Sound" IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}">
+                        <MenuItem Header="_Sound" IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}">
                             <MenuItem Header="Enabled" Command="{Binding ToggleSound}">
                                 <MenuItem.Icon>
                                     <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding Settings.IsSoundEnabled}" />
@@ -88,7 +88,7 @@
                             </MenuItem>
                         </MenuItem>
                         
-                        <MenuItem Header="Speed" IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}">
+                        <MenuItem Header="S_peed" IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}">
                             <MenuItem Header="Accurate" Command="{Binding ToggleFullThrottle}">
                                 <MenuItem.Icon>
                                     <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding !IsFullThrottle}" />
@@ -101,7 +101,7 @@
                             </MenuItem>
                         </MenuItem>
                         
-                        <MenuItem Header="Joysticks">
+                        <MenuItem Header="_Joysticks">
                             <MenuItem Header="Kempston" Command="{Binding ToggleCursorJoystick}">
                                 <MenuItem.Icon>
                                     <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding !Settings.EmulateCursorJoystick}" />
@@ -122,8 +122,8 @@
                     </MenuItem>
 
                     <MenuItem Header="Help">
-                        <MenuItem Header="Open Project Page..." Command="{Binding OpenProjectPage}" />
-                        <MenuItem Header="About..."
+                        <MenuItem Header="_Open Project Page..." Command="{Binding OpenProjectPage}" />
+                        <MenuItem Header="_About..."
                                   Command="{Binding OpenDialogCommand, ElementName=Host}">
                             <MenuItem.CommandParameter>
                                 <views:AboutDialogContent PointerPressed="OnAboutDialogClicked" />
