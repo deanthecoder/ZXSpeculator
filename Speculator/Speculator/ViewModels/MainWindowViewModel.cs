@@ -98,23 +98,23 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
             () => Speccy.TheCpu.ResetAsync(),
             MaterialIconKind.Power);
 
-    public void ToggleCursorJoystick() =>
-        Settings.EmulateCursorJoystick = !Settings.EmulateCursorJoystick;
+    public void SetCursorJoystick(bool b) =>
+        Settings.EmulateCursorJoystick = b;
 
     public void CloseCommand() =>
         Application.Current.GetMainWindow().Close();
 
-    public void ToggleCrt() =>
-        Settings.IsCrt = !Settings.IsCrt;
+    public void SetCrtMode(bool b) =>
+        Settings.IsCrt = b;
 
-    public void ToggleSound() =>
-        Settings.IsSoundEnabled = !Settings.IsSoundEnabled;
+    public void SetEnableSound(bool b) =>
+        Settings.IsSoundEnabled = b;
 
-    public void ToggleFullThrottle()
+    public void SetFullThrottle(bool b)
     {
-        IsFullThrottle = !IsFullThrottle;
+        IsFullThrottle = b;
         OnPropertyChanged(nameof(IsFullThrottle));
-        Speccy.TheCpu.FullThrottle = IsFullThrottle;
+        Speccy.TheCpu.FullThrottle = b;
     }
 
     public void ToggleAmbientBlur() =>

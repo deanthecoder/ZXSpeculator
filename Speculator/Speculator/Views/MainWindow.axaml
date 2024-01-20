@@ -54,12 +54,12 @@
 
                     <MenuItem Header="Hardware">
                         <MenuItem Header="_Display">
-                            <MenuItem Header="CRT" Command="{Binding ToggleCrt}">
+                            <MenuItem Header="CRT" Command="{Binding SetCrtMode}" CommandParameter="True">
                                 <MenuItem.Icon>
                                     <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding Settings.IsCrt}" />
                                 </MenuItem.Icon>
                             </MenuItem>
-                            <MenuItem Header="Standard" Command="{Binding ToggleCrt}">
+                            <MenuItem Header="Standard" Command="{Binding SetCrtMode}" CommandParameter="False">
                                 <MenuItem.Icon>
                                     <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding !Settings.IsCrt}" />
                                 </MenuItem.Icon>
@@ -76,12 +76,12 @@
                         </MenuItem>
                         
                         <MenuItem Header="_Sound" IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}">
-                            <MenuItem Header="Enabled" Command="{Binding ToggleSound}">
+                            <MenuItem Header="Enabled" Command="{Binding SetEnableSound}" CommandParameter="True">
                                 <MenuItem.Icon>
                                     <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding Settings.IsSoundEnabled}" />
                                 </MenuItem.Icon>
                             </MenuItem>
-                            <MenuItem Header="Disabled" Command="{Binding ToggleSound}">
+                            <MenuItem Header="Disabled" Command="{Binding SetEnableSound}" CommandParameter="False">
                                 <MenuItem.Icon>
                                     <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding !Settings.IsSoundEnabled}" />
                                 </MenuItem.Icon>
@@ -89,12 +89,12 @@
                         </MenuItem>
                         
                         <MenuItem Header="S_peed" IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}">
-                            <MenuItem Header="Accurate" Command="{Binding ToggleFullThrottle}">
+                            <MenuItem Header="Accurate" Command="{Binding SetFullThrottle}" CommandParameter="False">
                                 <MenuItem.Icon>
                                     <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding !IsFullThrottle}" />
                                 </MenuItem.Icon>
                             </MenuItem>
-                            <MenuItem Header="Maximum" Command="{Binding ToggleFullThrottle}">
+                            <MenuItem Header="Maximum" Command="{Binding SetFullThrottle}" CommandParameter="True">
                                 <MenuItem.Icon>
                                     <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding IsFullThrottle}" />
                                 </MenuItem.Icon>
@@ -102,12 +102,12 @@
                         </MenuItem>
                         
                         <MenuItem Header="_Joysticks">
-                            <MenuItem Header="Kempston" Command="{Binding ToggleCursorJoystick}">
+                            <MenuItem Header="Kempston" Command="{Binding SetCursorJoystick}" CommandParameter="False">
                                 <MenuItem.Icon>
                                     <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding !Settings.EmulateCursorJoystick}" />
                                 </MenuItem.Icon>
                             </MenuItem>
-                            <MenuItem Header="Cursor" Command="{Binding ToggleCursorJoystick}">
+                            <MenuItem Header="Cursor" Command="{Binding SetCursorJoystick}" CommandParameter="True">
                                 <MenuItem.Icon>
                                     <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding Settings.EmulateCursorJoystick}"/>
                                 </MenuItem.Icon>
