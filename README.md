@@ -70,7 +70,11 @@ As my other hobby is writing GLSL shaders on [ShaderToy](https://www.shadertoy.c
 I've taken inspiration from the [Human Shader](https://humanshader.com/) project and recreated the algorithm using ZX Spectrum BASIC, using this emulator.
 
 Here's the result:
-![](Experiments/HumanShader/Pass2_Final.png)
+![](Experiments/HumanShader/Pass3_AdvancedDither.png)
+Earlier version, with a basic dither:
+![](Experiments/HumanShader/Pass2_BasicDither.png)
+First iteration: Solid blocks:
+![](Experiments/HumanShader/Pass1_Rough.png)
 I've included a `.sna` snapshot of the code [here](Experiments/HumanShader/HumanShader.sna).
 ![](Experiments/HumanShader/Code.png)
 
