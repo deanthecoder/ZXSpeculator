@@ -13,7 +13,16 @@ create_dmg() {
     ARCH=$1
     DMG_NAME="${APP_NAME}_${APP_VERSION}_${ARCH}.dmg"
     VOLUME_NAME="${APP_NAME} ${APP_VERSION_SHORT} (${ARCH})"
-    DMG_TEMP_FOLDER="DMG_temp_${ARCH}"
+
+    # Create (or clear) the temporary directory under the home directory
+    DMG_TEMP_FOLDER="${HOME}/build_temp_${ARCH}"
+    if [ -d "$DMG_TEMP_FOLDER" ]; then
+        echo "Clearing existing temporary folder: $DMG_TEMP_FOLDER"
+        rm -rf "$DMG_TEMP_FOLDER"/*
+    else
+        echo "Creating temporary folder: $DMG_TEMP_FOLDER"
+        mkdir -p "$DMG_TEMP_FOLDER"
+    fi
 
     echo "Creating $ARCH build..."
 
@@ -21,18 +30,18 @@ create_dmg() {
     rm -rf bin/Release/net7.0/${ARCH}/publish/
     dotnet publish -c Release -r ${ARCH} --self-contained true -property:Configuration=Release -p:UseAppHost=true
 
-    # Create the app bundle structure
-    mkdir -p "$BUNDLE_NAME/Contents/MacOS"
-    mkdir -p "$BUNDLE_NAME/Contents/Resources"
+    # Create the app bundle structure in temporary folder
+    mkdir -p "$DMG_TEMP_FOLDER/$BUNDLE_NAME/Contents/MacOS"
+    mkdir -p "$DMG_TEMP_FOLDER/$BUNDLE_NAME/Contents/Resources"
 
     # Move the published files into the app bundle
-    cp -r bin/Release/net7.0/${ARCH}/publish/* "$BUNDLE_NAME/Contents/MacOS/"
+    cp -r bin/Release/net7.0/${ARCH}/publish/* "$DMG_TEMP_FOLDER/$BUNDLE_NAME/Contents/MacOS/"
 
     # Delete any .pdb files
-    find "$BUNDLE_NAME/Contents/MacOS/" -name '*.pdb' -delete
+    find "$DMG_TEMP_FOLDER/$BUNDLE_NAME/Contents/MacOS/" -name '*.pdb' -delete
 
     # Create the Info.plist file
-    cat > "$BUNDLE_NAME/Contents/Info.plist" << EOF
+    cat > "$DMG_TEMP_FOLDER/$BUNDLE_NAME/Contents/Info.plist" << EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -59,30 +68,30 @@ create_dmg() {
 </plist>
 EOF
 
-    cp Assets/Icon.icns "$BUNDLE_NAME/Contents/Resources/Icon.icns"
+    cp Assets/Icon.icns "$DMG_TEMP_FOLDER/$BUNDLE_NAME/Contents/Resources/Icon.icns"
 
-    echo "App bundle $BUNDLE_NAME created for $ARCH."
+    echo "App bundle $BUNDLE_NAME created for $ARCH..."
 
     # Prepare for DMG creation
 
     # Remove any existing .dmg file with the same name
     rm -f "$DMG_NAME"
 
-    # Create a temporary folder to represent the disk image layout
-    mkdir "$DMG_TEMP_FOLDER"
-    cp -r "$BUNDLE_NAME" "$DMG_TEMP_FOLDER/"
+    # Link to Applications in the temporary folder
     ln -s /Applications "$DMG_TEMP_FOLDER/Applications"
 
-    # Create a .dmg file from the temporary layout
+    # Debugging: Display the size of the temp folder
+    echo "Size of the temporary folder (before DMG creation):"
+    du -sh "$DMG_TEMP_FOLDER"
 
     # Create a temporary disk image and format it
-    hdiutil create -ov -volname "$VOLUME_NAME" -fs HFS+ -srcfolder "$DMG_TEMP_FOLDER" -format UDRW "temp_$DMG_NAME"
+    hdiutil create -ov -volname "$VOLUME_NAME" -fs HFS+ -srcfolder "$DMG_TEMP_FOLDER" -format UDRW "$DMG_TEMP_FOLDER/temp_$DMG_NAME"
 
     # Convert the temporary disk image to a compressed .dmg file
-    hdiutil convert "temp_$DMG_NAME" -format UDZO -o "$DMG_NAME"
+    hdiutil convert "$DMG_TEMP_FOLDER/temp_$DMG_NAME" -format UDZO -o "$DMG_NAME"
 
     # Remove the temporary disk image and folder
-    rm -f "temp_$DMG_NAME"
+    rm -f "$DMG_TEMP_FOLDER/temp_$DMG_NAME"
     rm -rf "$DMG_TEMP_FOLDER"
 
     echo "DMG file $DMG_NAME created for $ARCH."
