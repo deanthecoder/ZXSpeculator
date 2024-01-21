@@ -267,7 +267,7 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
         if (!HandleKeyEvents)
             return false;
 
-        if (!m_realKeysPressed.Any())
+        if (m_realKeysPressed.Count == 0)
             return false; // Nothing pressed.
 
         if (m_realKeysPressed.Contains(KeyCode.VcLeftMeta) || m_realKeysPressed.Contains(KeyCode.VcRightMeta))
@@ -275,16 +275,17 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
 
         var keyMap = EmulateCursorJoystick ? m_pcToSpectrumKeyMapWithJoystick : m_pcToSpectrumKeyMap;
 
+        // Match double key press combos first.
         var zxPressed = m_realKeysPressed.ToList();
-        foreach (var comboLength in new[] { 2, 1 }) // Match double key press combos first.
+        for (var comboLength = 2; comboLength >= 1; comboLength--) 
         {
             var didRemap = false;
-            var sourceKeyCombo = keyMap.Where(o => o.Key.Length == comboLength);
-            var combosToRemap = sourceKeyCombo.Where(o => o.Key.All(k => m_realKeysPressed.Contains(k)));
+
+            var combosToRemap = keyMap.Where(o => o.Key.Length == comboLength && AreAllKeysPressed(o.Key));
             foreach (var (keyCodes, replacements) in combosToRemap)
             {
-                foreach (var toRemove in keyCodes)
-                    zxPressed.Remove(toRemove);
+                for (var i = 0; i < keyCodes.Length; i++)
+                    zxPressed.Remove(keyCodes[i]);
                 zxPressed.AddRange(replacements);
                 didRemap = true;
             }
@@ -294,6 +295,17 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
         }
         
         return zxPressed.Contains(key);
+    }
+    
+    private bool AreAllKeysPressed(KeyCode[] keyCodes)
+    {
+        for (var i = 0; i < keyCodes.Length; i++)
+        {
+            if (!m_realKeysPressed.Contains(keyCodes[i]))
+                return false;
+        }
+        
+        return true;
     }
 
     private void SetKeyDown(KeyCode keyCode)
