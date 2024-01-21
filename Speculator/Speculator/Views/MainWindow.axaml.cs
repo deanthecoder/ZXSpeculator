@@ -15,6 +15,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
+using CSharp.Utils.UI;
 using Material.Icons.Avalonia;
 using Speculator.ViewModels;
 // ReSharper disable UnusedParameter.Local
@@ -30,6 +31,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
+        Closing += (_, args) => AppCloseHandler.Instance.OnMainWindowClosing(args);
         Closed += (_, _) => (DataContext as IDisposable)?.Dispose();
     }
 

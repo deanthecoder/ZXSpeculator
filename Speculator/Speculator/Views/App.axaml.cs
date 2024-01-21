@@ -14,6 +14,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using CSharp.Utils.UI;
 using Speculator.ViewModels;
 
 namespace Speculator.Views;
@@ -37,6 +38,8 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            AppCloseHandler.Instance.Init(desktop);
+            
             var viewModel = new MainWindowViewModel();
             desktop.MainWindow = new MainWindow
             {
