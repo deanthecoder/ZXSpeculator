@@ -46,6 +46,19 @@
                     <MenuItem Header="File">
                         <MenuItem Header="_Open..." Command="{Binding LoadRom}"
                                   InputGesture="{OnPlatform 'ctrl+o', macOS='⌘+o'}" />
+                        <MenuItem Header="Open _Recent">
+                            <MenuItem Header="Empty" IsVisible="{Binding Mru.IsEmpty}" IsEnabled="False"/>
+                            <MenuItem Header="{Binding Mru.Item1}" ToolTip.Tip="{Binding Mru.Item1.FullName}" IsVisible="{Binding Mru.Item1.IsUsed}" Command="{Binding Mru.Open}" CommandParameter="1"/>
+                            <MenuItem Header="{Binding Mru.Item2}" ToolTip.Tip="{Binding Mru.Item2.FullName}" IsVisible="{Binding Mru.Item2.IsUsed}" Command="{Binding Mru.Open}" CommandParameter="2"/>
+                            <MenuItem Header="{Binding Mru.Item3}" ToolTip.Tip="{Binding Mru.Item3.FullName}" IsVisible="{Binding Mru.Item3.IsUsed}" Command="{Binding Mru.Open}" CommandParameter="3"/>
+                            <MenuItem Header="{Binding Mru.Item4}" ToolTip.Tip="{Binding Mru.Item4.FullName}" IsVisible="{Binding Mru.Item4.IsUsed}" Command="{Binding Mru.Open}" CommandParameter="4"/>
+                            <MenuItem Header="{Binding Mru.Item5}" ToolTip.Tip="{Binding Mru.Item5.FullName}" IsVisible="{Binding Mru.Item5.IsUsed}" Command="{Binding Mru.Open}" CommandParameter="5"/>
+                            <MenuItem Header="{Binding Mru.Item6}" ToolTip.Tip="{Binding Mru.Item6.FullName}" IsVisible="{Binding Mru.Item6.IsUsed}" Command="{Binding Mru.Open}" CommandParameter="6"/>
+                            <MenuItem Header="{Binding Mru.Item7}" ToolTip.Tip="{Binding Mru.Item7.FullName}" IsVisible="{Binding Mru.Item7.IsUsed}" Command="{Binding Mru.Open}" CommandParameter="7"/>
+                            <MenuItem Header="{Binding Mru.Item8}" ToolTip.Tip="{Binding Mru.Item8.FullName}" IsVisible="{Binding Mru.Item8.IsUsed}" Command="{Binding Mru.Open}" CommandParameter="8"/>
+                            <Separator/>
+                            <MenuItem Header="Clear" Command="{Binding Mru.Clear}"/>
+                        </MenuItem>
                         <MenuItem Header="_Save As..." Command="{Binding SaveRom}"
                                   InputGesture="{OnPlatform 'ctrl+s', macOS='⌘+s'}" />
                         <Separator />

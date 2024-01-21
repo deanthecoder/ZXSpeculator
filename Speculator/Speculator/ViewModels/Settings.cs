@@ -25,6 +25,7 @@ public class Settings : UserSettingsBase
         IsCrt = true;
         IsAmbientBlurred = true;
         IsSoundEnabled = true;
+        MruFiles = string.Empty;
     }
     
     public bool IsCrt
@@ -48,6 +49,12 @@ public class Settings : UserSettingsBase
     public bool IsSoundEnabled
     {
         get => Get<bool>();
+        set => Set(value);
+    }
+
+    public string MruFiles
+    {
+        get => Get<string>();
         set => Set(value);
     }
 }

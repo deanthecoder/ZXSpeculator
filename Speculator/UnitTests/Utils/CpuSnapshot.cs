@@ -40,15 +40,11 @@ public class CpuSnapshot
         return new CpuSnapshot(registers, snapshotDelta) { Name = name };
     }
 
-    public static CpuSnapshot FromString(string serialized)
-    {
-        return JsonConvert.DeserializeObject<CpuSnapshot>(serialized);
-    }
+    public static CpuSnapshot FromString(string serialized) =>
+        JsonConvert.DeserializeObject<CpuSnapshot>(serialized);
 
-    public string AsString()
-    {
-        return JsonConvert.SerializeObject(this);
-    }
+    public string AsString() =>
+        JsonConvert.SerializeObject(this);
 
     private static MemoryDelta[] GetMemoryDeltas(byte[] baseMemory, byte[] newMemory)
     {

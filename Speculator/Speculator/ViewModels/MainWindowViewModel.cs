@@ -27,6 +27,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     public ZxDisplay Display { get; }
     public bool IsFullThrottle { get; private set; }
     public Settings Settings => Settings.Instance;
+    public MruFiles Mru { get; }
 
     public MainWindowViewModel()
     {
@@ -38,6 +39,9 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
             if (!Speccy.TheTapeLoader.IsLoading)
                 Dispatcher.UIThread.InvokeAsync(LoadRom);
         };
+
+        Mru = new MruFiles().InitFromString(Settings.MruFiles);
+        Mru.OpenRequested += (_, file) => Speccy.LoadRom(file);
 
         Settings.PropertyChanged += (_, _) => OnSettingsChanged();
         OnSettingsChanged();
@@ -60,6 +64,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
             try
             {
                 Speccy.LoadRom(info);
+                Mru.Add(info);
             }
             finally
             {
@@ -122,5 +127,9 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 
     public void OpenProjectPage() => new Uri("https://github.com/deanthecoder/ZXSpeculator").Open();
     
-    public void Dispose() => Speccy.Dispose();
+    public void Dispose()
+    {
+        Speccy.Dispose();
+        Settings.MruFiles = Mru.AsString();
+    }
 }

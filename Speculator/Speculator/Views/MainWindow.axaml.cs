@@ -54,7 +54,7 @@ public partial class MainWindow : Window
         {
             try
             {
-                Dispatcher.UIThread.Invoke(action);
+                Dispatcher.UIThread.InvokeAsync(action);
             }
             catch (TaskCanceledException)
             {

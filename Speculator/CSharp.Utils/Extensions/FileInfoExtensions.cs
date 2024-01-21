@@ -13,6 +13,12 @@ namespace CSharp.Utils.Extensions;
 
 public static class FileInfoExtensions
 {
+    public static string LeafName(this FileInfo file)
+    {
+        var s = file?.Name ?? string.Empty;
+        return string.IsNullOrEmpty(s) ? s : Path.GetFileNameWithoutExtension(s);
+    }
+    
     public static byte[] ReadAllBytes(this FileInfo file) =>
         File.ReadAllBytes(file.FullName);
 
