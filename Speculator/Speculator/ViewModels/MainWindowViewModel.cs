@@ -93,14 +93,18 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         command.Cancelled += (_, _) => keyBlocker.Dispose();
         command.Execute(null);
     }
-    
+
     public void ResetMachine() =>
         DialogService.Instance.Warn(
             "Reset Emulator?",
             "This will simulate a restart of the ZX Spectrum.",
             "CANCEL",
             "RESET",
-            () => Speccy.TheCpu.ResetAsync(),
+            confirmed =>
+            {
+                if (confirmed)
+                    Speccy.TheCpu.ResetAsync();
+            },
             MaterialIconKind.Power);
 
     public void SetCursorJoystick(bool b) =>

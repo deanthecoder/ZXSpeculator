@@ -19,7 +19,7 @@ public class DialogService
 {
     public static DialogService Instance { get; } = new DialogService();
 
-    public void Warn(string message, string detail, string cancelButton, string actionButton, Action action, MaterialIconKind? icon = null)
+    public void Warn(string message, string detail, string cancelButton, string actionButton, Action<bool> onClose, MaterialIconKind? icon = null)
     {
         DialogHost.Show(new ConfirmationDialog
             {
@@ -30,10 +30,6 @@ public class DialogService
                 ActionBrush = Brushes.Red,
                 Icon = icon
             },
-            (_, args) =>
-            {
-                if (Convert.ToBoolean(args.Parameter))
-                    action();
-            });
+            (_, args) => onClose(Convert.ToBoolean(args.Parameter)));
     }
 }
