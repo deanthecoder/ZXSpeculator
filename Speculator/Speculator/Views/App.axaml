@@ -24,6 +24,13 @@
         <themes:MaterialTheme BaseTheme="Dark" PrimaryColor="BlueGrey" SecondaryColor="Lime" />
         <avalonia:MaterialIconStyles />
         <dialogHostAvalonia:DialogHostStyles />
+        
+        <Style Selector="Button">
+            <Setter Property="Focusable" Value="False"/>
+        </Style>
+        <Style Selector="ToggleButton">
+            <Setter Property="Focusable" Value="False"/>
+        </Style>
     </Application.Styles>
 
     <NativeMenu.Menu>

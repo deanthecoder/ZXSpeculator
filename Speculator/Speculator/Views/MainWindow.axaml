@@ -36,7 +36,7 @@
 
     <dialogHostAvalonia:DialogHost x:Name="Host" OverlayBackground="Black">
         <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,*">
-            <Grid ColumnDefinitions="*,Auto,Auto">
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto">
                 <Menu Tag="{Binding WindowState, ElementName=Self}">
                     <Menu.Styles>
                         <Style Selector="Menu[Tag=FullScreen]">
@@ -88,33 +88,7 @@
                             </MenuItem>
                         </MenuItem>
                         
-                        <MenuItem Header="_Sound" IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}">
-                            <MenuItem Header="Enabled" Command="{Binding SetEnableSound}" CommandParameter="True">
-                                <MenuItem.Icon>
-                                    <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding Settings.IsSoundEnabled}" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem Header="Disabled" Command="{Binding SetEnableSound}" CommandParameter="False">
-                                <MenuItem.Icon>
-                                    <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding !Settings.IsSoundEnabled}" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                        </MenuItem>
-                        
-                        <MenuItem Header="S_peed" IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}">
-                            <MenuItem Header="Accurate" Command="{Binding SetFullThrottle}" CommandParameter="False">
-                                <MenuItem.Icon>
-                                    <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding !IsFullThrottle}" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                            <MenuItem Header="Maximum" Command="{Binding SetFullThrottle}" CommandParameter="True">
-                                <MenuItem.Icon>
-                                    <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding IsFullThrottle}" />
-                                </MenuItem.Icon>
-                            </MenuItem>
-                        </MenuItem>
-                        
-                        <MenuItem Header="_Joysticks">
+                        <MenuItem Header="_Joystick">
                             <MenuItem Header="Kempston" Command="{Binding SetCursorJoystick}" CommandParameter="False">
                                 <MenuItem.Icon>
                                     <avalonia:MaterialIcon Kind="Tick" IsVisible="{Binding !Settings.EmulateCursorJoystick}" />
@@ -126,12 +100,13 @@
                                 </MenuItem.Icon>
                             </MenuItem>
                         </MenuItem>
-                        <MenuItem Header="_Reset Emulator" Command="{Binding ResetMachine}"
-                                  InputGesture="{OnPlatform 'escape'}" />
                         <MenuItem Header="Show Debugger" Command="{Binding Speccy.TheDebugger.Show}"
                                   IsVisible="{Binding !Speccy.TheDebugger.IsVisible}" />
                         <MenuItem Header="Hide Debugger" Command="{Binding Speccy.TheDebugger.Hide}"
                                   IsVisible="{Binding Speccy.TheDebugger.IsVisible}" />
+                        <Separator/>
+                        <MenuItem Header="_Reset Emulator" Command="{Binding ResetMachine}"
+                                  InputGesture="{OnPlatform 'escape'}" />
                     </MenuItem>
 
                     <MenuItem Header="Help">
@@ -145,13 +120,45 @@
                     </MenuItem>
                 </Menu>
 
-                <avalonia:MaterialIcon Grid.Column="1"
+                <StackPanel Grid.Column="1" Orientation="Horizontal"
+                            IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}">
+                    <ToggleButton IsChecked="{Binding Settings.IsSoundEnabled}">
+                        <avalonia:MaterialIcon Width="24" Height="24"
+                                               Tag="{Binding IsChecked, RelativeSource={RelativeSource AncestorType=ToggleButton}}">
+                            <avalonia:MaterialIcon.Styles>
+                                <Style Selector="avalonia|MaterialIcon[Tag=True]">
+                                    <Setter Property="Kind" Value="VolumeHigh" />
+                                </Style>
+                                <Style Selector="avalonia|MaterialIcon[Tag=False]">
+                                    <Setter Property="Kind" Value="VolumeOff" />
+                                </Style>
+                            </avalonia:MaterialIcon.Styles>
+                        </avalonia:MaterialIcon>
+                    </ToggleButton>
+                    
+                    <ToggleButton Command="{Binding ToggleFullThrottle}"
+                                  IsChecked="{Binding IsFullThrottle, Mode=OneWay}">
+                        <avalonia:MaterialIcon Width="24" Height="24"
+                                               Tag="{Binding IsChecked, RelativeSource={RelativeSource AncestorType=ToggleButton}}">
+                            <avalonia:MaterialIcon.Styles>
+                                <Style Selector="avalonia|MaterialIcon[Tag=True]">
+                                    <Setter Property="Kind" Value="RunFast" />
+                                </Style>
+                                <Style Selector="avalonia|MaterialIcon[Tag=False]">
+                                    <Setter Property="Kind" Value="Walk" />
+                                </Style>
+                            </avalonia:MaterialIcon.Styles>
+                        </avalonia:MaterialIcon>
+                    </ToggleButton>
+                </StackPanel>
+                
+                <avalonia:MaterialIcon Grid.Column="2"
                                        Width="30" Height="30" Margin="30,0"
                                        Background="Transparent"
                                        Kind="KeyboardVariant"
                                        Loaded="OnKeyboardIconLoaded"/>
                 
-                <Grid Grid.Column="2"
+                <Grid Grid.Column="3"
                       Margin="8,0"
                       RenderTransformOrigin="0.5,0.5" ColumnDefinitions="10,10,10,10">
                     <Grid.RenderTransform>

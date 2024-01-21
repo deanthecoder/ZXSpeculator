@@ -111,15 +111,12 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 
     public void SetCrtMode(bool b) =>
         Settings.IsCrt = b;
-
-    public void SetEnableSound(bool b) =>
-        Settings.IsSoundEnabled = b;
-
-    public void SetFullThrottle(bool b)
+    
+    public void ToggleFullThrottle()
     {
-        IsFullThrottle = b;
+        IsFullThrottle = !IsFullThrottle;
         OnPropertyChanged(nameof(IsFullThrottle));
-        Speccy.TheCpu.FullThrottle = b;
+        Speccy.TheCpu.FullThrottle = IsFullThrottle;
     }
 
     public void ToggleAmbientBlur() =>
