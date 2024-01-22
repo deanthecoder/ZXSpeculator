@@ -38,11 +38,20 @@
 
 
     <ItemGroup>
-      <None Update="ROMs\48.rom">
+      <None Update="ROMs\Standard Spectrum 48K BASIC.rom">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
       <None Remove="ZX Speculator.app\**" />
       <None Remove="*.dmg" />
+      <None Update="ROMs\JGH 48K BASIC.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="ROMs\JGH 48K BASIC.rom">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="ROMs\Standard Spectrum 48K BASIC.txt">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
 

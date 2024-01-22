@@ -20,13 +20,13 @@ public static class FileInfoExtensions
     }
     
     public static byte[] ReadAllBytes(this FileInfo file) =>
-        File.ReadAllBytes(file.FullName);
+        file.ReallyExists() ? File.ReadAllBytes(file.FullName) : null;
 
     public static string ReadAllText(this FileInfo file) =>
-        File.ReadAllText(file.FullName);
+        file.ReallyExists() ? File.ReadAllText(file.FullName) : null;
 
     public static string[] ReadAllLines(this FileInfo file) =>
-        File.ReadAllLines(file.FullName);
+        file.ReallyExists() ? File.ReadAllLines(file.FullName) : null;
 
     public static FileInfo WriteAllText(this FileInfo file, string s)
     {

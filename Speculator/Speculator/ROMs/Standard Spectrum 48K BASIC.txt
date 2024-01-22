@@ -1,0 +1,4 @@
+Standard Sinclair 48K BASIC ROM
+(C) 1983 Sinclair Research Ltd.
+
+Downloaded from https://mdfs.net/Software/Spectrum/ROMImages/

@@ -14,6 +14,7 @@
         Icon="/Assets/app.ico"
         Title="ZX Speculator"
         Width="1066" Height="634"
+        MinWidth="520" MinHeight="320"
         x:Name="Self">
     <Design.DataContext>
         <vm:MainWindowViewModel />
@@ -100,6 +101,17 @@
                                 </MenuItem.Icon>
                             </MenuItem>
                         </MenuItem>
+                        
+                        <MenuItem Header="Select ROM..."
+                                  IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}"
+                                  Command="{Binding OpenDialogCommand, ElementName=Host}">
+                            <MenuItem.CommandParameter>
+                                <views:RomSelector RomFiles="{Binding RomFiles}"
+                                                   SelectedRom="{Binding Settings.RomFile}"
+                                                   LoadAction="{Binding LoadBasicRomAction}"/>
+                            </MenuItem.CommandParameter>
+                        </MenuItem>
+                        
                         <MenuItem Header="Show Debugger" Command="{Binding Speccy.TheDebugger.Show}"
                                   IsVisible="{Binding !Speccy.TheDebugger.IsVisible}" />
                         <MenuItem Header="Hide Debugger" Command="{Binding Speccy.TheDebugger.Hide}"

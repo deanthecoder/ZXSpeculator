@@ -88,5 +88,6 @@ ZX Speculator is an ongoing project and contributions are welcome. Whether it's 
 - [ZX Spectrum Keyboard Cheat Sheet](http://slady.net/Sinclair-ZX-Spectrum-keyboard/)
 - [Z80 Instruction Exerciser (zexall, zexdoc)](https://mdfs.net/Software/Z80/Exerciser/Spectrum/)
 - [JSMoo Z80 tests](https://github.com/raddad772/jsmoo/tree/main/misc/tests/GeneratedTests/z80)
+- [JGH Spectrum 48K ROM](http://mdfs.net/Software/Spectrum/Harston) by J.G.Harston.
 ---
 Feel free to follow me on Twitter for more updates: [@deanthecoder](https://twitter.com/deanthecoder)

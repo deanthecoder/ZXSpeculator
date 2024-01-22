@@ -17,6 +17,7 @@
 
     <Application.Resources>
         <converters:MarkdownToInlinesConverter x:Key="MarkdownToInlinesConverter" />
+        <converters:FileInfoToLeafNameConverter x:Key="FileInfoToLeafNameConverter" />
     </Application.Resources>
 
     <Application.Styles>

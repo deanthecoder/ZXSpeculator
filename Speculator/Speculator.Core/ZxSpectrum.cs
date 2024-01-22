@@ -50,10 +50,9 @@ public class ZxSpectrum : IDisposable
         };
     }
     
-    public ZxSpectrum LoadBasicRom()
+    public ZxSpectrum LoadBasicRom(FileInfo systemRom)
     {
-        var systemRom = Path.Combine(AppContext.BaseDirectory, "ROMs", "48.rom");
-        TheCpu.MainMemory.LoadRom(systemRom);
+        TheCpu.MainMemory.LoadRom(systemRom.FullName);
         return this;
     }
 

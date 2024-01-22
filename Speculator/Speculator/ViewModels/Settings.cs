@@ -9,6 +9,7 @@
 //
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
+using System.IO;
 using CSharp.Utils.Settings;
 
 namespace Speculator.ViewModels;
@@ -55,6 +56,12 @@ public class Settings : UserSettingsBase
     public string MruFiles
     {
         get => Get<string>();
+        set => Set(value);
+    }
+
+    public FileInfo RomFile
+    {
+        get => Get<FileInfo>();
         set => Set(value);
     }
 }

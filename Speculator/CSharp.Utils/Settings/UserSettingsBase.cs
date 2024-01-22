@@ -13,6 +13,7 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using CSharp.Utils.Extensions;
+using CSharp.Utils.JsonConverters;
 using Newtonsoft.Json;
 
 namespace CSharp.Utils.Settings;
@@ -35,8 +36,17 @@ public abstract class UserSettingsBase : INotifyPropertyChanged, IDisposable
 
     abstract protected void ApplyDefaults();
 
-    protected T Get<T>([CallerMemberName] string key = null) =>
-        m_state.TryGetValue(key ?? throw new ArgumentNullException(nameof(key)), out var value) ? (T)value : default;
+    protected T Get<T>([CallerMemberName] string key = null)
+    {
+        m_state.TryGetValue(key ?? throw new ArgumentNullException(nameof(key)), out var value);
+        if (typeof(T) == typeof(FileInfo) && value is string s)
+        {
+            value = new FileInfo(s);
+            m_state[key] = value;
+        }
+        
+        return (T)value;
+    }
 
     protected void Set(object value, [CallerMemberName] string key = null)
     {
@@ -50,9 +60,18 @@ public abstract class UserSettingsBase : INotifyPropertyChanged, IDisposable
     {
         ApplyDefaults();
         if (m_filePath.Exists)
-            JsonConvert.PopulateObject(m_filePath.ReadAllText(), m_state);
+            JsonConvert.PopulateObject(m_filePath.ReadAllText(), m_state, CreateSerializerSettings());
     }
-    
+
     public void Dispose() =>
-        m_filePath.WriteAllText(JsonConvert.SerializeObject(m_state, Formatting.Indented));
+        m_filePath.WriteAllText(JsonConvert.SerializeObject(m_state, Formatting.Indented, CreateSerializerSettings()));
+
+    private static JsonSerializerSettings CreateSerializerSettings() =>
+        new JsonSerializerSettings
+        {
+            Converters = new JsonConverter[]
+            {
+                new FileInfoConverter()
+            }
+        };
 }

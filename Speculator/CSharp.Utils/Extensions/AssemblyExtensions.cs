@@ -19,6 +19,9 @@ public static class AssemblyExtensions
     public static string GetProductName(this Assembly assembly) =>
         assembly.GetName().Name;
 
+    public static DirectoryInfo GetDirectory(this Assembly assembly) =>
+        new FileInfo(assembly.Location).Directory;
+
     /// <summary>
     /// Return a directory suitable for storing user-specific application settings.
     /// </summary>

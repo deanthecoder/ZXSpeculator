@@ -1,0 +1,5 @@
+JGH Spectrum 48K ROM
+J.G.Harston - jgh@mdfs.net
+http://mdfs.net/Software/Spectrum/Harston
+
+This is a patched Spectrum 48K ROM which fixes many bugs and adds some useful extensions. JGHROM is the ROM image, and Patch/src is the source code, written in BBC BASIC Z80 assembler. The Spectrum ROM is copyright Amstrad. Amstrad have kindly given their permission for the redistribution of their copyrighted material but retain that copyright. The extra code is copyright J.G.Harston and may be redistributed, and may be extracted and used in other code, with attribution.

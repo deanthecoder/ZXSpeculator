@@ -1,0 +1,48 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:dialogHostAvalonia="clr-namespace:DialogHostAvalonia;assembly=DialogHost.Avalonia"
+             xmlns:io="clr-namespace:System.IO;assembly=System.Runtime"
+             mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="300"
+             x:Class="Speculator.Views.RomSelector"
+             x:Name="Self">
+    <Grid RowDefinitions="Auto,*,Auto" Margin="16,8">
+        <ComboBox ItemsSource="{Binding RomFiles, ElementName=Self}"
+                  SelectedItem="{Binding SelectedRom, ElementName=Self}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="io:FileInfo">
+                    <TextBlock Text="{Binding ., Converter={StaticResource FileInfoToLeafNameConverter}}"
+                               VerticalAlignment="Center"/>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      Width="400" Height="150">
+            <TextBlock Text="{Binding RomDetails, ElementName=Self}"
+                       TextWrapping="Wrap"
+                       Padding="8"
+                       Background="#2F000000"/>
+        </ScrollViewer>
+
+        <Grid Grid.Row="2"
+              ColumnDefinitions="Auto,Auto"
+              Margin="0,8,0,0"
+              HorizontalAlignment="Right">
+            <Button Content="CANCEL"
+                    Theme="{DynamicResource MaterialFlatButton}"
+                    IsCancel="True"
+                    Command="{Binding CloseDialogCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=dialogHostAvalonia:DialogHost}}" />
+            <Button Grid.Column="1"
+                    Content="LOAD AND RESET"
+                    Theme="{DynamicResource MaterialFlatButton}"
+                    Foreground="Red"
+                    Click="OnLoadAndReset"
+                    Command="{Binding CloseDialogCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=dialogHostAvalonia:DialogHost}}"
+                    CommandParameter="True" />
+        </Grid>
+    </Grid>
+</UserControl>
