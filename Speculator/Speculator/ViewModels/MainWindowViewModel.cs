@@ -10,10 +10,6 @@
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
 using Avalonia;
 using Avalonia.Threading;
 using CSharp.Utils.Commands;
@@ -32,35 +28,24 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     public bool IsFullThrottle { get; private set; }
     public Settings Settings => Settings.Instance;
     public MruFiles Mru { get; }
-
-    public IEnumerable<FileInfo> RomFiles { get; }
-    public Action<FileInfo> LoadBasicRomAction { get; }
+    public RomSelectorViewModel RomSelectorDetails { get; }
 
     public MainWindowViewModel()
     {
-        RomFiles = Assembly.GetExecutingAssembly().GetDirectory().EnumerateFiles("ROMs/*.rom").ToArray();
-        Settings.RomFile = RomFiles.FirstOrDefault(o => o.FullName == Settings.RomFile?.FullName) ??
-                           RomFiles.FirstOrDefault(o => o.LeafName() == "Standard Spectrum 48K BASIC") ??
-                           RomFiles.FirstOrDefault();
-        
         Display = new ZxDisplay();
-        Speccy = new ZxSpectrum(Display).LoadBasicRom(Settings.RomFile);
+        Speccy = new ZxSpectrum(Display);
         Speccy.PortHandler.EmulateCursorJoystick = Settings.EmulateCursorJoystick;
         Speccy.TheCpu.LoadRequested += (_, _) =>
         {
             if (!Speccy.TheTapeLoader.IsLoading)
                 Dispatcher.UIThread.InvokeAsync(LoadRom);
         };
-
-        LoadBasicRomAction = romFile =>
-        {
-            Speccy.LoadBasicRom(romFile);
-            Settings.RomFile = romFile;
-            Speccy.TheCpu.ResetAsync();
-        };
         
         Mru = new MruFiles().InitFromString(Settings.MruFiles);
         Mru.OpenRequested += (_, file) => Speccy.LoadRom(file);
+        
+        RomSelectorDetails = new RomSelectorViewModel(Speccy);
+        RomSelectorDetails.LoadBasicRomAction(Settings.RomFile);
 
         Settings.PropertyChanged += (_, _) => OnSettingsChanged();
         OnSettingsChanged();

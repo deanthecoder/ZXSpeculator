@@ -38,7 +38,8 @@ public abstract class UserSettingsBase : INotifyPropertyChanged, IDisposable
 
     protected T Get<T>([CallerMemberName] string key = null)
     {
-        m_state.TryGetValue(key ?? throw new ArgumentNullException(nameof(key)), out var value);
+        if (!m_state.TryGetValue(key ?? throw new ArgumentNullException(nameof(key)), out var value))
+            value = default(T);
         if (typeof(T) == typeof(FileInfo) && value is string s)
         {
             value = new FileInfo(s);

@@ -106,9 +106,13 @@
                                   IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}"
                                   Command="{Binding OpenDialogCommand, ElementName=Host}">
                             <MenuItem.CommandParameter>
-                                <views:RomSelector RomFiles="{Binding RomFiles}"
-                                                   SelectedRom="{Binding Settings.RomFile}"
-                                                   LoadAction="{Binding LoadBasicRomAction}"/>
+                                <views:RomSelector DataContext="{Binding RomSelectorDetails}"
+                                                   RomFiles="{Binding RomFiles}"
+                                                   SelectedRom="{Binding RomFile}"
+                                                   LoadAction="{Binding LoadBasicRomAction}"
+                                                   UseSpeccyColors="{Binding UseSpeccyColors}"
+                                                   UseBbcColors="{Binding UseBbcColors}"
+                                                   UseC64Colors="{Binding UseC64Colors}"/>
                             </MenuItem.CommandParameter>
                         </MenuItem>
                         

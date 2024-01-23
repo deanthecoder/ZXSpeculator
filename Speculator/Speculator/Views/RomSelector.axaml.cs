@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.IO;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Data;
 using Avalonia.Interactivity;
 using CSharp.Utils.Extensions;
 
@@ -25,11 +26,19 @@ public partial class RomSelector : UserControl
     private FileInfo m_selectedRom;
     private string m_romDetails;
     private Action<FileInfo> m_loadAction;
+    private bool m_useSpeccyColors = true;
+    private bool m_useBbcColors;
+    private bool m_useC64Colors;
 
     public static readonly DirectProperty<RomSelector, IList<FileInfo>> RomFilesProperty = AvaloniaProperty.RegisterDirect<RomSelector, IList<FileInfo>>(nameof(RomFiles), o => o.RomFiles, (o, v) => o.RomFiles = v);
     public static readonly DirectProperty<RomSelector, FileInfo> SelectedRomProperty = AvaloniaProperty.RegisterDirect<RomSelector, FileInfo>(nameof(SelectedRom), o => o.SelectedRom, (o, v) => o.SelectedRom = v);
     public static readonly DirectProperty<RomSelector, string> RomDetailsProperty = AvaloniaProperty.RegisterDirect<RomSelector, string>(nameof(RomDetails), o => o.RomDetails, (o, v) => o.RomDetails = v);
     public static readonly DirectProperty<RomSelector, Action<FileInfo>> LoadActionProperty = AvaloniaProperty.RegisterDirect<RomSelector, Action<FileInfo>>(nameof(LoadAction), o => o.LoadAction, (o, v) => o.LoadAction = v);
+    public static readonly DirectProperty<RomSelector, bool> UseSpeccyColorsProperty = AvaloniaProperty.RegisterDirect<RomSelector, bool>(nameof(UseSpeccyColors), o => o.UseSpeccyColors, (o, v) => o.UseSpeccyColors = v, defaultBindingMode: BindingMode.TwoWay);
+    public static readonly DirectProperty<RomSelector, bool> UseBbcColorsProperty = AvaloniaProperty.RegisterDirect<RomSelector, bool>(nameof(UseBbcColors), o => o.UseBbcColors, (o, v) => o.UseBbcColors = v,
+        defaultBindingMode: BindingMode.TwoWay);
+    public static readonly DirectProperty<RomSelector, bool> UseC64ColorsProperty = AvaloniaProperty.RegisterDirect<RomSelector, bool>(nameof(UseC64Colors), o => o.UseC64Colors, (o, v) => o.UseC64Colors = v,
+        defaultBindingMode: BindingMode.TwoWay);
 
     public RomSelector()
     {
@@ -62,6 +71,24 @@ public partial class RomSelector : UserControl
     {
         get => m_loadAction;
         set => SetAndRaise(LoadActionProperty, ref m_loadAction, value);
+    }   
+    
+    public bool UseSpeccyColors
+    {
+        get => m_useSpeccyColors;
+        set => SetAndRaise(UseSpeccyColorsProperty, ref m_useSpeccyColors, value);
+    }
+    
+    public bool UseBbcColors
+    {
+        get => m_useBbcColors;
+        set => SetAndRaise(UseBbcColorsProperty, ref m_useBbcColors, value);
+    }
+    
+    public bool UseC64Colors
+    {
+        get => m_useC64Colors;
+        set => SetAndRaise(UseC64ColorsProperty, ref m_useC64Colors, value);
     }
     
     private void OnLoadAndReset(object sender, RoutedEventArgs e) =>

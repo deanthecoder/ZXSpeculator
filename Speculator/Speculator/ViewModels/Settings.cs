@@ -27,6 +27,7 @@ public class Settings : UserSettingsBase
         IsAmbientBlurred = true;
         IsSoundEnabled = true;
         MruFiles = string.Empty;
+        UseSpeccyColors = true;
     }
     
     public bool IsCrt
@@ -62,6 +63,24 @@ public class Settings : UserSettingsBase
     public FileInfo RomFile
     {
         get => Get<FileInfo>();
+        set => Set(value);
+    }
+
+    public bool UseSpeccyColors
+    {
+        get => Get<bool>();
+        set => Set(value);
+    }
+
+    public bool UseBbcColors
+    {
+        get => Get<bool>();
+        set => Set(value);
+    }
+
+    public bool UseC64Colors
+    {
+        get => Get<bool>();
         set => Set(value);
     }
 }

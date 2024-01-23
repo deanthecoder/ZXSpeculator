@@ -4,10 +4,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:dialogHostAvalonia="clr-namespace:DialogHostAvalonia;assembly=DialogHost.Avalonia"
              xmlns:io="clr-namespace:System.IO;assembly=System.Runtime"
-             mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="300"
+             mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="370"
              x:Class="Speculator.Views.RomSelector"
              x:Name="Self">
-    <Grid RowDefinitions="Auto,*,Auto" Margin="16,8">
+    <Grid RowDefinitions="Auto,*,Auto,Auto" Margin="16,8">
         <ComboBox ItemsSource="{Binding RomFiles, ElementName=Self}"
                   SelectedItem="{Binding SelectedRom, ElementName=Self}">
             <ComboBox.ItemTemplate>
@@ -27,10 +27,19 @@
                        Padding="8"
                        Background="#2F000000"/>
         </ScrollViewer>
+        
+        <StackPanel Grid.Row="2" Margin="0,8">
+            <TextBlock Text="Color Scheme"/>
+            <RadioButton Margin="8,0" Content="Speccy"
+                         IsChecked="{Binding UseSpeccyColors, ElementName=Self}"/>
+            <RadioButton Margin="8,0" Content="BBC Micro"
+                         IsChecked="{Binding UseBbcColors, ElementName=Self}" />
+            <RadioButton Margin="8,0" Content="Commodore 64"
+                         IsChecked="{Binding UseC64Colors, ElementName=Self}" />
+        </StackPanel>
 
-        <Grid Grid.Row="2"
+        <Grid Grid.Row="3"
               ColumnDefinitions="Auto,Auto"
-              Margin="0,8,0,0"
               HorizontalAlignment="Right">
             <Button Content="CANCEL"
                     Theme="{DynamicResource MaterialFlatButton}"
