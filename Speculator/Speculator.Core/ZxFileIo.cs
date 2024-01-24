@@ -254,8 +254,7 @@ public class ZxFileIo
             m_cpu.TheRegisters.Main.BC = ReadZxWord(stream);
             m_cpu.TheRegisters.IY = ReadZxWord(stream);
             m_cpu.TheRegisters.IX = ReadZxWord(stream);
-            var iff = (byte)stream.ReadByte();
-            m_cpu.TheRegisters.IFF1 = m_cpu.TheRegisters.IFF2 = (iff & 0x02) != 0;
+            m_cpu.TheRegisters.IFF1 = m_cpu.TheRegisters.IFF2 = stream.ReadByte() != 0;
             m_cpu.TheRegisters.R = (byte)stream.ReadByte();
             m_cpu.TheRegisters.Main.AF = ReadZxWord(stream);
             m_cpu.TheRegisters.SP = ReadZxWord(stream);
@@ -297,7 +296,7 @@ public class ZxFileIo
             WriteSnaWord(stream, m_cpu.TheRegisters.Main.BC);
             WriteSnaWord(stream, m_cpu.TheRegisters.IY);
             WriteSnaWord(stream, m_cpu.TheRegisters.IX);
-            stream.WriteByte((byte)(m_cpu.TheRegisters.IFF2 ? 0x02 : 0x00));
+            stream.WriteByte((byte)(m_cpu.TheRegisters.IFF2 ? 0x04 : 0x00));
             stream.WriteByte(m_cpu.TheRegisters.R);
             WriteSnaWord(stream, m_cpu.TheRegisters.Main.AF);
             WriteSnaWord(stream, m_cpu.TheRegisters.SP);
