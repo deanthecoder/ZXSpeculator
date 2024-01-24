@@ -14,6 +14,15 @@ ZX Speculator is a cross-platform ZX Spectrum 48K emulator written in C#.
   - Instruction stepping.
   - Breakpoints.
   - Instruction history.
+- **Theming**: The Sinclair BASIC ROM can be customized to allow for:
+  - Classic ZX Spectrum input vs a per-character typing strategy. (Courtesy of the [JGH Spectrum 48K ROM](http://mdfs.net/Software/Spectrum/Harston) by J.G.Harston)
+  - Selectable colors schemes and fonts.
+    - ZX Spectrum
+    - BBC Micro
+    - Commodore 64
+![Speccy Theme](img/Theme_Speccy.png)
+![BBC Micro Theme](img/Theme_BBC.png)
+![Commodore 64 Theme](img/Theme_C64.png)
 
 ## Download
 * Download from the [Releases](https://github.com/deanthecoder/ZXSpeculator/releases) section.

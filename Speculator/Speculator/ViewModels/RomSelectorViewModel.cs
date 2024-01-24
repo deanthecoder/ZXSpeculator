@@ -47,29 +47,37 @@ public class RomSelectorViewModel : ViewModelBase
         LoadBasicRomAction = romFile =>
         {
             speccy.LoadBasicRom(romFile);
-            
+
             Settings.Instance.RomFile = romFile;
             Settings.Instance.UseSpeccyColors = UseSpeccyColors;
             Settings.Instance.UseBbcColors = UseBbcColors;
             Settings.Instance.UseC64Colors = UseC64Colors;
 
             // Theme.
+            const string speccyFont = "AAAAAAAAAAAAEBAQEAAQAAAkJAAAAAAAACR+JCR+JAAACD4oPgo+CABiZAgQJkYAABAoECpEOgAACBAAAAAAAAAECAgICAQAACAQEBAQIAAAABQIPggUAAAACAg+CAgAAAAAAAAICBAAAAAAPgAAAAAAAAAAGBgAAAACBAgQIAAAPEZKUmI8AAAYKAgICD4AADxCAjxAfgAAPEIMAkI8AAAIGChIfggAAH5AfAJCPAAAPEB8QkI8AAB+AgQIEBAAADxCPEJCPAAAPEJCPgI8AAAAABAAABAAAAAQAAAQECAAAAQIEAgEAAAAAD4APgAAAAAQCAQIEAAAPEIECAAIAAA8SlZeQDwAADxCQn5CQgAAfEJ8QkJ8AAA8QkBAQjwAAHhEQkJEeAAAfkB8QEB+AAB+QHxAQEAAADxCQE5CPAAAQkJ+QkJCAAA+CAgICD4AAAICAkJCPAAAREhwSERCAABAQEBAQH4AAEJmWkJCQgAAQmJSSkZCAAA8QkJCQjwAAHxCQnxAQAAAPEJCUko8AAB8QkJ8REIAADxAPAJCPAAA/hAQEBAQAABCQkJCQjwAAEJCQkIkGAAAQkJCQlokAABCJBgYJEIAAIJEKBAQEAAAfgQIECB+AAAOCAgICA4AAABAIBAIBAAAcBAQEBBwAAAQOFQQEBAAAAAAAAAAAP8AHCJ4ICB+AAAAOAQ8RDwAACAgPCIiPAAAABwgICAcAAAEBDxERDwAAAA4RHhAPAAADBAYEBAQAAAAPEREPAQ4AEBAeERERAAAEAAwEBA4AAAEAAQEBCQYACAoMDAoJAAAEBAQEBAMAAAAaFRUVFQAAAB4RERERAAAADhEREQ4AAAAeEREeEBAAAA8REQ8BAYAABwgICAgAAAAOEA4BHgAABA4EBAQDAAAAEREREQ4AAAAREQoKBAAAABEVFRUKAAAAEQoEChEAAAAREREPAQ4AAB8CBAgfAAADggwCAgOAAAICAgICAgAAHAQDBAQcAAAFCgAAAAAADxCmaGhmUI8";
+            const string bbcFont =
+                "AAAAAAAAAAAYGBgYGAAYAGxsbAAAAAAANjZ/Nn82NgAMP2g+C34YAGBmDBgwZgYAOGxsOG1mOwAMGDAAAAAAAAwYMDAwGAwAMBgMDAwYMAAAGH48fhgAAAAYGH4YGAAAAAAAAAAYGDAAAAB+AAAAAAAAAAAAGBgAAAYMGDBgAAA8Zm5+dmY8ABg4GBgYGH4APGYGDBgwfgA8ZgYcBmY8AAwcPGx+DAwAfmB8BgZmPAAcMGB8ZmY8AH4GDBgwMDAAPGZmPGZmPAA8ZmY+Bgw4AAAAGBgAGBgAAAAYGAAYGDAMGDBgMBgMAAAAfgB+AAAAMBgMBgwYMAA8ZgwYGAAYADxmbmpuYDwAPGZmfmZmZgB8ZmZ8ZmZ8ADxmYGBgZjwAeGxmZmZseAB+YGB8YGB+AH5gYHxgYGAAPGZgbmZmPABmZmZ+ZmZmAH4YGBgYGH4APgwMDAxsOABmbHhweGxmAGBgYGBgYH4AY3d/a2tjYwBmZnZ+bmZmADxmZmZmZjwAfGZmfGBgYAA8ZmZmamw2AHxmZnxsZmYAPGZgPAZmPAB+GBgYGBgYAGZmZmZmZjwAZmZmZmY8GABjY2trf3djAGZmPBg8ZmYAZmZmPBgYGAB+BgwYMGB+AHxgYGBgYHwAAGAwGAwGAAA+BgYGBgY+ABg8ZkIAAAAAAAAAAAAAAP8cNjB8MDB+AAAAPAY+Zj4AYGB8ZmZmfAAAADxmYGY8AAYGPmZmZj4AAAA8Zn5gPAAcMDB8MDAwAAAAPmZmPgY8YGB8ZmZmZgAYADgYGBg8ABgAOBgYGBhwYGBmbHhsZgA4GBgYGBg8AAAANn9ra2MAAAB8ZmZmZgAAADxmZmY8AAAAfGZmfGBgAAA+ZmY+BgcAAGx2YGBgAAAAPmA8BnwAMDB8MDAwHAAAAGZmZmY+AAAAZmZmPBgAAABja2t/NgAAAGY8GDxmAAAAZmZmPgY8AAB+DBgwfgAMGBhwGBgMABgYGAAYGBgAMBgYDhgYMAAxa0YAAAAAADxCmaGhmUI8";
+
             int paper;
             int pen;
+            string font;
             if (UseSpeccyColors)
             {
                 paper = 7;
                 pen = 0;
+                font = speccyFont;
             }
             else if (UseBbcColors)
             {
                 paper = 0;
                 pen = 7;
+                font = bbcFont;
             }
             else
             {
                 paper = 1;
                 pen = 5;
+                font = bbcFont;
             }
 
             // Set editor colors.
@@ -91,6 +99,9 @@ public class RomSelectorViewModel : ViewModelBase
                 speccy.TheCpu.MainMemory.Data[0x11CF] = 0xD3;
                 speccy.TheCpu.MainMemory.Data[0x11D0] = 0XFE;
             }
+
+            // Patch the bitmap font.
+            speccy.TheCpu.MainMemory.LoadData(Convert.FromBase64String(font), 0x3D00);
 
             speccy.TheCpu.ResetAsync();
         };
