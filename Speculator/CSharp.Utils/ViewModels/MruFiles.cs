@@ -35,6 +35,11 @@ public class MruFiles : ViewModelBase
     public SingleItem Item7 => m_items[6];
     public SingleItem Item8 => m_items[7];
 
+    /// <summary>
+    /// Command that is bound to from the view, triggering a load from the MRU list.
+    /// Command parameter is the file number (1+).
+    /// Triggers an OpenRequested event.
+    /// </summary>
     public ICommand Open { get; }
 
     public MruFiles()
@@ -62,6 +67,7 @@ public class MruFiles : ViewModelBase
         
         RaisePropertyChanges();
     }
+    
     private void RaisePropertyChanges()
     {
 

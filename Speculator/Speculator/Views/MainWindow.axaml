@@ -30,8 +30,8 @@
     </Window.Styles>
 
     <Window.KeyBindings>
-        <KeyBinding Command="{Binding LoadRom}" Gesture="{OnPlatform 'ctrl+o', macOS='⌘+o'}" />
-        <KeyBinding Command="{Binding SaveRom}" Gesture="{OnPlatform 'ctrl+s', macOS='⌘+s'}" />
+        <KeyBinding Command="{Binding LoadGameRom}" Gesture="{OnPlatform 'ctrl+o', macOS='⌘+o'}" />
+        <KeyBinding Command="{Binding SaveGameRom}" Gesture="{OnPlatform 'ctrl+s', macOS='⌘+s'}" />
         <KeyBinding Command="{Binding ResetMachine}" Gesture="{OnPlatform 'escape'}" />
     </Window.KeyBindings>
 
@@ -45,7 +45,7 @@
                         </Style>
                     </Menu.Styles>
                     <MenuItem Header="File">
-                        <MenuItem Header="_Open..." Command="{Binding LoadRom}"
+                        <MenuItem Header="_Open..." Command="{Binding LoadGameRom}"
                                   InputGesture="{OnPlatform 'ctrl+o', macOS='⌘+o'}" />
                         <MenuItem Header="Open _Recent">
                             <MenuItem Header="Empty" IsVisible="{Binding Mru.IsEmpty}" IsEnabled="False"/>
@@ -60,7 +60,7 @@
                             <Separator/>
                             <MenuItem Header="Clear" Command="{Binding Mru.Clear}"/>
                         </MenuItem>
-                        <MenuItem Header="_Save As..." Command="{Binding SaveRom}"
+                        <MenuItem Header="_Save As..." Command="{Binding SaveGameRom}"
                                   InputGesture="{OnPlatform 'ctrl+s', macOS='⌘+s'}" />
                         <Separator />
                         <MenuItem Header="_Exit" Command="{Binding CloseCommand}" />

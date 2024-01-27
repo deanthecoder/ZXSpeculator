@@ -38,7 +38,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         Speccy.TheCpu.LoadRequested += (_, _) =>
         {
             if (!Speccy.TheTapeLoader.IsLoading)
-                Dispatcher.UIThread.InvokeAsync(LoadRom);
+                Dispatcher.UIThread.InvokeAsync(LoadGameRom);
         };
         
         Mru = new MruFiles().InitFromString(Settings.MruFiles);
@@ -58,8 +58,8 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
             Speccy.SoundHandler.IsEnabled = Settings.IsSoundEnabled;
         }
     }
-
-    public void LoadRom()
+    
+    public void LoadGameRom()
     {
         var keyBlocker = Speccy.PortHandler.CreateKeyBlocker();
         var command = new FileOpenCommand("Load ROM file", "ROM Files", ZxFileIo.OpenFilters);
@@ -79,7 +79,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         command.Execute(null);
     }
     
-    public void SaveRom()
+    public void SaveGameRom()
     {
         var keyBlocker = Speccy.PortHandler.CreateKeyBlocker();
         var command = new FileSaveCommand("Save ROM file", "ROM Files", ZxFileIo.SaveFilters);
@@ -88,6 +88,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
             try
             {
                 Speccy.SaveRom(info);
+                Mru.Add(info);
             }
             finally
             {
@@ -130,7 +131,8 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     public void ToggleAmbientBlur() =>
         Settings.IsAmbientBlurred = !Settings.IsAmbientBlurred;
 
-    public void OpenProjectPage() => new Uri("https://github.com/deanthecoder/ZXSpeculator").Open();
+    public void OpenProjectPage() =>
+        new Uri("https://github.com/deanthecoder/ZXSpeculator").Open();
     
     public void Dispose()
     {
