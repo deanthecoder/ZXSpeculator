@@ -22,13 +22,15 @@ public class ZxSpectrum : IDisposable
     private const int TStatesPerRenderFrame = 69888;
 
     private SoundHandler m_soundHandler;
+    private readonly ZxFileIo m_zxFileIo;
+    
     private ZxDisplay TheDisplay { get; }
-    public Debugger.Debugger TheDebugger { get; }
-
     public CPU TheCpu { get; }
     public ZxPortHandler PortHandler { get; }
     public SoundHandler SoundHandler => m_soundHandler ??= new SoundHandler();
     public TapeLoader TheTapeLoader { get; } = new TapeLoader();
+    public Debugger.Debugger TheDebugger { get; }
+    public CpuHistory CpuHistory { get; }
 
     public ZxSpectrum(ZxDisplay display)
     {
@@ -48,6 +50,9 @@ public class ZxSpectrum : IDisposable
             if (TheDebugger.IsStepping)
                 SoundHandler.IsEnabled = false;
         };
+
+        m_zxFileIo = new ZxFileIo(TheCpu, TheDisplay, TheTapeLoader);
+        CpuHistory = new CpuHistory(TheCpu, m_zxFileIo);
     }
     
     public ZxSpectrum LoadBasicRom(FileInfo systemRom)
@@ -58,6 +63,7 @@ public class ZxSpectrum : IDisposable
 
     public void Dispose()
     {
+        CpuHistory?.Dispose();
         m_soundHandler?.Dispose();
         PortHandler?.Dispose();
         TheCpu?.PowerOffAsync();
@@ -71,13 +77,13 @@ public class ZxSpectrum : IDisposable
     
     public ZxSpectrum LoadRom(FileInfo romFile)
     {
-        new ZxFileIo(TheCpu, TheDisplay, TheTapeLoader).LoadFile(romFile);
+        m_zxFileIo.LoadFile(romFile);
         return this;
     }
     
     public ZxSpectrum SaveRom(FileInfo romFile)
     {
-        new ZxFileIo(TheCpu, TheDisplay, TheTapeLoader).SaveFile(romFile);
+        m_zxFileIo.SaveFile(romFile);
         return this;
     }
 }

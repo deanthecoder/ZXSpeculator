@@ -61,7 +61,8 @@ public class ZxFileIo
                 LoadBin(fileInfo);
                 return;
             case ".sna":
-                LoadSna(fileInfo);
+                LoadSna(fileInfo, m_cpu, out var borderAttr);
+                m_zxDisplay.BorderAttr = borderAttr;
                 return;
             case ".scr":
                 LoadScr(fileInfo);
@@ -239,32 +240,32 @@ public class ZxFileIo
         }
     }
     
-    private void LoadSna(FileInfo file)
+    public static void LoadSna(FileInfo file, CPU cpu, out byte borderAttr)
     {
         using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
         {
-            m_cpu.TheRegisters.Clear();
-            m_cpu.TheRegisters.I = (byte)stream.ReadByte();
-            m_cpu.TheRegisters.Alt.HL = ReadZxWord(stream);
-            m_cpu.TheRegisters.Alt.DE = ReadZxWord(stream);
-            m_cpu.TheRegisters.Alt.BC = ReadZxWord(stream);
-            m_cpu.TheRegisters.Alt.AF = ReadZxWord(stream);
-            m_cpu.TheRegisters.Main.HL = ReadZxWord(stream);
-            m_cpu.TheRegisters.Main.DE = ReadZxWord(stream);
-            m_cpu.TheRegisters.Main.BC = ReadZxWord(stream);
-            m_cpu.TheRegisters.IY = ReadZxWord(stream);
-            m_cpu.TheRegisters.IX = ReadZxWord(stream);
-            m_cpu.TheRegisters.IFF1 = m_cpu.TheRegisters.IFF2 = stream.ReadByte() != 0;
-            m_cpu.TheRegisters.R = (byte)stream.ReadByte();
-            m_cpu.TheRegisters.Main.AF = ReadZxWord(stream);
-            m_cpu.TheRegisters.SP = ReadZxWord(stream);
-            m_cpu.TheRegisters.IM = (byte)stream.ReadByte();
-            m_zxDisplay.BorderAttr = (byte)stream.ReadByte();
+            cpu.TheRegisters.Clear();
+            cpu.TheRegisters.I = (byte)stream.ReadByte();
+            cpu.TheRegisters.Alt.HL = ReadZxWord(stream);
+            cpu.TheRegisters.Alt.DE = ReadZxWord(stream);
+            cpu.TheRegisters.Alt.BC = ReadZxWord(stream);
+            cpu.TheRegisters.Alt.AF = ReadZxWord(stream);
+            cpu.TheRegisters.Main.HL = ReadZxWord(stream);
+            cpu.TheRegisters.Main.DE = ReadZxWord(stream);
+            cpu.TheRegisters.Main.BC = ReadZxWord(stream);
+            cpu.TheRegisters.IY = ReadZxWord(stream);
+            cpu.TheRegisters.IX = ReadZxWord(stream);
+            cpu.TheRegisters.IFF1 = cpu.TheRegisters.IFF2 = stream.ReadByte() != 0;
+            cpu.TheRegisters.R = (byte)stream.ReadByte();
+            cpu.TheRegisters.Main.AF = ReadZxWord(stream);
+            cpu.TheRegisters.SP = ReadZxWord(stream);
+            cpu.TheRegisters.IM = (byte)stream.ReadByte();
+            borderAttr = (byte)stream.ReadByte();
             for (var i = 16384; i <= 65535; i++)
-                m_cpu.MainMemory.Poke((ushort)i, (byte)stream.ReadByte());
+                cpu.MainMemory.Poke((ushort)i, (byte)stream.ReadByte());
         }
 
-        m_cpu.RETN();
+        cpu.RETN();
     }
 
     private static ushort ReadZxWord(Stream stream)
@@ -278,7 +279,10 @@ public class ZxFileIo
         stream.WriteByte((byte)(n >> 8 & 0xFF));
     }
 
-    private void SaveSna(FileInfo file)
+    /// <summary>
+    /// Create and write a .sna system snapshot to file.
+    /// </summary>
+    public void SaveSna(FileInfo file)
     {
         using var stream = new FileStream(file.FullName, FileMode.Create, FileAccess.Write);
         try

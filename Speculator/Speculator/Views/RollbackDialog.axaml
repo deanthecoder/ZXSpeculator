@@ -1,0 +1,41 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:dialogHostAvalonia="clr-namespace:DialogHostAvalonia;assembly=DialogHost.Avalonia"
+             xmlns:core="clr-namespace:Speculator.Core;assembly=Speculator.Core"
+             mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="350"
+             x:Class="Speculator.Views.RollbackDialog"
+             x:DataType="core:CpuHistory">
+    <StackPanel Margin="16,8">
+        <Image Width="320" Height="240" Source="{Binding ScreenPreview}"/>
+        
+        <Slider Margin="16,16,16,8"
+                Minimum="0"
+                Maximum="{Binding LastSampleIndex}"
+                Value="{Binding IndexToRestore}"
+                IsSnapToTickEnabled="True"
+                TickFrequency="1"/>
+        
+        <Grid Margin="0,0,0,8">
+            <TextBlock Text="Older" HorizontalAlignment="Left" FontSize="12"/>
+            <TextBlock Text="Now" HorizontalAlignment="Right" FontSize="12"/>
+        </Grid>
+
+        <Grid ColumnDefinitions="Auto,Auto"
+              HorizontalAlignment="Right">
+            <Button Content="CANCEL"
+                    Theme="{DynamicResource MaterialFlatButton}"
+                    IsCancel="True"
+                    Command="{Binding CloseDialogCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=dialogHostAvalonia:DialogHost}}" />
+            <Button Grid.Column="1"
+                    Content="ROLLBACK"
+                    Theme="{DynamicResource MaterialFlatButton}"
+                    Foreground="Red"
+                    Click="OnRollback"
+                    IsEnabled="{Binding CanRestore}"
+                    Command="{Binding CloseDialogCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=dialogHostAvalonia:DialogHost}}"
+                    CommandParameter="True" />
+        </Grid>
+    </StackPanel>
+</UserControl>

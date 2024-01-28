@@ -34,7 +34,7 @@ public class ZxDisplay
     /// <summary>
     /// Buffer of pixels, each byte a palette index.
     /// </summary>
-    private readonly byte[][] m_screenBuffer = Enumerable.Range(0, TopMargin + WritableHeight + BottomMargin).Select(_ => new byte[LeftMargin + WriteableWidth + RightMargin]).ToArray();
+    private readonly byte[][] m_screenBuffer = CreateScreenBuffer();
 
     /// <summary>
     /// Used to prevent unnecessary UI screen refreshes.
@@ -61,7 +61,7 @@ public class ZxDisplay
         Color.FromRgb(0xFF, 0xFF, 0xFF)   // Bright White
     };
 
-    public WriteableBitmap Bitmap { get; } = new WriteableBitmap(new PixelSize(LeftMargin + WriteableWidth + RightMargin, (TopMargin + WritableHeight + BottomMargin) * 4), new Vector(96, 96), PixelFormat.Rgba8888);
+    public WriteableBitmap Bitmap { get; } = CreateWriteableBitmap(4); // Expand height for scanlines.
 
     public byte BorderAttr { get; set; }
 
@@ -96,19 +96,42 @@ public class ZxDisplay
     
     public void OnRenderScanline(object sender, (Memory memory, int scanline) args)
     {
-        var y = args.scanline - (48 - TopMargin);
-        if (y < 0 || y >= m_screenBuffer.Length)
+        var didReachScreenBottom = RenderScanlineIntoBuffer(args.memory, args.scanline, m_screenBuffer, BorderAttr, m_isFlashing, ref m_didPixelsChange);
+
+        // If scanline reached the bottom of the screen, update the UI.
+        if (!didReachScreenBottom)
+            return;
+        
+        // Update the flash.
+        if (m_flashFrameCount++ == FramesPerFlash)
+        {
+            m_isFlashing = !m_isFlashing;
+            m_flashFrameCount = 0;
+        }
+
+        if (m_didPixelsChange)
+            UpdateScreen();
+        m_didPixelsChange = false;
+    }
+
+    /// <summary>
+    /// Returns true if the scanline has reached the bottom of the screen.
+    /// </summary>
+    private static bool RenderScanlineIntoBuffer(Memory memory, int scanlineIndex, byte[][] screenBuffer, byte borderAttr, bool isFlashing, ref bool didPixelsChange)
+    {
+        var y = scanlineIndex - (48 - TopMargin);
+        if (y < 0 || y >= screenBuffer.Length)
         {
             // Off-screen(/vsync) area.
-            return;
+            return false;
         }
         
         // Fill entire line with border color.
-        var border = GetColorIndices(BorderAttr).Item1;
-        if (m_screenBuffer[y][0] != border)
+        var border = GetColorIndices(borderAttr).Item1;
+        if (screenBuffer[y][0] != border)
         {
-            m_didPixelsChange = true;
-            Array.Fill(m_screenBuffer[y], border);
+            didPixelsChange = true;
+            Array.Fill(screenBuffer[y], border);
         }
 
         // Set Y to the drawable screen coordinate.
@@ -116,7 +139,7 @@ public class ZxDisplay
         if (y < 0 || y >= WritableHeight)
         {
             // In top or bottom border area - No screen content needed.
-            return;
+            return false;
         }
         
         // Draw screen pixel content.
@@ -129,13 +152,13 @@ public class ZxDisplay
         for (var characterColumn = 0; characterColumn < 32; characterColumn++)
         {
             // Get block of 8 horizontal pixels.
-            var screenByte = args.memory.Data[srcRowStart + characterColumn]; 
+            var screenByte = memory.Data[srcRowStart + characterColumn]; 
 
             // Get the pen/paper color for this block.
             var a = characterRow * 32 + characterColumn;
-            var attr = args.memory.Data[ColorMapBase + a];
+            var attr = memory.Data[ColorMapBase + a];
             var isFlashSet = (attr & 0x80) != 0;
-            var penAndPaper = GetColorIndices(attr, m_isFlashing && isFlashSet);
+            var penAndPaper = GetColorIndices(attr, isFlashing && isFlashSet);
 
             // Write indexed colors for the 8 pixel block.
             var off = LeftMargin + characterColumn * 8;
@@ -143,27 +166,45 @@ public class ZxDisplay
             {
                 var isSet = (screenByte & (1 << i)) != 0;
                 var index = isSet ? penAndPaper.Item1 : penAndPaper.Item2;
-                if (m_screenBuffer[y + TopMargin][off] == index)
+                if (screenBuffer[y + TopMargin][off] == index)
                     continue;
-                m_didPixelsChange = true;
-                m_screenBuffer[y + TopMargin][off] = index;
+                didPixelsChange = true;
+                screenBuffer[y + TopMargin][off] = index;
             }
         }
-        
-        // If scanline reached the bottom of the screen, update the UI.
-        if (y == WritableHeight - 1)
+
+        return y == WritableHeight - 1;
+    }
+
+    /// <summary>
+    /// Create a full screen image from the current state of memory.
+    /// </summary>
+    public static Bitmap CaptureScreenFromMemory(Memory theMemory, byte borderAttr)
+    {
+        // Render the screen into a buffer of indexed palette values.
+        const int scanlineCount = 312;
+        var screenBuffer = CreateScreenBuffer();
+        for (var i = 0; i < scanlineCount; i++)
         {
-            // Update the flash.
-            if (m_flashFrameCount++ == FramesPerFlash)
-            {
-                m_isFlashing = !m_isFlashing;
-                m_flashFrameCount = 0;
-            }
-            
-            if (m_didPixelsChange)
-                UpdateScreen();
-            m_didPixelsChange = false;
+            var unused = false;
+            RenderScanlineIntoBuffer(theMemory, i, screenBuffer, borderAttr, false, ref unused);
         }
+
+        // Convert buffer to an image.
+        var bitmap = CreateWriteableBitmap(1);
+        using var frameBuffer = bitmap.Lock();
+        unsafe
+        {
+            var framePtr = (byte*)frameBuffer.Address;
+            for (var y = 0; y < screenBuffer.Length; y++)
+            {
+                var row = screenBuffer[y];
+                for (var x = 0; x < screenBuffer[0].Length; x++)
+                    FrameBuffer.SetPixel(framePtr, frameBuffer.RowBytes, x, y, Colors[row[x]]);
+            }
+        }
+
+        return bitmap;
     }
     
     private unsafe void UpdateScreen()
@@ -217,4 +258,17 @@ public class ZxDisplay
 
         Refreshed?.Invoke(this, EventArgs.Empty);
     }
+
+    /// <summary>
+    /// Buffer of pixels, each byte a palette index.
+    /// </summary>
+    private static byte[][] CreateScreenBuffer() =>
+        Enumerable.Range(0, TopMargin + WritableHeight + BottomMargin).Select(_ => new byte[LeftMargin + WriteableWidth + RightMargin]).ToArray();
+
+    /// <summary>
+    /// Create a bitmap suitable for use in the UI.
+    /// </summary>
+    /// <returns></returns>
+    private static WriteableBitmap CreateWriteableBitmap(int heightMultiplier) =>
+        new WriteableBitmap(new PixelSize(LeftMargin + WriteableWidth + RightMargin, (TopMargin + WritableHeight + BottomMargin) * heightMultiplier), new Vector(96, 96), PixelFormat.Rgba8888);
 }

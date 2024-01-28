@@ -14,6 +14,8 @@ ZX Speculator is a cross-platform ZX Spectrum 48K emulator written in C#.
   - Instruction stepping.
   - Breakpoints.
   - Instruction history.
+- **Rollback**: Die in your favourite game? Accidentally delete a line of code? Continuous recording allows you to 'roll back' to an earlier time.
+![Rollback](img/Rollback.png)
 - **Theming**: The Sinclair BASIC ROM can be customized to allow for:
   - Classic ZX Spectrum input vs a per-character typing strategy. (Courtesy of the [JGH Spectrum 48K ROM](http://mdfs.net/Software/Spectrum/Harston) by J.G.Harston)
   - Selectable colors schemes and fonts.
@@ -89,6 +91,9 @@ I've included a `.sna` snapshot of the code [here](Experiments/HumanShader/Human
 
 ## Contribution and Improvements
 ZX Speculator is an ongoing project and contributions are welcome. Whether it's improving emulation accuracy, testing on different platforms, or enhancing existing features, your input is valuable (although I can't always promise a fast response, as this is a side project).
+
+## Credits
+[Flux Capacitor icon](https://www.onlinewebfonts.com/icon) licensed by CC BY 4.0.
 
 ## Useful Resources
 - [The Undocumented Z80 Documented](http://www.z80.info/zip/z80-documented.pdf)
