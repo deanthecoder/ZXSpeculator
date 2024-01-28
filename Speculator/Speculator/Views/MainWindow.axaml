@@ -33,6 +33,7 @@
         <KeyBinding Command="{Binding LoadGameRom}" Gesture="{OnPlatform 'ctrl+o', macOS='⌘+o'}" />
         <KeyBinding Command="{Binding SaveGameRom}" Gesture="{OnPlatform 'ctrl+s', macOS='⌘+s'}" />
         <KeyBinding Command="{Binding ResetMachine}" Gesture="{OnPlatform 'escape'}" />
+        <KeyBinding Command="{Binding QuickRollback}" Gesture="F1" />
     </Window.KeyBindings>
 
     <dialogHostAvalonia:DialogHost x:Name="Host" OverlayBackground="Black">

@@ -21,6 +21,7 @@ namespace Speculator.Core;
 /// </summary>
 public class CpuHistory : ViewModelBase, IDisposable
 {
+    private const int SamplesPerSecond = 2;
     private readonly ZxFileIo m_zxFileIo;
     private const int MaxSamples = 120;
     private readonly long m_ticksPerSample;
@@ -63,7 +64,7 @@ public class CpuHistory : ViewModelBase, IDisposable
         m_zxFileIo = zxFileIo;
         TheCpu = theCpu;
         theCpu.Ticked += OnCpuTicked;
-        m_ticksPerSample = (long)(CPU.TStatesPerSecond / 2); // Two samples per second.
+        m_ticksPerSample = (long)(CPU.TStatesPerSecond / SamplesPerSecond); // Two samples per second.
         m_ticksToNextSample = m_ticksPerSample * 5; // Start 5 seconds after machine start.
         m_lastTStateCount = 0;
     }
@@ -101,6 +102,16 @@ public class CpuHistory : ViewModelBase, IDisposable
         // Delete all snapshots from this point.
         while (m_snapshots.Count > IndexToRestore)
             RemoveSnapshot(m_snapshots.Last());
+    }
+
+    public void RollbackByTime(int goBackSecs)
+    {
+        if (m_snapshots.Count == 0)
+            return;
+        
+        var snapshotCount = goBackSecs * SamplesPerSecond;
+        IndexToRestore = Math.Max(0, m_snapshots.Count - snapshotCount);
+        Rollback();
     }
     
     private void RemoveSnapshot(FileInfo toRemove)

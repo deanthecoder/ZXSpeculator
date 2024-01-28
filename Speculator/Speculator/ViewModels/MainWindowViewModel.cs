@@ -111,6 +111,8 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
                     Speccy.TheCpu.ResetAsync();
             },
             MaterialIconKind.Power);
+    
+    public void QuickRollback() => Speccy.CpuHistory.RollbackByTime(5);
 
     public void SetCursorJoystick(bool b) =>
         Settings.EmulateCursorJoystick = b;
