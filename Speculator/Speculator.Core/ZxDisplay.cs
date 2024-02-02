@@ -30,6 +30,7 @@ public class ZxDisplay
     private int m_flashFrameCount;
     private bool m_isFlashing;
     private bool m_isCrt = true;
+    private DateTime m_lastFlashTime = DateTime.Now;
 
     /// <summary>
     /// Buffer of pixels, each byte a palette index.
@@ -73,9 +74,14 @@ public class ZxDisplay
             if (m_isCrt == value)
                 return;
             m_isCrt = value;
-            m_didPixelsChange = true;
+                m_didPixelsChange = true;
         }
     }
+    
+    /// <summary>
+    /// The emulation speed (where 1.0 => 100% Speccy).
+    /// </summary>
+    public double EmulationSpeed { get; private set; }
 
     public event EventHandler Refreshed;
 
@@ -107,6 +113,12 @@ public class ZxDisplay
         {
             m_isFlashing = !m_isFlashing;
             m_flashFrameCount = 0;
+            
+            // Also update the EmulationSpeed.
+            var now = DateTime.Now;
+            var elapsedSecs = (now - m_lastFlashTime).TotalSeconds;
+            EmulationSpeed = Math.Round(FramesPerFlash / (50.0 * elapsedSecs) / 0.25) * 0.25;
+            m_lastFlashTime = now;
         }
 
         if (m_didPixelsChange)
@@ -219,14 +231,14 @@ public class ZxDisplay
             if (IsCrt)
             {
                 // Software pixel shader.
-                for (var y = 0; y < h; y++)
-                {
-                    var row = m_screenBuffer[y];
+            for (var y = 0; y < h; y++)
+            {
+                var row = m_screenBuffer[y];
                     var v = (y - h * 0.5) / h;
                     v *= v;
-                    for (var x = 0; x < w; x++)
-                    {
-                        var color = Colors[row[x]];
+                for (var x = 0; x < w; x++)
+                {
+                    var color = Colors[row[x]];
                         var u = (x - w * 0.5) / w;
                         var vignette = u * u + v;
                         vignette *= vignette * vignette;

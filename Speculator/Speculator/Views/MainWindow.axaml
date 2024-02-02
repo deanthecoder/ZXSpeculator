@@ -157,8 +157,13 @@
                     </ToggleButton>
                     
                     <ToggleButton Command="{Binding ToggleFullThrottle}"
-                                  IsChecked="{Binding IsFullThrottle, Mode=OneWay}"
-                                  ToolTip.Tip="Toggle 'Full Speed'">
+                                  IsChecked="{Binding IsFullThrottle, Mode=OneWay}">
+                        <ToolTip.Tip>
+                            <StackPanel>
+                                <TextBlock Text="Toggle 'Full Speed'" HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding Display.EmulationSpeed, StringFormat={}(Current: x{0:N2})}" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </ToolTip.Tip>
                         <avalonia:MaterialIcon Width="24" Height="24"
                                                Tag="{Binding IsChecked, RelativeSource={RelativeSource AncestorType=ToggleButton}}">
                             <avalonia:MaterialIcon.Styles>
