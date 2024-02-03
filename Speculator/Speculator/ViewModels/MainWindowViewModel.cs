@@ -54,7 +54,6 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         
         void OnSettingsChanged()
         {
-            Display.IsCrt = Settings.IsCrt;
             Speccy.PortHandler.EmulateCursorJoystick = Settings.EmulateCursorJoystick;
             Speccy.SoundHandler.IsEnabled = Settings.IsSoundEnabled;
         }

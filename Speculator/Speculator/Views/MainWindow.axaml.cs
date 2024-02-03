@@ -28,9 +28,6 @@ namespace Speculator.Views;
 
 public partial class MainWindow : Window
 {
-    private bool m_isLoaded;
-    private MainWindowViewModel ViewModel => (MainWindowViewModel)DataContext;
-    
     public MainWindow()
     {
         InitializeComponent();
@@ -38,35 +35,6 @@ public partial class MainWindow : Window
         AddHandler(DragDrop.DropEvent, OnDrop);
         Closing += (_, args) => AppCloseHandler.Instance.OnMainWindowClosing(args);
         Closed += (_, _) => (DataContext as IDisposable)?.Dispose();
-    }
-
-    override protected void OnLoaded(RoutedEventArgs e)
-    {
-        base.OnLoaded(e);
-        
-        if (m_isLoaded)
-            return;
-        m_isLoaded = true;
-
-        // Kick the UI to update the screen when the emulator updates it.
-        var action = new Action(() =>
-        {
-            if (AmbientDisplay.IsVisible)
-                AmbientDisplay.InvalidateVisual();
-            MainDisplay.InvalidateVisual();
-            if (CrtOverlay.IsVisible)
-                CrtOverlay.InvalidateVisual();
-        });
-        ViewModel.Display.Refreshed += (_, _) =>
-        {
-            try
-            {
-                Dispatcher.UIThread.InvokeAsync(action);
-            }
-            catch (TaskCanceledException)
-            {
-            }
-        };
     }
 
     private void OnAboutDialogClicked(object sender, PointerPressedEventArgs e) =>

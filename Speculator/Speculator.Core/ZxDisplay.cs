@@ -12,7 +12,7 @@
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
-using Avalonia.Platform;
+using PixelFormat = Avalonia.Platform.PixelFormat;
 
 namespace Speculator.Core;
 
@@ -29,7 +29,6 @@ public class ZxDisplay
     private const int FramesPerFlash = 16;
     private int m_flashFrameCount;
     private bool m_isFlashing;
-    private bool m_isCrt = true;
     private DateTime m_lastFlashTime = DateTime.Now;
 
     /// <summary>
@@ -62,21 +61,9 @@ public class ZxDisplay
         Color.FromRgb(0xFF, 0xFF, 0xFF)   // Bright White
     };
 
-    public WriteableBitmap Bitmap { get; } = CreateWriteableBitmap(4); // Expand height for scanlines.
+    public WriteableBitmap Bitmap { get; } = CreateWriteableBitmap();
 
     public byte BorderAttr { get; set; }
-
-    public bool IsCrt
-    {
-        get => m_isCrt;
-        set
-        {
-            if (m_isCrt == value)
-                return;
-            m_isCrt = value;
-                m_didPixelsChange = true;
-        }
-    }
     
     /// <summary>
     /// The emulation speed (where 1.0 => 100% Speccy).
@@ -203,7 +190,7 @@ public class ZxDisplay
         }
 
         // Convert buffer to an image.
-        var bitmap = CreateWriteableBitmap(1);
+        var bitmap = CreateWriteableBitmap();
         using var frameBuffer = bitmap.Lock();
         unsafe
         {
@@ -228,42 +215,13 @@ public class ZxDisplay
             var w = m_screenBuffer[0].Length;
             var h = m_screenBuffer.Length;
 
-            if (IsCrt)
-            {
-                // Software pixel shader.
             for (var y = 0; y < h; y++)
             {
                 var row = m_screenBuffer[y];
-                    var v = (y - h * 0.5) / h;
-                    v *= v;
                 for (var x = 0; x < w; x++)
                 {
                     var color = Colors[row[x]];
-                        var u = (x - w * 0.5) / w;
-                        var vignette = u * u + v;
-                        vignette *= vignette * vignette;
-                        vignette = 1.0 - vignette * 2.0;
-                        FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y * 4, color, vignette);
-                        FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y * 4 + 1, color, vignette);
-                        FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y * 4 + 2, color, vignette);
-                        FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y * 4 + 3, color, 0.85 * vignette);
-                    }
-                }
-            }
-            else
-            {
-                // Straight blit - No FX.
-                for (var y = 0; y < h; y++)
-                {
-                    var row = m_screenBuffer[y];
-                    for (var x = 0; x < w; x++)
-                    {
-                        var color = Colors[row[x]];
-                        FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y * 4, color);
-                        FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y * 4 + 1, color);
-                        FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y * 4 + 2, color);
-                        FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y * 4 + 3, color);
-                    }
+                    FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y, color);
                 }
             }
         }
@@ -281,6 +239,8 @@ public class ZxDisplay
     /// Create a bitmap suitable for use in the UI.
     /// </summary>
     /// <returns></returns>
-    private static WriteableBitmap CreateWriteableBitmap(int heightMultiplier) =>
-        new WriteableBitmap(new PixelSize(LeftMargin + WriteableWidth + RightMargin, (TopMargin + WritableHeight + BottomMargin) * heightMultiplier), new Vector(96, 96), PixelFormat.Rgba8888);
+    private static WriteableBitmap CreateWriteableBitmap() =>
+        new WriteableBitmap(new PixelSize(LeftMargin + WriteableWidth + RightMargin, TopMargin + WritableHeight + BottomMargin), new Vector(96, 96), PixelFormat.Rgba8888);
 }
+
+// todo - extract

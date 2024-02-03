@@ -12,6 +12,8 @@
       <PackageReference Include="DialogHost.Avalonia" Version="0.7.7" />
       <PackageReference Include="Material.Icons.Avalonia" Version="2.1.0" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+      <PackageReference Include="OpenTK" Version="4.8.2" />
+      <PackageReference Include="OpenTK.Core" Version="4.8.2" />
     </ItemGroup>
 
 </Project>
