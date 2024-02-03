@@ -100,6 +100,7 @@ public class OpenGlScreen : OpenGlControl
         m_bitmapTexture.LoadFrom((int)Source.Size.Width, (int)Source.Size.Height, frameBuffer.Address);
         m_bitmapTexture.Use();
 
+        m_shader.Use();
         m_shader.SetVec2("resolution", Bounds.Width, Bounds.Height);
         m_shader.SetFloat("crt", IsCrt ? 1.0 : 0.0);
         m_shader.SetFloat("ambientBlur", IsAmbientBlur ? 1.0 : 0.0);
