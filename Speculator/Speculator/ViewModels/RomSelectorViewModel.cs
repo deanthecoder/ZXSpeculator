@@ -46,7 +46,7 @@ public class RomSelectorViewModel : ViewModelBase
 
         LoadBasicRomAction = romFile =>
         {
-            speccy.LoadBasicRom(romFile);
+            speccy.LoadBasicRom(romFile ?? RomFile);
 
             Settings.Instance.RomFile = romFile;
             Settings.Instance.UseSpeccyColors = UseSpeccyColors;
