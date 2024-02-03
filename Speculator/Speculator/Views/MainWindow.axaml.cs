@@ -10,14 +10,16 @@
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
 using System;
-using System.Threading.Tasks;
+using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Threading;
+using Avalonia.Platform.Storage;
+using CSharp.Utils.Extensions;
 using CSharp.Utils.UI;
 using Material.Icons.Avalonia;
 using Speculator.ViewModels;
+
 // ReSharper disable UnusedParameter.Local
 
 namespace Speculator.Views;
@@ -31,6 +33,7 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
+        AddHandler(DragDrop.DropEvent, OnDrop);
         Closing += (_, args) => AppCloseHandler.Instance.OnMainWindowClosing(args);
         Closed += (_, _) => (DataContext as IDisposable)?.Dispose();
     }
@@ -76,5 +79,11 @@ public partial class MainWindow : Window
             Keyboard.Opacity = 1.0;
         };
         icon.PointerExited += (_, _) => Keyboard.Opacity = 0.0;
+    }
+
+    private void OnDrop(object sender, DragEventArgs e)
+    {
+        if (e.Data.GetFiles()?.FirstOrDefault() is IStorageFile file)
+            ((MainWindowViewModel)DataContext)?.LoadGameRomDirect(file.ToFileInfo());
     }
 }

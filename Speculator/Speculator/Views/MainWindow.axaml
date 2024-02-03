@@ -15,6 +15,7 @@
         Title="ZX Speculator"
         Width="1066" Height="634"
         MinWidth="520" MinHeight="320"
+        DragDrop.AllowDrop="True"
         x:Name="Self">
     <Design.DataContext>
         <vm:MainWindowViewModel />

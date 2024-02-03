@@ -10,6 +10,7 @@
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
 using System;
+using System.IO;
 using Avalonia;
 using Avalonia.Threading;
 using CSharp.Utils.Commands;
@@ -67,8 +68,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         {
             try
             {
-                Speccy.LoadRom(info);
-                Mru.Add(info);
+                LoadGameRomDirect(info);
             }
             finally
             {
@@ -79,6 +79,12 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         command.Execute(null);
     }
     
+    public void LoadGameRomDirect(FileInfo info)
+    {
+        Speccy.LoadRom(info);
+        Mru.Add(info);
+    }
+
     public void SaveGameRom()
     {
         var keyBlocker = Speccy.PortHandler.CreateKeyBlocker();
