@@ -4,7 +4,6 @@ in vec2 texCoord;
 out vec4 outputColor;
 
 uniform sampler2D texture0;
-uniform vec2 resolution;
 uniform float xAspect;
 uniform float crt;
 uniform float ambientBlur;

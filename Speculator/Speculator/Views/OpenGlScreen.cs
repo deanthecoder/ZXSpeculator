@@ -9,12 +9,15 @@
 //
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
+using System;
 using System.Reflection;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using CSharp.Utils.Extensions;
 using CSharp.Utils.OpenGL;
-using OpenTK.Graphics.OpenGL;
+using Silk.NET.OpenGL;
+using Shader = CSharp.Utils.OpenGL.Shader;
+using Texture = CSharp.Utils.OpenGL.Texture;
 
 namespace Speculator.Views;
 
@@ -23,30 +26,15 @@ namespace Speculator.Views;
 /// </summary>
 public class OpenGlScreen : OpenGlControl
 {
-    private OpenGlShader m_shader;
-    private int m_vertexBufferObject;
-    private int m_vertexArrayObject;
-    private OpenGlTexture m_bitmapTexture;
+    private Shader m_shader;
     private WriteableBitmap m_source;
     private bool m_isCrt;
     private bool m_isAmbientBlur;
 
-    private readonly float[] m_vertices = {
-        // Positions, Texture Coords
-        0.0f, 0.0f,   -1.0f, 1.0f, // Bottom-left
-        1.0f, 0.0f,   1.0f, 1.0f,  // Bottom-right
-        1.0f, 1.0f,   1.0f, -1.0f, // Top-right
-        0.0f, 1.0f,   -1.0f, -1.0f // Top-left
-    };
-
-    private readonly uint[] m_indices = {
-        0, 1, 2, // First Triangle
-        0, 2, 3  // Second Triangle
-    };
-
     public static readonly DirectProperty<OpenGlScreen, WriteableBitmap> SourceProperty = AvaloniaProperty.RegisterDirect<OpenGlScreen, WriteableBitmap>(nameof(Source), o => o.Source, (o, v) => o.Source = v);
     public static readonly DirectProperty<OpenGlScreen, bool> IsCrtProperty = AvaloniaProperty.RegisterDirect<OpenGlScreen, bool>(nameof(IsCrt), o => o.IsCrt, (o, v) => o.IsCrt = v);
     public static readonly DirectProperty<OpenGlScreen, bool> IsAmbientBlurProperty = AvaloniaProperty.RegisterDirect<OpenGlScreen, bool>(nameof(IsAmbientBlur), o => o.IsAmbientBlur, (o, v) => o.IsAmbientBlur = v);
+    private Texture m_bitmapTexture;
 
     public WriteableBitmap Source
     {
@@ -66,59 +54,34 @@ public class OpenGlScreen : OpenGlControl
         set => SetAndRaise(IsAmbientBlurProperty, ref m_isAmbientBlur, value);
     }
 
-    override protected void Init()
+    override protected void Init(GL gl)
     {
-        m_shader = new OpenGlShader(Assembly.GetExecutingAssembly().GetDirectory().GetFile("Shaders/shader.frag"));
-
-        m_bitmapTexture = new OpenGlTexture();
-        m_bitmapTexture.Use();
-        
-        m_shader.Use();
-        m_shader.SetInt("texture0", 0);
-
-        m_vertexArrayObject = GL.GenVertexArray();
-        m_vertexBufferObject = GL.GenBuffer();
-        GL.BindVertexArray(m_vertexArrayObject);
-
-        GL.BindBuffer(BufferTarget.ArrayBuffer, m_vertexBufferObject);
-        GL.BufferData(BufferTarget.ArrayBuffer, m_vertices.Length * sizeof(float), m_vertices, BufferUsageHint.StaticDraw);
-
-        GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, 4 * sizeof(float), 0);
-        GL.EnableVertexAttribArray(0);
-
-        GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, 4 * sizeof(float), 2 * sizeof(float));
-        GL.EnableVertexAttribArray(1);
-
-        var ebo = GL.GenBuffer();
-        GL.BindBuffer(BufferTarget.ElementArrayBuffer, ebo);
-        GL.BufferData(BufferTarget.ElementArrayBuffer, m_indices.Length * sizeof(uint), m_indices, BufferUsageHint.StaticDraw);
+        m_shader = new Shader(gl,
+            "#version 330 core\nlayout (location = 0) in vec2 vPos;\nlayout (location = 1) in vec2 aTexCoord;\nout vec2 texCoord;\nvoid main()\n{\ntexCoord = aTexCoord;\ngl_Position = vec4(vPos,0.0, 1.0);\n}",
+            Assembly.GetExecutingAssembly().GetDirectory().GetFile("Shaders/shader.frag").ReadAllText());
     }
 
-    override protected void Render()
+    unsafe override protected void Render(GL context)
     {
         using var frameBuffer = Source.Lock();
-        m_bitmapTexture.LoadFrom((int)Source.Size.Width, (int)Source.Size.Height, frameBuffer.Address);
-        m_bitmapTexture.Use();
+        var array = new byte[(int)(Source.Size.Width * Source.Size.Height * 4)];
+        var bitmapData = new Span<byte>((void*)frameBuffer.Address, array.Length);
+
+        m_bitmapTexture?.Dispose(); // todo - Only assign once.
+        m_bitmapTexture = new Texture(context, bitmapData, (uint)Source.Size.Width, (uint)Source.Size.Height);
 
         m_shader.Use();
-        m_shader.SetVec2("resolution", Bounds.Width, Bounds.Height);
-        m_shader.SetFloat("crt", IsCrt ? 1.0 : 0.0);
-        m_shader.SetFloat("ambientBlur", IsAmbientBlur ? 1.0 : 0.0);
-        m_shader.SetFloat("xAspect", Bounds.Width * 240.0 / (Bounds.Height * 320.0));
 
-        GL.BindVertexArray(m_vertexArrayObject);
-        GL.DrawElements(PrimitiveType.Triangles, m_indices.Length, DrawElementsType.UnsignedInt, 0);
+        m_bitmapTexture.Bind();
+        m_shader.SetUniform("texture0", 0);
+        m_shader.SetUniform("crt", IsCrt ? 1.0 : 0.0);
+        m_shader.SetUniform("ambientBlur", IsAmbientBlur ? 1.0 : 0.0);
+        m_shader.SetUniform("xAspect", Bounds.Width * 240.0 / (Bounds.Height * 320.0));
     }
 
-    override protected void UnInit()
+    override protected void UnInit(GL gl)
     {
-        GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-        GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-        GL.DeleteBuffer(m_vertexBufferObject);
-        GL.DeleteVertexArray(m_vertexArrayObject);
-
         m_shader.Dispose();
-        GL.UseProgram(0);
         m_bitmapTexture.Dispose();
     }
 }

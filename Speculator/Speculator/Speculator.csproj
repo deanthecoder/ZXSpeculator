@@ -8,6 +8,7 @@
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
         <AssemblyVersion>1.2.0.0</AssemblyVersion>
         <Company>Dean Edis (DeanTheCoder)</Company>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
@@ -28,6 +29,7 @@
         <PackageReference Include="Material.Avalonia" Version="3.2.2" />
         <PackageReference Include="Material.Icons.Avalonia" Version="2.1.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="Silk.NET" Version="2.20.0" />
     </ItemGroup>
 
 
@@ -51,6 +53,9 @@
       </None>
       <None Update="ROMs\Standard Spectrum 48K BASIC.txt">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Shaders\shader.frag">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
     </ItemGroup>
 
