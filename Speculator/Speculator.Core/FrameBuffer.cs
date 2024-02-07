@@ -9,26 +9,47 @@
 //
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
-using Avalonia.Media;
+using System.Numerics;
 
 namespace Speculator.Core;
 
 public static class FrameBuffer
 {
-    private unsafe static Span<byte> GetPixel(byte* framePtr, int frameBufferRowBytes, int x, int y)
+    private static readonly Vector3 V255 = new Vector3(255);
+    
+    public static void SetPixel(Span<byte> framePtr, int stride, int x, int y, Vector3 rgb)
     {
-        const int bytesPerPixel = 4;
-        var offset = frameBufferRowBytes * y + bytesPerPixel * x;
-        return new Span<byte>(framePtr + offset, bytesPerPixel);
+        rgb = Vector3.Clamp(rgb, Vector3.Zero, V255);
+        var offset = y * stride + x * 4;
+        framePtr[offset + 0] = (byte)rgb.X;
+        framePtr[offset + 1] = (byte)rgb.Y;
+        framePtr[offset + 2] = (byte)rgb.Z;
+        framePtr[offset + 3] = 0xFF;
     }
 
-    public unsafe static void SetPixel(byte* framePtr, int framerBufferStride, int x, int y, Color color, double f = 1.0)
+    /// <summary>
+    /// Set a vertical strip of 4 pixels the same RGB color.
+    /// </summary>
+    public static void SetPixelV4(Span<byte> framePtr, int stride, int x, int y, Vector3 rgb, Vector3 f, Vector3 scanline)
     {
-        var pixel = GetPixel(framePtr, framerBufferStride, x, y);
-        var alpha = color.A / 255.0 * f;
-        pixel[0] = (byte)(color.R * alpha);
-        pixel[1] = (byte)(color.G * alpha);
-        pixel[2] = (byte)(color.B * alpha);
-        pixel[3] = color.A;
+        var clampedRgb = Vector3.Clamp(rgb * f, Vector3.Zero, V255);
+
+        // First 3 vertical pixels.
+        var offset = y * stride + x * 4;
+        for (var i = 0; i < 3; i++)
+        {
+            framePtr[offset] = (byte)clampedRgb.X;
+            framePtr[offset + 1] = (byte)clampedRgb.Y;
+            framePtr[offset + 2] = (byte)clampedRgb.Z;
+            framePtr[offset + 3] = 0xFF;
+            offset += stride;
+        }
+
+        // Adjust color for scanline effect and set the 4th pixel.
+        clampedRgb *= scanline;
+        framePtr[offset] = (byte)clampedRgb.X;
+        framePtr[offset + 1] = (byte)clampedRgb.Y;
+        framePtr[offset + 2] = (byte)clampedRgb.Z;
+        framePtr[offset + 3] = 0xFF;
     }
 }

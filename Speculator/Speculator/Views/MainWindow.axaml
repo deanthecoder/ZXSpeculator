@@ -229,7 +229,7 @@
 
             <LayoutTransformControl Grid.Row="1" Grid.Column="0">
                 <LayoutTransformControl.LayoutTransform>
-                    <ScaleTransform ScaleX="4" ScaleY="1" />
+                    <ScaleTransform ScaleX="4" ScaleY="3" />
                 </LayoutTransformControl.LayoutTransform>
                 <Panel>
                     <Image x:Name="MainDisplay"

@@ -9,16 +9,18 @@
 //
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
+using System.Numerics;
 using Avalonia;
-using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using Vector = Avalonia.Vector;
 
 namespace Speculator.Core;
 
 public class ZxDisplay
 {
     public const int ScreenBase = 0x4000;
+
     private const int ColorMapBase = 0x5800;
     private const int LeftMargin = 32;
     private const int RightMargin = 32;
@@ -27,42 +29,53 @@ public class ZxDisplay
     private const int WriteableWidth = 256;
     private const int WritableHeight = 192;
     private const int FramesPerFlash = 16;
+    private bool m_isCrt = true;
+    private Vector3 m_scanlineMultiplier;
+    private float m_phosphorShrink;
+    private float m_brightness;
     private int m_flashFrameCount;
     private bool m_isFlashing;
-    private bool m_isCrt = true;
     private DateTime m_lastFlashTime = DateTime.Now;
 
     /// <summary>
-    /// Buffer of pixels, each byte a palette index.
+    /// 'Grain' overlay applied to the CRT screen.
+    /// </summary>
+    private readonly float[][] m_grain;
+
+    /// <summary>
+    /// 320x240 Buffer of pixels, each byte a palette index.
     /// </summary>
     private readonly byte[][] m_screenBuffer = CreateScreenBuffer();
+
+    /// <summary>
+    /// Bitmap used to contain the RGB pixel data blitted to the screen.
+    /// </summary>
+    public WriteableBitmap Bitmap { get; } = CreateWriteableBitmap(true); // Expand height for scanlines.
 
     /// <summary>
     /// Used to prevent unnecessary UI screen refreshes.
     /// </summary>
     private bool m_didPixelsChange;
-    
-    private static readonly List<Color> Colors = new List<Color>
-    {
-        Color.FromRgb(0x00, 0x00, 0x00),  // Black
-        Color.FromRgb(0x00, 0x00, 0xCD),  // Blue
-        Color.FromRgb(0xCD, 0x00, 0x00),  // Red
-        Color.FromRgb(0xCD, 0x00, 0xCD),  // Magenta
-        Color.FromRgb(0x00, 0xCD, 0x00),  // Green
-        Color.FromRgb(0x00, 0xCD, 0xCD),  // Cyan
-        Color.FromRgb(0xCD, 0xCD, 0x00),  // Yellow
-        Color.FromRgb(0xCD, 0xCD, 0xCD),  // White (/Gray)
-        Color.FromRgb(0x00, 0x00, 0x00),  // (Bright) Black
-        Color.FromRgb(0x00, 0x00, 0xFF),  // Bright Blue
-        Color.FromRgb(0xFF, 0x00, 0x00),  // Bright Red
-        Color.FromRgb(0xFF, 0x00, 0xFF),  // Bright Magenta
-        Color.FromRgb(0x00, 0xFF, 0x00),  // Bright Green
-        Color.FromRgb(0x00, 0xFF, 0xFF),  // Bright Cyan
-        Color.FromRgb(0xFF, 0xFF, 0x00),  // Bright Yellow
-        Color.FromRgb(0xFF, 0xFF, 0xFF)   // Bright White
-    };
 
-    public WriteableBitmap Bitmap { get; } = CreateWriteableBitmap(4); // Expand height for scanlines.
+    private static readonly Vector3[] Colors =
+    {
+        new Vector3(0x00, 0x00, 0x00), // Black
+        new Vector3(0x00, 0x00, 0xCD), // Blue
+        new Vector3(0xCD, 0x00, 0x00), // Red
+        new Vector3(0xCD, 0x00, 0xCD), // Magenta
+        new Vector3(0x00, 0xCD, 0x00), // Green
+        new Vector3(0x00, 0xCD, 0xCD), // Cyan
+        new Vector3(0xCD, 0xCD, 0x00), // Yellow
+        new Vector3(0xCD, 0xCD, 0xCD), // White (/Gray)
+        new Vector3(0x00, 0x00, 0x00), // (Bright) Black
+        new Vector3(0x00, 0x00, 0xFF), // Bright Blue
+        new Vector3(0xFF, 0x00, 0x00), // Bright Red
+        new Vector3(0xFF, 0x00, 0xFF), // Bright Magenta
+        new Vector3(0x00, 0xFF, 0x00), // Bright Green
+        new Vector3(0x00, 0xFF, 0xFF), // Bright Cyan
+        new Vector3(0xFF, 0xFF, 0x00), // Bright Yellow
+        new Vector3(0xFF, 0xFF, 0xFF)  // Bright White
+    };
 
     public byte BorderAttr { get; set; }
 
@@ -71,10 +84,28 @@ public class ZxDisplay
         get => m_isCrt;
         set
         {
-            if (m_isCrt == value)
-                return;
             m_isCrt = value;
-                m_didPixelsChange = true;
+            m_didPixelsChange = true;
+
+            if (m_isCrt)
+            {
+                m_scanlineMultiplier = new Vector3(0.7f);
+                m_phosphorShrink = 0.5f;
+                m_brightness = 3.0f / (1.0f + 2.0f * m_phosphorShrink);
+            }
+            else
+            {
+                m_scanlineMultiplier = Vector3.One;
+                m_phosphorShrink = 1.0f;
+                m_brightness = 1.0f;
+            }
+
+            var random = new Random(0);
+            for (var i = 0; i < m_screenBuffer.Length; i++)
+            {
+                for (var j = 0; j < m_screenBuffer[0].Length; j++)
+                    m_grain[i][j] = m_isCrt ? (float)((random.NextDouble() - 0.5) * 255.0 * 0.025) : 0.0f;
+            }
         }
     }
     
@@ -84,6 +115,13 @@ public class ZxDisplay
     public double EmulationSpeed { get; private set; }
 
     public event EventHandler Refreshed;
+
+    public ZxDisplay()
+    {
+        m_grain = new float[m_screenBuffer.Length][];
+        for (var i = 0; i < m_screenBuffer.Length; i++)
+            m_grain[i] = new float[m_screenBuffer[0].Length];
+    }
 
     private static (byte, byte) GetColorIndices(byte attr, bool invert = false)
     {
@@ -203,67 +241,66 @@ public class ZxDisplay
         }
 
         // Convert buffer to an image.
-        var bitmap = CreateWriteableBitmap(1);
+        var bitmap = CreateWriteableBitmap(false);
         using var frameBuffer = bitmap.Lock();
         unsafe
         {
             var framePtr = (byte*)frameBuffer.Address;
+            var ptr = new Span<byte>(framePtr, frameBuffer.RowBytes * frameBuffer.Size.Height);
             for (var y = 0; y < screenBuffer.Length; y++)
             {
                 var row = screenBuffer[y];
                 for (var x = 0; x < screenBuffer[0].Length; x++)
-                    FrameBuffer.SetPixel(framePtr, frameBuffer.RowBytes, x, y, Colors[row[x]]);
+                    FrameBuffer.SetPixel(ptr, frameBuffer.RowBytes, x, y, Colors[row[x]]);
             }
         }
 
         return bitmap;
     }
-    
+
     private unsafe void UpdateScreen()
     {
         using (var frameBuffer = Bitmap.Lock())
         {
-            var framePtr = (byte*)frameBuffer.Address;
             var framerBufferStride = frameBuffer.RowBytes;
             var w = m_screenBuffer[0].Length;
             var h = m_screenBuffer.Length;
+            var ptr = new Span<byte>((byte*)frameBuffer.Address, frameBuffer.RowBytes * frameBuffer.Size.Height);
 
-            if (IsCrt)
-            {
-                // Software pixel shader.
+            var phosphorR = new Vector3(1.0f, m_phosphorShrink, m_phosphorShrink);
+            var phosphorG = new Vector3(m_phosphorShrink, 1.0f, m_phosphorShrink);
+            var phosphorB = new Vector3(m_phosphorShrink, m_phosphorShrink, 1.0f);
+
+            // Software pixel shader.
             for (var y = 0; y < h; y++)
             {
                 var row = m_screenBuffer[y];
-                    var v = (y - h * 0.5) / h;
-                    v *= v;
+                var uv = new Vector2(0.0f, (y - h * 0.5f) / h);
+
                 for (var x = 0; x < w; x++)
                 {
-                    var color = Colors[row[x]];
-                        var u = (x - w * 0.5) / w;
-                        var vignette = u * u + v;
-                        vignette *= vignette * vignette;
-                        vignette = 1.0 - vignette * 2.0;
-                        FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y * 4, color, vignette);
-                        FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y * 4 + 1, color, vignette);
-                        FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y * 4 + 2, color, vignette);
-                        FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y * 4 + 3, color, 0.85 * vignette);
-                    }
-                }
-            }
-            else
-            {
-                // Straight blit - No FX.
-                for (var y = 0; y < h; y++)
-                {
-                    var row = m_screenBuffer[y];
-                    for (var x = 0; x < w; x++)
+                    float vignette;
+                    if (IsCrt)
                     {
-                        var color = Colors[row[x]];
-                        FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y * 4, color);
-                        FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y * 4 + 1, color);
-                        FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y * 4 + 2, color);
-                        FrameBuffer.SetPixel(framePtr, framerBufferStride, x, y * 4 + 3, color);
+                        uv.X = (x - w * 0.5f) / w;
+                        
+                        vignette = Vector2.Dot(uv, uv);
+                        vignette *= vignette * vignette;
+                        vignette = 1.0f - vignette * 2.0f;
                     }
+                    else
+                    {
+                        vignette = 1.0f;
+                    }
+
+                    var origColor = Colors[row[x]];
+                    var grain = IsCrt ? new Vector3(m_grain[y][x]) : Vector3.Zero;
+                    var xx = x * 3;
+                    var yy = y * 4;
+                    var f = new Vector3(vignette * m_brightness);
+                    FrameBuffer.SetPixelV4(ptr, framerBufferStride, xx, yy, origColor * phosphorR + grain, f, m_scanlineMultiplier);
+                    FrameBuffer.SetPixelV4(ptr, framerBufferStride, xx + 1, yy, origColor * phosphorG + grain, f, m_scanlineMultiplier);
+                    FrameBuffer.SetPixelV4(ptr, framerBufferStride, xx + 2, yy, origColor * phosphorB + grain, f, m_scanlineMultiplier);
                 }
             }
         }
@@ -280,7 +317,9 @@ public class ZxDisplay
     /// <summary>
     /// Create a bitmap suitable for use in the UI.
     /// </summary>
-    /// <returns></returns>
-    private static WriteableBitmap CreateWriteableBitmap(int heightMultiplier) =>
-        new WriteableBitmap(new PixelSize(LeftMargin + WriteableWidth + RightMargin, (TopMargin + WritableHeight + BottomMargin) * heightMultiplier), new Vector(96, 96), PixelFormat.Rgba8888);
+    /// <remarks>
+    /// The expanded bitmap allows for scanlines and RGB phosphor dots to be added.
+    /// </remarks>
+    private static WriteableBitmap CreateWriteableBitmap(bool expandForFx) =>
+        new WriteableBitmap(new PixelSize((LeftMargin + WriteableWidth + RightMargin) * (expandForFx ? 3 : 1), (TopMargin + WritableHeight + BottomMargin) * (expandForFx ? 4 : 1)), new Vector(96, 96), PixelFormat.Rgba8888);
 }
