@@ -31,4 +31,6 @@ public class TempFile : IDisposable
     public string FullName => m_tempObj.FullName;
 
     public void Dispose() => m_tempObj.TryDelete();
+
+    public override string ToString() => FullName;
 }

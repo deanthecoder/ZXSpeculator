@@ -33,6 +33,12 @@ public static class FileInfoExtensions
         File.WriteAllText(file.FullName, s);
         return file;
     }
+    
+    public static FileInfo WriteAllBytes(this FileInfo file, byte[] bytes)
+    {
+        File.WriteAllBytes(file.FullName, bytes);
+        return file;
+    }
 
     public static bool ReallyExists(this FileSystemInfo info)
     {

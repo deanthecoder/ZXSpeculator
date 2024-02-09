@@ -22,9 +22,15 @@ public static class TempFileExtensions
     public static string[] ReadAllLines(this TempFile file) =>
         ((FileInfo)file).ReadAllLines();
 
-    public static FileInfo WriteAllText(this TempFile file, string s)
+    public static TempFile WriteAllText(this TempFile file, string s)
     {
         ((FileInfo)file).WriteAllText(s);
+        return file;
+    }
+
+    public static TempFile WriteAllBytes(this TempFile file, byte[] bytes)
+    {
+        ((FileInfo)file).WriteAllBytes(bytes);
         return file;
     }
 

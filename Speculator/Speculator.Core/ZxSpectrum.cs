@@ -63,7 +63,6 @@ public class ZxSpectrum : IDisposable
 
     public void Dispose()
     {
-        CpuHistory?.Dispose();
         m_soundHandler?.Dispose();
         PortHandler?.Dispose();
         TheCpu?.PowerOffAsync();

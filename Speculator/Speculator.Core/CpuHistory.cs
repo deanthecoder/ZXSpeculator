@@ -19,13 +19,13 @@ namespace Speculator.Core;
 /// <summary>
 /// Periodically snapshot the machine state to build a history that can be cycled through.
 /// </summary>
-public class CpuHistory : ViewModelBase, IDisposable
+public class CpuHistory : ViewModelBase
 {
     private const int SamplesPerSecond = 2;
     private readonly ZxFileIo m_zxFileIo;
-    private const int MaxSamples = 120;
+    private const int MaxSamples = 240;
     private readonly long m_ticksPerSample;
-    private readonly List<FileInfo> m_snapshots = new List<FileInfo>();
+    private readonly CompressedDataStore<int> m_snapshots = new CompressedDataStore<int>(true);
     private long m_ticksToNextSample;
     private long m_lastTStateCount;
     private int m_indexToRestore;
@@ -52,9 +52,10 @@ public class CpuHistory : ViewModelBase, IDisposable
         {
             if (m_snapshots.Count == 0)
                 return null;
-            
+
+            using var tempSna = new TempFile(".sna").WriteAllBytes(m_snapshots.At(m_indexToRestore));
             var memory = new Memory();
-            ZxFileIo.LoadSna(m_snapshots[m_indexToRestore], new CPU(memory), out var borderAttr);
+            ZxFileIo.LoadSna(tempSna, new CPU(memory), out var borderAttr);
             return ZxDisplay.CaptureScreenFromMemory(memory, borderAttr);
         }
     }
@@ -81,13 +82,13 @@ public class CpuHistory : ViewModelBase, IDisposable
         m_ticksToNextSample += m_ticksPerSample;
 
         // Sample CPU state.
-        var snapshot = new TempFile(".sna");
-        m_zxFileIo.SaveSna(snapshot);
-        m_snapshots.Add(snapshot);
+        using var snapshot = new MemoryStream();
+        m_zxFileIo.WriteSnaToStream(snapshot);
+        m_snapshots.Add(snapshot.GetBuffer());
         
         // Trim the total number of snapshots.
         while (m_snapshots.Count > MaxSamples)
-            RemoveSnapshot(m_snapshots[0]);
+            m_snapshots.RemoveAt(0);
         
         OnPropertyChanged(nameof(LastSampleIndex));
         IndexToRestore = LastSampleIndex;
@@ -97,11 +98,12 @@ public class CpuHistory : ViewModelBase, IDisposable
     public void Rollback()
     {
         // Restore snapshot.
-        m_zxFileIo.LoadFile(m_snapshots[IndexToRestore]);
+        using (var snaFile = new TempFile(".sna").WriteAllBytes(m_snapshots.At(IndexToRestore)))
+            m_zxFileIo.LoadFile(snaFile);
         
         // Delete all snapshots from this point.
         while (m_snapshots.Count > IndexToRestore)
-            RemoveSnapshot(m_snapshots.Last());
+            m_snapshots.RemoveAt(m_snapshots.Count - 1);
     }
 
     public void RollbackByTime(int goBackSecs)
@@ -112,17 +114,5 @@ public class CpuHistory : ViewModelBase, IDisposable
         var snapshotCount = goBackSecs * SamplesPerSecond;
         IndexToRestore = Math.Max(0, m_snapshots.Count - snapshotCount);
         Rollback();
-    }
-    
-    private void RemoveSnapshot(FileInfo toRemove)
-    {
-        toRemove.TryDelete();
-        m_snapshots.Remove(toRemove);
-    }
-
-    public void Dispose()
-    {
-        while (m_snapshots.Any())
-            RemoveSnapshot(m_snapshots[0]);
     }
 }

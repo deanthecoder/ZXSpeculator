@@ -285,6 +285,11 @@ public class ZxFileIo
     public void SaveSna(FileInfo file)
     {
         using var stream = new FileStream(file.FullName, FileMode.Create, FileAccess.Write);
+        WriteSnaToStream(stream);
+    }
+    
+    public void WriteSnaToStream(Stream stream)
+    {
         try
         {
             m_cpu.TheRegisters.SP -= 2;
