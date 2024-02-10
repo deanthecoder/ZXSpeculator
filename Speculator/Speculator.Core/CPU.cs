@@ -183,8 +183,8 @@ public partial class CPU : ViewModelBase
         }
         
         // Special case 'LOAD ""' instruction.
-        // (Double-checking the BASIC ROM is loaded...)
-        if (TheRegisters.PC == 0x056A && MainMemory.Peek(TheRegisters.PC) == 0xBF)
+        // (Double-checking the standard Sinclair BASIC ROM is loaded...)
+        if (TheRegisters.PC == 0x056A && MainMemory.Peek(0x1540) == 0x53)
             LoadRequested?.Invoke(this, EventArgs.Empty);
 
         // Time to handle interrupts?
