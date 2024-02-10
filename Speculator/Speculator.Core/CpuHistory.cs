@@ -21,7 +21,6 @@ namespace Speculator.Core;
 /// </summary>
 public class CpuHistory : ViewModelBase
 {
-    private const int SamplesPerSecond = 2;
     private readonly ZxFileIo m_zxFileIo;
     private const int MaxSamples = 240;
     private readonly long m_ticksPerSample;
@@ -65,7 +64,7 @@ public class CpuHistory : ViewModelBase
         m_zxFileIo = zxFileIo;
         TheCpu = theCpu;
         theCpu.Ticked += OnCpuTicked;
-        m_ticksPerSample = (long)(CPU.TStatesPerSecond / SamplesPerSecond); // Two samples per second.
+        m_ticksPerSample = (long)CPU.TStatesPerSecond;
         m_ticksToNextSample = m_ticksPerSample * 5; // Start 5 seconds after machine start.
         m_lastTStateCount = 0;
     }
@@ -110,9 +109,8 @@ public class CpuHistory : ViewModelBase
     {
         if (m_snapshots.Count == 0)
             return;
-        
-        var snapshotCount = goBackSecs * SamplesPerSecond;
-        IndexToRestore = Math.Max(0, m_snapshots.Count - snapshotCount);
+
+        IndexToRestore = Math.Max(0, m_snapshots.Count - goBackSecs);
         Rollback();
     }
 }
