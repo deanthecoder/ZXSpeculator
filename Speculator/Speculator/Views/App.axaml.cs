@@ -14,7 +14,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
-using CSharp.Utils.UI;
+using CSharp.Core.UI;
 using Speculator.ViewModels;
 
 namespace Speculator.Views;

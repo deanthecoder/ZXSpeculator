@@ -10,8 +10,8 @@
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
 using System.Diagnostics;
-using CSharp.Utils.Extensions;
-using CSharp.Utils.UnitTesting;
+using CSharp.Core.Extensions;
+using CSharp.Core.UnitTesting;
 using NSubstitute;
 using NUnit.Framework;
 using Speculator.Core;

@@ -12,7 +12,7 @@
 using Avalonia;
 using Avalonia.ReactiveUI;
 using System;
-using CSharp.Utils;
+using CSharp.Core;
 using Speculator.Views;
 
 namespace Speculator;

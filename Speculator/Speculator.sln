@@ -4,7 +4,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speculator", "Speculator\Sp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Speculator.Core", "Speculator.Core\Speculator.Core.csproj", "{90E74FB5-A185-4DA4-B6D1-B93809FA3FBB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharp.Utils", "CSharp.Utils\CSharp.Utils.csproj", "{FAD6E5FB-2A94-4E53-A0B9-85BD36C0C8DD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharp.Core", "CSharp.Core\CSharp.Core.csproj", "{FAD6E5FB-2A94-4E53-A0B9-85BD36C0C8DD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{04C4DB92-A926-41FC-BCA1-BCC87B718FE4}"
 EndProject

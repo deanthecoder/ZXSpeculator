@@ -13,10 +13,10 @@ using System;
 using System.IO;
 using Avalonia;
 using Avalonia.Threading;
-using CSharp.Utils.Commands;
-using CSharp.Utils.Extensions;
-using CSharp.Utils.UI;
-using CSharp.Utils.ViewModels;
+using CSharp.Core.Commands;
+using CSharp.Core.Extensions;
+using CSharp.Core.UI;
+using CSharp.Core.ViewModels;
 using Material.Icons;
 using Speculator.Core;
 

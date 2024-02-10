@@ -9,7 +9,7 @@
 //
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
-using CSharp.Utils.ViewModels;
+using CSharp.Core.ViewModels;
 using Speculator.Core.Extensions;
 
 // ReSharper disable InconsistentNaming

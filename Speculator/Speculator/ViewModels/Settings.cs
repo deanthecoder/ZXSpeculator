@@ -10,7 +10,7 @@
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
 using System.IO;
-using CSharp.Utils.Settings;
+using CSharp.Core.Settings;
 
 namespace Speculator.ViewModels;
 

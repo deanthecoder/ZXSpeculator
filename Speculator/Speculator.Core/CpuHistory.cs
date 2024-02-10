@@ -10,9 +10,9 @@
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
 using Avalonia.Media.Imaging;
-using CSharp.Utils;
-using CSharp.Utils.Extensions;
-using CSharp.Utils.ViewModels;
+using CSharp.Core;
+using CSharp.Core.Extensions;
+using CSharp.Core.ViewModels;
 
 namespace Speculator.Core;
 

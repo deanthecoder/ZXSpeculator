@@ -11,8 +11,8 @@
 
 using System.Windows.Input;
 using Avalonia;
-using CSharp.Utils.Commands;
-using CSharp.Utils.Extensions;
+using CSharp.Core.Commands;
+using CSharp.Core.Extensions;
 using ReactiveUI;
 using Speculator.Views;
 

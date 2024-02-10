@@ -14,8 +14,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using CSharp.Utils.Extensions;
-using CSharp.Utils.ViewModels;
+using CSharp.Core.Extensions;
+using CSharp.Core.ViewModels;
 using Speculator.Core;
 
 namespace Speculator.ViewModels;

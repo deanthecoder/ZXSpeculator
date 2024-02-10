@@ -9,8 +9,8 @@
 //
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
-using CSharp.Utils;
-using CSharp.Utils.ViewModels;
+using CSharp.Core;
+using CSharp.Core.ViewModels;
 using Speculator.Core.HostDevices;
 
 namespace Speculator.Core;

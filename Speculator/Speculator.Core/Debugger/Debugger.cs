@@ -11,9 +11,9 @@
 
 using System.Collections.ObjectModel;
 using System.Text;
-using CSharp.Utils;
-using CSharp.Utils.Validators;
-using CSharp.Utils.ViewModels;
+using CSharp.Core;
+using CSharp.Core.Validators;
+using CSharp.Core.ViewModels;
 using Speculator.Core.Extensions;
 
 namespace Speculator.Core.Debugger;

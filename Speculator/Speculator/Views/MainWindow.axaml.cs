@@ -17,8 +17,8 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
-using CSharp.Utils.Extensions;
-using CSharp.Utils.UI;
+using CSharp.Core.Extensions;
+using CSharp.Core.UI;
 using Material.Icons.Avalonia;
 using Speculator.ViewModels;
 

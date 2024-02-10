@@ -16,7 +16,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Interactivity;
-using CSharp.Utils.Extensions;
+using CSharp.Core.Extensions;
 
 namespace Speculator.Views;
 

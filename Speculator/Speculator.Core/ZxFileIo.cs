@@ -10,8 +10,8 @@
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
 using System.Diagnostics;
-using CSharp.Utils;
-using CSharp.Utils.Extensions;
+using CSharp.Core;
+using CSharp.Core.Extensions;
 using Speculator.Core.Tape;
 using Speculator.Core.Utils;
 // ReSharper disable MustUseReturnValue

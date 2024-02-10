@@ -6,7 +6,7 @@
              xmlns:themes="clr-namespace:Material.Styles.Themes;assembly=Material.Styles"
              xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
              xmlns:dialogHostAvalonia="clr-namespace:DialogHostAvalonia;assembly=DialogHost.Avalonia"
-             xmlns:converters="clr-namespace:CSharp.Utils.Converters;assembly=CSharp.Utils"
+             xmlns:converters="clr-namespace:CSharp.Core.Converters;assembly=CSharp.Core"
              RequestedThemeVariant="Default"
              Name="ZX Speculator"
              x:DataType="viewModels:AppViewModel">

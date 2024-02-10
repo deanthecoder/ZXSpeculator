@@ -9,7 +9,7 @@
 //
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
-using CSharp.Utils;
+using CSharp.Core;
 using OpenTK.Audio.OpenAL;
 
 namespace Speculator.Core.HostDevices;

@@ -12,7 +12,7 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
-using CSharp.Utils.ViewModels;
+using CSharp.Core.ViewModels;
 
 namespace Speculator;
 

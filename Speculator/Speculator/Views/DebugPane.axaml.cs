@@ -15,7 +15,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
-using CSharp.Utils;
+using CSharp.Core;
 using Speculator.Core.Debugger;
 
 namespace Speculator.Views;
