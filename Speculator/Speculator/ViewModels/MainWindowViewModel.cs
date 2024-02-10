@@ -48,18 +48,22 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         RomSelectorDetails = new RomSelectorViewModel(Speccy);
         RomSelectorDetails.LoadBasicRomAction(Settings.RomFile);
 
-        Settings.PropertyChanged += (_, _) => OnSettingsChanged();
-        OnSettingsChanged();
+        Settings.PropertyChanged += (_, _) => OnSettingsChanged(true);
+        OnSettingsChanged(false);
+
+        OneShotDispatcherTimer.CreateAndStart(TimeSpan.FromSeconds(3), ShowCrtMessage);
         return;
         
-        void OnSettingsChanged()
+        void OnSettingsChanged(bool allowMessages)
         {
             Display.IsCrt = Settings.IsCrt;
             Speccy.PortHandler.EmulateCursorJoystick = Settings.EmulateCursorJoystick;
             Speccy.SoundHandler.IsEnabled = Settings.IsSoundEnabled;
+
+            if (allowMessages)
+                ShowCrtMessage();
         }
     }
-    
     public void LoadGameRom()
     {
         var keyBlocker = Speccy.PortHandler.CreateKeyBlocker();
@@ -141,6 +145,14 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 
     public void OpenProjectPage() =>
         new Uri("https://github.com/deanthecoder/ZXSpeculator").Open();
+
+    private void ShowCrtMessage()
+    {
+        if (!Settings.IsCrt || !Settings.DisplayCrtHelp)
+            return;
+        Settings.DisplayCrtHelp = false;
+        DialogService.Instance.ShowMessage("CRT Mode Enabled", "CRT Mode is best viewed with a maximized window.", MaterialIconKind.TelevisionClassic);
+    }
     
     public void Dispose()
     {

@@ -24,6 +24,7 @@ public class Settings : UserSettingsBase
     override protected void ApplyDefaults()
     {
         IsCrt = true;
+        DisplayCrtHelp = true;
         IsAmbientBlurred = true;
         IsSoundEnabled = true;
         MruFiles = string.Empty;
@@ -31,6 +32,12 @@ public class Settings : UserSettingsBase
     }
     
     public bool IsCrt
+    {
+        get => Get<bool>();
+        set => Set(value);
+    }
+
+    public bool DisplayCrtHelp
     {
         get => Get<bool>();
         set => Set(value);

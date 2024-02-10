@@ -1,0 +1,34 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:dialogHostAvalonia="clr-namespace:DialogHostAvalonia;assembly=DialogHost.Avalonia"
+             xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="CSharp.Core.UI.MessageDialog"
+             x:Name="Self">
+    <StackPanel Margin="16,8">
+        <Grid ColumnDefinitions="Auto,*">
+            <avalonia:MaterialIcon Kind="{Binding Icon, ElementName=Self}"
+                                   Width="48" Height="48" Margin="0,0,16,0"
+                                   IsVisible="{Binding !!Icon, ElementName=Self}"/>
+            
+            <StackPanel Grid.Column="1">
+                <!-- ReSharper disable once Xaml.StyleClassNotFound -->
+                <TextBlock Classes="Headline6"
+                           Text="{Binding Message, ElementName=Self}"
+                           HorizontalAlignment="Left" />
+                <TextBlock Text="{Binding Detail, ElementName=Self}"
+                           HorizontalAlignment="Left"
+                           Margin="0,16" />
+            </StackPanel>
+        </Grid>
+
+        <Grid Margin="0,8,0,0"
+              HorizontalAlignment="Right">
+            <Button Content="OK"
+                    Theme="{DynamicResource MaterialFlatButton}"
+                    Command="{Binding CloseDialogCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=dialogHostAvalonia:DialogHost}}" />
+        </Grid>
+    </StackPanel>
+</UserControl>

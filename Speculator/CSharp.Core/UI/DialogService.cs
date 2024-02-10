@@ -32,4 +32,14 @@ public class DialogService
             },
             (_, args) => onClose(Convert.ToBoolean(args.Parameter)));
     }
+    
+    public void ShowMessage(string message, string detail, MaterialIconKind? icon = MaterialIconKind.Information)
+    {
+        DialogHost.Show(new MessageDialog
+            {
+                Message = message, 
+                Detail = detail,
+                Icon = icon
+            });
+    }
 }
