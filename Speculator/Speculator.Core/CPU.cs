@@ -10,8 +10,8 @@
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
 using System.Diagnostics;
+using CSharp.Core.Extensions;
 using CSharp.Core.ViewModels;
-using Speculator.Core.Extensions;
 
 // ReSharper disable InconsistentNaming
 namespace Speculator.Core;
@@ -25,15 +25,16 @@ public partial class CPU : ViewModelBase
     private readonly AutoResetEvent m_debuggerTickEvent = new AutoResetEvent(false);
     private bool m_shutdownRequested;
     private bool m_resetRequested;
-    private int m_TStatesSinceInterrupt;
-    private bool m_fullThrottle;
     private bool m_isDebuggerActive;
     private int m_previousScanline;
+
+    private const int TStatesPerInterrupt = 69888;
+    public const double TStatesPerSecond = 3494400;
 
     public event EventHandler PoweredOff;
     public event EventHandler LoadRequested;
 
-    public const double TStatesPerSecond = 3494400;
+    
     public long TStatesSinceCpuStart { get; private set; }
 
     /// <summary>
@@ -50,9 +51,7 @@ public partial class CPU : ViewModelBase
     /// Called periodically throughout each 1/50th second.
     /// </summary>
     public event EventHandler<(Memory memory, int scanline)> RenderScanline;
-
-    public int TStatesPerInterrupt { private get; init; }
-
+    
     public Z80Instructions InstructionSet { get; }
     public ClockSync ClockSync { get; }
     public Registers TheRegisters { get; }
@@ -71,15 +70,8 @@ public partial class CPU : ViewModelBase
         ClockSync = new ClockSync(TStatesPerSecond, () => TStatesSinceCpuStart);
     }
 
-    public bool FullThrottle
-    {
-        get => m_fullThrottle;
-        set
-        {
-            if (SetField(ref m_fullThrottle, value))
-                ClockSync.SetLimitSpeed(!value);
-        }
-    }
+    public void SetFullThrottle(bool value) =>
+        ClockSync.SetLimitSpeed(!value);
 
     public void PowerOnAsync()
     {
@@ -120,11 +112,10 @@ public partial class CPU : ViewModelBase
     
     private void RunLoop()
     {
-        m_TStatesSinceInterrupt = 0;
-
         m_shutdownRequested = false;
         m_resetRequested = false;
         IsHalted = false;
+        TStatesSinceCpuStart = 0;
         
         m_soundHandler?.Start();
 
@@ -168,14 +159,14 @@ public partial class CPU : ViewModelBase
 
         // Execute instruction.
         var tStates = Tick();
+        var ticksSinceInterrupt = (int)((TStatesSinceCpuStart % TStatesPerInterrupt) + tStates);
         TStatesSinceCpuStart += tStates;
-        m_TStatesSinceInterrupt += tStates;
             
         // Record speaker state.
         m_soundHandler?.SampleSpeakerState(tStates);
 
         // Screen build-up.
-        var scanline = m_TStatesSinceInterrupt / 224;
+        var scanline = ticksSinceInterrupt / 224;
         if (scanline != m_previousScanline)
         {
             m_previousScanline = scanline;
@@ -188,14 +179,13 @@ public partial class CPU : ViewModelBase
             LoadRequested?.Invoke(this, EventArgs.Empty);
 
         // Time to handle interrupts?
-        if (TStatesPerInterrupt == 0 || m_TStatesSinceInterrupt < TStatesPerInterrupt)
+        if (TStatesPerInterrupt == 0 || ticksSinceInterrupt < TStatesPerInterrupt)
             return;
 
         // Handle MI interrupts.
         if (TheRegisters.IFF1 && !oldIFF)
             return; // This instruction is EI, so wait one instruction.
         
-        m_TStatesSinceInterrupt -= TStatesPerInterrupt;
         if (!TheRegisters.IFF1)
             return; // Interrupts are disabled.
 
@@ -213,12 +203,10 @@ public partial class CPU : ViewModelBase
             case 1:
                 CallIfTrue(0x0038, true);
                 TStatesSinceCpuStart += 17;
-                m_TStatesSinceInterrupt += 17;
                 break;
             case 2:
                 CallIfTrue(MainMemory.PeekWord((ushort)((TheRegisters.I << 8) | 0xff)), true);
                 TStatesSinceCpuStart += 19;
-                m_TStatesSinceInterrupt += 19;
                 break;
             default:
                 Debug.Fail("Invalid interrupt mode.");

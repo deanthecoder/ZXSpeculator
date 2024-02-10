@@ -30,6 +30,6 @@ public static class DirectoryInfoExtensions
             // This is ok.
         }
 
-        return !info.ReallyExists();
+        return !info.Exists();
     }
 }

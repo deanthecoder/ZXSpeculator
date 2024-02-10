@@ -29,7 +29,6 @@ public class SoundHandler : ViewModelBase, IDisposable
     private readonly SoundDevice m_soundDevice;
     private bool m_isDisposed;
     private readonly Thread m_thread;
-    private bool m_isEnabled = true;
 
     public SoundHandler()
     {
@@ -48,15 +47,8 @@ public class SoundHandler : ViewModelBase, IDisposable
         }
     }
 
-    public bool IsEnabled
-    {
-        get => m_isEnabled;
-        set
-        {
-            if (SetField(ref m_isEnabled, value))
-                m_soundDevice.SetEnabled(value);
-        }
-    }
+    public void SetEnabled(bool value) =>
+        m_soundDevice.SetEnabled(value);
 
     public void Start()
     {

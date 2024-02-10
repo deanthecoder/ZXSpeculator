@@ -10,6 +10,7 @@
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
 using System.Diagnostics;
+using System.Text;
 using CSharp.Core;
 using CSharp.Core.Extensions;
 
@@ -28,7 +29,7 @@ public class Memory
 
     public byte Poke(ushort addr, byte value)
     {
-        if (IsRom(addr))
+        if (IsRomArea(addr))
             return Data[addr]; // Can't write to ROM.
         Data[addr] = value;
         return value;
@@ -42,24 +43,20 @@ public class Memory
 
     public byte Peek(ushort addr) => Data[addr];
     
-    public ushort PeekWord(ushort addr)
-    {
-        return (ushort)(Data[(ushort)(addr + 1)] << 8 | Data[addr]);
-    }
+    public ushort PeekWord(ushort addr) =>
+        (ushort)(Data[(ushort)(addr + 1)] << 8 | Data[addr]);
 
     public string ReadAsHexString(ushort addr, ushort byteCount, bool wantSpaces = false)
     {
-        Debug.Assert(byteCount > 0, "byteCount must be positive.");
-
-        var result = string.Empty;
+        var result = new StringBuilder();
         for (var i = 0; i < byteCount && addr + i <= 0xffff; i++)
         {
-            result += Peek((ushort)(addr + i)).ToString("X2");
+            result.Append($"{Peek((ushort)(addr + i)):X2}");
             if (wantSpaces)
-                result += " ";
+                result.Append(' ');
         }
 
-        return result.Trim();
+        return result.ToString().Trim();
     }
 
     public void LoadRom(string systemRom)
@@ -80,7 +77,7 @@ public class Memory
         LoadData(romBytes, 0x0000);
     }
     
-    public bool IsRom(ushort addr) => addr < m_romSize;
+    public bool IsRomArea(ushort addr) => addr < m_romSize;
     
     /// <summary>
     /// Bulk load data into memory (such as from disk).

@@ -58,12 +58,13 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
         {
             Display.IsCrt = Settings.IsCrt;
             Speccy.PortHandler.EmulateCursorJoystick = Settings.EmulateCursorJoystick;
-            Speccy.SoundHandler.IsEnabled = Settings.IsSoundEnabled;
+            Speccy.SoundHandler.SetEnabled(Settings.IsSoundEnabled);
 
             if (allowMessages)
                 ShowCrtMessage();
         }
     }
+    
     public void LoadGameRom()
     {
         var keyBlocker = Speccy.PortHandler.CreateKeyBlocker();
@@ -137,7 +138,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     {
         IsFullThrottle = !IsFullThrottle;
         OnPropertyChanged(nameof(IsFullThrottle));
-        Speccy.TheCpu.FullThrottle = IsFullThrottle;
+        Speccy.TheCpu.SetFullThrottle(IsFullThrottle);
     }
 
     public void ToggleAmbientBlur() =>

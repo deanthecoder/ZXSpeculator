@@ -365,15 +365,11 @@ public class Alu
         return result;
     }
 
-    internal static bool IsBytePositive(byte b)
-    {
-        return (b & 0x80) == 0;
-    }
+    internal static bool IsBytePositive(byte b) =>
+        (b & 0x80) == 0;
 
-    private static bool IsWordPositive(int a)
-    {
-        return (a & 0x8000) == 0;
-    }
+    private static bool IsWordPositive(int a) =>
+        (a & 0x8000) == 0;
 
     internal static sbyte FromTwosCompliment(byte b)
     {
@@ -437,10 +433,8 @@ public class Alu
         return count;
     }
 
-    internal static bool IsEvenParity(byte b)
-    {
-        return (CountBits(b) & 1) == 0;
-    }
+    internal static bool IsEvenParity(byte b) =>
+        (CountBits(b) & 1) == 0;
 
     public void Or(byte b)
     {
@@ -661,13 +655,9 @@ public class Alu
         return (((a & 0x0fff) - (b & 0x0fff) - c) & 0x1000) != 0;
     }
 
-    private static bool IsCarry8(int unclippedResult)
-    {
-        return (unclippedResult & 0x100) != 0;
-    }
+    private static bool IsCarry8(int unclippedResult) =>
+        (unclippedResult & 0x100) != 0;
 
-    private static bool IsCarry16(int unclippedResult)
-    {
-        return (unclippedResult & 0x10000) != 0;
-    }
+    private static bool IsCarry16(int unclippedResult) =>
+        (unclippedResult & 0x10000) != 0;
 }

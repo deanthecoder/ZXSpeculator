@@ -18,9 +18,6 @@ namespace Speculator.Core;
 /// </summary>
 public class ZxSpectrum : IDisposable
 {
-    // ReSharper disable once InconsistentNaming
-    private const int TStatesPerRenderFrame = 69888;
-
     private SoundHandler m_soundHandler;
     private readonly ZxFileIo m_zxFileIo;
     
@@ -36,10 +33,7 @@ public class ZxSpectrum : IDisposable
     {
         TheDisplay = display;
         PortHandler = new ZxPortHandler(SoundHandler, TheDisplay, TheTapeLoader);
-        TheCpu = new CPU(new Memory(), PortHandler, SoundHandler)
-        {
-            TStatesPerInterrupt = TStatesPerRenderFrame
-        };
+        TheCpu = new CPU(new Memory(), PortHandler, SoundHandler);
         TheTapeLoader.SetCpu(TheCpu);
         TheDebugger = new Debugger.Debugger(TheCpu);
 
@@ -48,41 +42,22 @@ public class ZxSpectrum : IDisposable
         TheDebugger.IsSteppingChanged += (_, _) =>
         {
             if (TheDebugger.IsStepping)
-                SoundHandler.IsEnabled = false;
+                SoundHandler.SetEnabled(false);
         };
 
         m_zxFileIo = new ZxFileIo(TheCpu, TheDisplay, TheTapeLoader);
         CpuHistory = new CpuHistory(TheCpu, m_zxFileIo);
     }
-    
-    public ZxSpectrum LoadBasicRom(FileInfo systemRom)
-    {
-        TheCpu.MainMemory.LoadRom(systemRom.FullName);
-        return this;
-    }
+
+    public void PowerOnAsync() => TheCpu.PowerOnAsync();
+    public void LoadBasicRom(FileInfo systemRom) => TheCpu.MainMemory.LoadRom(systemRom.FullName);
+    public void LoadRom(FileInfo romFile) => m_zxFileIo.LoadFile(romFile);
+    public void SaveRom(FileInfo romFile) => m_zxFileIo.SaveFile(romFile);
 
     public void Dispose()
     {
         m_soundHandler?.Dispose();
         PortHandler?.Dispose();
         TheCpu?.PowerOffAsync();
-    }
-    
-    public ZxSpectrum PowerOnAsync()
-    {
-        TheCpu.PowerOnAsync();
-        return this;
-    }
-    
-    public ZxSpectrum LoadRom(FileInfo romFile)
-    {
-        m_zxFileIo.LoadFile(romFile);
-        return this;
-    }
-    
-    public ZxSpectrum SaveRom(FileInfo romFile)
-    {
-        m_zxFileIo.SaveFile(romFile);
-        return this;
     }
 }

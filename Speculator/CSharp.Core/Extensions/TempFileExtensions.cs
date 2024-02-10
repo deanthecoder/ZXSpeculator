@@ -35,7 +35,7 @@ public static class TempFileExtensions
     }
 
     public static bool ReallyExists(this TempFile file) =>
-        ((FileInfo)file).ReallyExists();
+        ((FileInfo)file).Exists();
 
     public static bool TryDelete(this TempFile file) =>
         ((FileInfo)file).TryDelete();

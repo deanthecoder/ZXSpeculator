@@ -9,8 +9,8 @@
 //
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
+using CSharp.Core.Extensions;
 using CSharp.Core.ViewModels;
-using Speculator.Core.Extensions;
 
 // ReSharper disable InconsistentNaming
 
@@ -202,7 +202,7 @@ public class Registers : ViewModelBase
     /// </summary>
     public bool SignFlag
     {
-        set => Main.F = value ? (byte)(Main.F | (1 << 7)) : (byte)(Main.F & ~(1 << 7));
+        set => Main.F = value ? Main.F.SetBit(7) : Main.F.ResetBit(7);
         get => Main.F.IsBitSet(7);
     }
 
@@ -211,7 +211,7 @@ public class Registers : ViewModelBase
     /// </summary>
     public bool ZeroFlag
     {
-        set => Main.F = value ? (byte)(Main.F | (1 << 6)) : (byte)(Main.F & ~(1 << 6));
+        set => Main.F = value ? Main.F.SetBit(6) : Main.F.ResetBit(6);
         get => Main.F.IsBitSet(6);
     }
 
@@ -220,7 +220,7 @@ public class Registers : ViewModelBase
     /// </summary>
     public bool Flag5
     {
-        internal set => Main.F = value ? (byte)(Main.F | (1 << 5)) : (byte)(Main.F & ~(1 << 5));
+        internal set => Main.F = value ? Main.F.SetBit(5) : Main.F.ResetBit(5);
         get => Main.F.IsBitSet(5);
     }
 
@@ -229,7 +229,7 @@ public class Registers : ViewModelBase
     /// </summary>
     public bool HalfCarryFlag
     {
-        set => Main.F = value ? (byte)(Main.F | (1 << 4)) : (byte)(Main.F & ~(1 << 4));
+        set => Main.F = value ? Main.F.SetBit(4) : Main.F.ResetBit(4);
         get => Main.F.IsBitSet(4);
     }
 
@@ -238,7 +238,7 @@ public class Registers : ViewModelBase
     /// </summary>
     public bool Flag3
     {
-        internal set => Main.F = value ? (byte)(Main.F | (1 << 3)) : (byte)(Main.F & ~(1 << 3));
+        internal set => Main.F = value ? Main.F.SetBit(3) : Main.F.ResetBit(3);
         get => Main.F.IsBitSet(3);
     }
 
@@ -247,7 +247,7 @@ public class Registers : ViewModelBase
     /// </summary>
     public bool ParityFlag
     {
-        set => Main.F = value ? (byte)(Main.F | (1 << 2)) : (byte)(Main.F & ~(1 << 2));
+        set => Main.F = value ? Main.F.SetBit(2) : Main.F.ResetBit(2);
         get => Main.F.IsBitSet(2);
     }
 
@@ -256,7 +256,7 @@ public class Registers : ViewModelBase
     /// </summary>
     public bool SubtractFlag
     {
-        set => Main.F = value ? (byte)(Main.F | (1 << 1)) : (byte)(Main.F & ~(1 << 1));
+        set => Main.F = value ? Main.F.SetBit(1) : Main.F.ResetBit(1);
         get => Main.F.IsBitSet(1);
     }
 
@@ -265,7 +265,7 @@ public class Registers : ViewModelBase
     /// </summary>
     public bool CarryFlag
     {
-        set => Main.F = value ? (byte)(Main.F | (1 << 0)) : (byte)(Main.F & ~(1 << 0));
+        set => Main.F = value ? Main.F.SetBit(0) : Main.F.ResetBit(0);
         get => Main.F.IsBitSet(0);
     }
     

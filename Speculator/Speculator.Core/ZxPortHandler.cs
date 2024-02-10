@@ -9,10 +9,10 @@
 //
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
+using CSharp.Core.Extensions;
 using CSharp.Core.ViewModels;
 using SharpHook;
 using SharpHook.Native;
-using Speculator.Core.Extensions;
 using Speculator.Core.Tape;
 
 namespace Speculator.Core;

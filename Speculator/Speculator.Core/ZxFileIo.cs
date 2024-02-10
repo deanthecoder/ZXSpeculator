@@ -38,8 +38,7 @@ public class ZxFileIo
     {
         using var _ = m_cpu.ClockSync.CreatePauser();
 
-        fileInfo.Refresh();
-        if (!fileInfo.Exists)
+        if (!fileInfo.Exists())
             throw new FileNotFoundException(fileInfo.FullName);
 
         lock (m_cpu.CpuStepLock)
@@ -53,7 +52,7 @@ public class ZxFileIo
             case ".zip":
             {
                 var romFile = ZipExtractor.ExtractZxFile(fileInfo);
-                if (romFile?.ReallyExists() == true)
+                if (romFile?.Exists() == true)
                     LoadFileInternal(romFile);
                 return;
             }
@@ -268,10 +267,8 @@ public class ZxFileIo
         cpu.RETN();
     }
 
-    private static ushort ReadZxWord(Stream stream)
-    {
-        return (ushort)(stream.ReadByte() + (stream.ReadByte() << 8));
-    }
+    private static ushort ReadZxWord(Stream stream) =>
+        (ushort)(stream.ReadByte() + (stream.ReadByte() << 8));
 
     private static void WriteSnaWord(Stream stream, int n)
     {
@@ -282,7 +279,7 @@ public class ZxFileIo
     /// <summary>
     /// Create and write a .sna system snapshot to file.
     /// </summary>
-    public void SaveSna(FileInfo file)
+    private void SaveSna(FileInfo file)
     {
         using var stream = new FileStream(file.FullName, FileMode.Create, FileAccess.Write);
         WriteSnaToStream(stream);

@@ -21,7 +21,7 @@ public static class FrameBuffer
     {
         rgb = Vector3.Clamp(rgb, Vector3.Zero, V255);
         var offset = y * stride + x * 4;
-        framePtr[offset + 0] = (byte)rgb.X;
+        framePtr[offset] = (byte)rgb.X;
         framePtr[offset + 1] = (byte)rgb.Y;
         framePtr[offset + 2] = (byte)rgb.Z;
         framePtr[offset + 3] = 0xFF;

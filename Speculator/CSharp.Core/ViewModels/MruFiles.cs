@@ -53,7 +53,7 @@ public class MruFiles : ViewModelBase
             o =>
             {
                 var file = m_items[int.Parse((string)o) - 1];
-                return file?.File?.ReallyExists() == true;
+                return file?.File?.Exists() == true;
             }
         );
     }

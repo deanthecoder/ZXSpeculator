@@ -29,11 +29,9 @@ public partial class DebugPane : UserControl
         InitializeComponent();
     }
     
-    private void OnStepPressed(object sender, RoutedEventArgs e)
-    {
+    private void OnStepPressed(object sender, RoutedEventArgs e) =>
         ((Debugger)DataContext)?.MemoryDump.Refresh();
-    }
-    
+
     private void OnHistoryPaneLoaded(object sender, RoutedEventArgs e)
     {
         if (m_scrollAction != null)

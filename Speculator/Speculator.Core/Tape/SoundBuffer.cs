@@ -38,9 +38,7 @@ public class SoundBuffer
     /// </summary>
     public class Comparer : IComparer<(bool level, long tStateLength, long tStateStart)>
     {
-        public int Compare((bool level, long tStateLength, long tStateStart) x, (bool level, long tStateLength, long tStateStart) y)
-        {
-            return x.tStateStart.CompareTo(y.tStateStart);
-        }
+        public int Compare((bool level, long tStateLength, long tStateStart) x, (bool level, long tStateLength, long tStateStart) y) =>
+            x.tStateStart.CompareTo(y.tStateStart);
     }
 }

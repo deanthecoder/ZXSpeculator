@@ -24,7 +24,7 @@ public class Instruction
         Debug.Assert(!hexTemplate.Contains("nn"), "Invalid hex template. (Should be 'n n'?)");
         HexTemplate = hexTemplate;
         ByteCount = (byte)HexTemplate.Split(' ').Length;
-        this.TStateCount = tStateCount;
+        TStateCount = tStateCount;
     }
 
     public string MnemonicTemplate { get; }
@@ -63,7 +63,7 @@ public class Instruction
     /// <summary>
     /// Callback function allowing the Instruction to handle its own action.
     /// </summary>
-    public Func<Memory, Registers, Alu, ushort, int> Run { get; internal set; }
+    public Func<Memory, Registers, Alu, ushort, int> Run { get; internal init; }
 
     private byte?[] m_opcodeBytes;
     

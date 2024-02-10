@@ -48,7 +48,7 @@ public class MemoryDumpViewModel
 
         public string Addr => $"{m_addr:X04}:";
         public string Values { get; }
-        public bool IsBios => m_memory.IsRom(m_addr);
+        public bool IsBios => m_memory.IsRomArea(m_addr);
         
         public SingleItem(Memory memory, ushort addr)
         {

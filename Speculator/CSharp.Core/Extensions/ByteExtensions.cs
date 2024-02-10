@@ -9,6 +9,7 @@
 //
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
+using System.Diagnostics;
 using K4os.Compression.LZ4;
 
 namespace CSharp.Core.Extensions;
@@ -20,4 +21,23 @@ public static class ByteExtensions
 
     public static byte[] Decompress(this byte[] input) =>
         LZ4Pickler.Unpickle(input);
+
+    public static bool IsBitSet(this byte b, byte i)
+    {
+        Debug.Assert(i <= 7, "Index out of range.");
+        return (b & (1 << i)) != 0;
+    }
+
+    public static byte ResetBit(this byte b, byte i)
+    {
+        Debug.Assert(i <= 7, "Index out of range.");
+        var mask = (byte)~(1 << i);
+        return (byte)(b & mask);
+    }
+
+    public static byte SetBit(this byte b, byte i)
+    {
+        Debug.Assert(i <= 7, "Index out of range.");
+        return (byte)(b | (1 << i));
+    }
 }

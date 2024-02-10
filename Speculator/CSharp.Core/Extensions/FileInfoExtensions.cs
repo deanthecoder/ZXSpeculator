@@ -20,13 +20,13 @@ public static class FileInfoExtensions
     }
     
     public static byte[] ReadAllBytes(this FileInfo file) =>
-        file.ReallyExists() ? File.ReadAllBytes(file.FullName) : null;
+        file.Exists() ? File.ReadAllBytes(file.FullName) : null;
 
     public static string ReadAllText(this FileInfo file) =>
-        file.ReallyExists() ? File.ReadAllText(file.FullName) : null;
+        file.Exists() ? File.ReadAllText(file.FullName) : null;
 
     public static string[] ReadAllLines(this FileInfo file) =>
-        file.ReallyExists() ? File.ReadAllLines(file.FullName) : null;
+        file.Exists() ? File.ReadAllLines(file.FullName) : null;
 
     public static FileInfo WriteAllText(this FileInfo file, string s)
     {
@@ -40,7 +40,7 @@ public static class FileInfoExtensions
         return file;
     }
 
-    public static bool ReallyExists(this FileSystemInfo info)
+    public static bool Exists(this FileSystemInfo info)
     {
         info.Refresh();
         return info.Exists;
