@@ -144,15 +144,15 @@ public class Debugger : ViewModelBase
         Breakpoints.Add(breakpoint);
     }
 
-    private void OnCpuTicked(object sender, (ushort prevPC, ushort currentPC) pcValues)
+    private void OnCpuTicked(object sender, (int elapsedTicks, ushort prevPC, ushort currentPC) args)
     {
         if (RecordHistory)
         {
             // Record the CPU history.
             var unused = string.Empty;
-            TheCpu.Disassemble(pcValues.prevPC, ref unused, out var mnemonics);
+            TheCpu.Disassemble(args.prevPC, ref unused, out var mnemonics);
             mnemonics = $"*{mnemonics}*";
-            History.Add($"{pcValues.prevPC:X04}: {mnemonics}");
+            History.Add($"{args.prevPC:X04}: {mnemonics}");
             while (History.Count > MaxHistoryLength)
                 History.RemoveAt(0);
         }

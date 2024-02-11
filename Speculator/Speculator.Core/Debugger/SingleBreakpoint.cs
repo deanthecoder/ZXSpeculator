@@ -42,9 +42,9 @@ public class SingleBreakpoint
         IsEnabled = true;
     }
     
-    private void OnCpuTicked(object sender, (ushort prevPC, ushort currentPC) pcValues)
+    private void OnCpuTicked(object sender, (int elapsedTicks, ushort prevPC, ushort currentPC) args)
     {
-        if (pcValues.currentPC != Addr)
+        if (args.currentPC != Addr)
             return; // Breakpoint not hit yet...
         
         m_theCpu.IsDebuggerActive = true;

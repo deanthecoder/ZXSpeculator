@@ -43,6 +43,9 @@ public class CompressedDataStore<TKey>
         m_store.Add((key, data.Compress()));
     }
 
+    public void Clear() =>
+        m_store.Clear();
+
     public void Remove(TKey key) =>
         m_store.RemoveAll(o => o.Key.Equals(key));
 

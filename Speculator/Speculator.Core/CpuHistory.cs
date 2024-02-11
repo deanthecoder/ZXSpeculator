@@ -23,10 +23,9 @@ public class CpuHistory : ViewModelBase
 {
     private readonly ZxFileIo m_zxFileIo;
     private const int MaxSamples = 240;
-    private readonly long m_ticksPerSample;
-    private readonly CompressedDataStore<int> m_snapshots = new CompressedDataStore<int>(true);
+    private const int TicksPerSample = (int)CPU.TStatesPerSecond;
+    private readonly CompressedDataStore<long> m_snapshots = new CompressedDataStore<long>();
     private long m_ticksToNextSample;
-    private long m_lastTStateCount;
     private int m_indexToRestore;
 
     public CPU TheCpu { get; }
@@ -64,26 +63,29 @@ public class CpuHistory : ViewModelBase
         m_zxFileIo = zxFileIo;
         TheCpu = theCpu;
         theCpu.Ticked += OnCpuTicked;
-        m_ticksPerSample = (long)CPU.TStatesPerSecond;
-        m_ticksToNextSample = m_ticksPerSample * 5; // Start 5 seconds after machine start.
-        m_lastTStateCount = 0;
+        m_ticksToNextSample = TicksPerSample * 2; // Start 2 seconds after machine start.
+
+        zxFileIo.RomLoaded += (_, romType) =>
+        {
+            if (romType == ZxFileIo.RomType.Game)
+                return;
+            m_snapshots.Clear();
+            IndexToRestore = 0;
+            m_ticksToNextSample = TicksPerSample;
+        };
     }
 
-    private void OnCpuTicked(object sender, (ushort prevPC, ushort currentPC) e)
+    private void OnCpuTicked(object sender, (int elapsedTicks, ushort prevPC, ushort currentPC) args)
     {
-        var advance = TheCpu.TStatesSinceCpuStart - m_lastTStateCount;
-        m_lastTStateCount = TheCpu.TStatesSinceCpuStart;
-
-        m_ticksToNextSample -= advance;
-
+        m_ticksToNextSample -= args.elapsedTicks;
         if (m_ticksToNextSample > 0)
             return; // Not yet time for an action to be triggered.
-        m_ticksToNextSample += m_ticksPerSample;
-
+        m_ticksToNextSample += TicksPerSample;
+        
         // Sample CPU state.
         using var snapshot = new MemoryStream();
         m_zxFileIo.WriteSnaToStream(snapshot);
-        m_snapshots.Add(snapshot.GetBuffer());
+        m_snapshots.Add(TheCpu.TStatesSinceCpuStart, snapshot.GetBuffer());
         
         // Trim the total number of snapshots.
         while (m_snapshots.Count > MaxSamples)
@@ -99,7 +101,9 @@ public class CpuHistory : ViewModelBase
         // Restore snapshot.
         using (var snaFile = new TempFile(".sna").WriteAllBytes(m_snapshots.At(IndexToRestore)))
             m_zxFileIo.LoadFile(snaFile);
-        
+        TheCpu.SetTStatesSinceCpuStart(m_snapshots.Keys.ElementAt(IndexToRestore));
+        m_ticksToNextSample = TicksPerSample;
+
         // Delete all snapshots from this point.
         while (m_snapshots.Count > IndexToRestore)
             m_snapshots.RemoveAt(m_snapshots.Count - 1);

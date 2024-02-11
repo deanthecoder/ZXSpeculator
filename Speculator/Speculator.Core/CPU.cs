@@ -40,7 +40,7 @@ public partial class CPU : ViewModelBase
     /// <summary>
     /// Called immediately after an instruction has been processed and PC incremented.
     /// </summary>
-    public event EventHandler<(ushort prevPC, ushort currentPC)> Ticked;
+    public event EventHandler<(int elapsedTicks, ushort prevPC, ushort currentPC)> Ticked;
     
     /// <summary>
     /// Called immediately after an interrupt jump has been handled.
@@ -68,6 +68,12 @@ public partial class CPU : ViewModelBase
         TheAlu = new Alu(TheRegisters);
         ThePortHandler = portHandler;
         ClockSync = new ClockSync(TStatesPerSecond, () => TStatesSinceCpuStart);
+    }
+
+    public void SetTStatesSinceCpuStart(long tStates)
+    {
+        TStatesSinceCpuStart = tStates;
+        ClockSync.Reset();
     }
 
     public void SetFullThrottle(bool value) =>
@@ -136,8 +142,10 @@ public partial class CPU : ViewModelBase
             lock (CpuStepLock)
             {
                 var prevPC = TheRegisters.PC;
+                var oldTickCount = TStatesSinceCpuStart;
                 Step();
-                Ticked?.Invoke(this, (prevPC, TheRegisters.PC));
+                var elapsedTicks = (int)(TStatesSinceCpuStart - oldTickCount);
+                Ticked?.Invoke(this, (elapsedTicks, prevPC, TheRegisters.PC));
             }
         }
 

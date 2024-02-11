@@ -59,12 +59,12 @@ public class Memory
         return result.ToString().Trim();
     }
 
-    public void LoadRom(string systemRom)
+    public void LoadRom(FileInfo systemRom)
     {
         Logger.Instance.Info($"Loading ROM '{systemRom}'.");
-        Debug.Assert(File.Exists(systemRom), "ROM file does not exist: " + systemRom);
+        Debug.Assert(systemRom.Exists(), "ROM file does not exist: " + systemRom);
 
-        var romBytes = new FileInfo(systemRom).ReadAllBytes();
+        var romBytes = systemRom.ReadAllBytes();
         Logger.Instance.Info($"ROM size: {romBytes.Length} bytes.");
         if (romBytes.Length > 0xffff)
         {

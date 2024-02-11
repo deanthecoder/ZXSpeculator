@@ -50,7 +50,7 @@ public class ZxSpectrum : IDisposable
     }
 
     public void PowerOnAsync() => TheCpu.PowerOnAsync();
-    public void LoadBasicRom(FileInfo systemRom) => TheCpu.MainMemory.LoadRom(systemRom.FullName);
+    public void LoadSystemRom(FileInfo systemRom) => m_zxFileIo.LoadSystemRom(systemRom);
     public void LoadRom(FileInfo romFile) => m_zxFileIo.LoadFile(romFile);
     public void SaveRom(FileInfo romFile) => m_zxFileIo.SaveFile(romFile);
 

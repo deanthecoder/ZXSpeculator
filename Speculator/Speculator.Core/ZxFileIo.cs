@@ -23,15 +23,29 @@ public class ZxFileIo
     private readonly CPU m_cpu;
     private readonly ZxDisplay m_zxDisplay;
     private readonly TapeLoader m_tapeLoader;
-    
+
+    public enum RomType
+    {
+        System,
+        Game
+    }
+
     public static string[] OpenFilters { get; } = { "*.z80", "*.bin", "*.scr", "*.sna", "*.zip", "*.tap" };
     public static string[] SaveFilters { get; } = { "*.sna" };
+
+    public event EventHandler<RomType> RomLoaded;
 
     public ZxFileIo(CPU cpu, ZxDisplay zxDisplay, TapeLoader tapeLoader)
     {
         m_cpu = cpu;
         m_zxDisplay = zxDisplay;
         m_tapeLoader = tapeLoader;
+    }
+
+    public void LoadSystemRom(FileInfo systemRom)
+    {
+        m_cpu.MainMemory.LoadRom(systemRom);
+        RomLoaded?.Invoke(this, RomType.System);
     }
 
     public void LoadFile(FileInfo fileInfo)
@@ -42,7 +56,10 @@ public class ZxFileIo
             throw new FileNotFoundException(fileInfo.FullName);
 
         lock (m_cpu.CpuStepLock)
+        {
             LoadFileInternal(fileInfo);
+            RomLoaded?.Invoke(this, RomType.Game);
+        }
     }
 
     private void LoadFileInternal(FileInfo fileInfo)
