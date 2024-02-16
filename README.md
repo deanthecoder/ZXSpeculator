@@ -7,7 +7,7 @@ ZX Speculator is a cross-platform ZX Spectrum 48K emulator written in C#.
 - **Cross Platfom**: Built using [Avalonia](https://avaloniaui.net/), ensuring compatibility across various platforms.
 - **File Format Support**: Compatible with .z80, .bin, .scr, .tap, and .sna files.
 - **Archive Support**: Load files directly from `.zip` archives.
-- **Display**: Optional CRT TV and 'Ambient Blur' effects.
+- **Display**: Optional CRT TV and 'Ambient Blur' effects. ![CRT](img/CRT.png)
 - **Joysticks**: Kempston and Cursor joystick support.
 - **Sound**: Utilizes [OpenAL](https://www.openal.org/) on Mac and Windows for sound emulation.
 - **Integrated Debugger**: Includes a built-in debugger for examination of the Z80 CPU state, including:
