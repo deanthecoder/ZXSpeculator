@@ -76,8 +76,8 @@ public partial class CPU : ViewModelBase
         ClockSync.Reset();
     }
 
-    public void SetFullThrottle(bool value) =>
-        ClockSync.SetLimitSpeed(!value);
+    public void SetSpeed(ClockSync.Speed speed) =>
+        ClockSync.SetSpeed(speed);
 
     public void PowerOnAsync()
     {

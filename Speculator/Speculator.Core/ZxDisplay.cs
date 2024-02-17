@@ -13,11 +13,12 @@ using System.Numerics;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using CSharp.Core.ViewModels;
 using Vector = Avalonia.Vector;
 
 namespace Speculator.Core;
 
-public class ZxDisplay
+public class ZxDisplay : ViewModelBase
 {
     public const int ScreenBase = 0x4000;
 
@@ -36,6 +37,7 @@ public class ZxDisplay
     private int m_flashFrameCount;
     private bool m_isFlashing;
     private DateTime m_lastFlashTime = DateTime.Now;
+    private double m_emulationSpeed;
 
     /// <summary>
     /// 'Grain' overlay applied to the CRT screen.
@@ -56,7 +58,7 @@ public class ZxDisplay
     /// Used to prevent unnecessary UI screen refreshes.
     /// </summary>
     private bool m_didPixelsChange;
-
+    
     private static readonly Vector3[] Colors =
     {
         new Vector3(0x00, 0x00, 0x00), // Black
@@ -108,11 +110,15 @@ public class ZxDisplay
             }
         }
     }
-    
+
     /// <summary>
     /// The emulation speed (where 1.0 => 100% Speccy).
     /// </summary>
-    public double EmulationSpeed { get; private set; }
+    public double EmulationSpeed
+    {
+        get => m_emulationSpeed;
+        private set => SetField(ref m_emulationSpeed, value);
+    }
 
     public event EventHandler Refreshed;
 

@@ -18,12 +18,14 @@ public class ClockSync
     private readonly Stopwatch m_realTime;
     private readonly double m_emulatedTicksPerSecond;
     private readonly Func<long> m_ticksSinceCpuStart;
-    private bool m_isSpeedLimited = true;
+    private Speed m_speed = Speed.Actual;
 
     /// <summary>
     /// Number of T states when this stopwatch was started.
     /// </summary>
     private long m_tStateCountAtStart;
+    
+    public enum Speed { Actual, Fast, Maximum }
 
     public ClockSync(double emulatedCpuMHz, Func<long> ticksSinceCpuStart)
     {
@@ -42,15 +44,13 @@ public class ClockSync
     /// Call to set whether the emulator is running at 100% emulated speed,
     /// or 'full throttle'.
     /// </summary>
-    public void SetLimitSpeed(bool enableSpeedLimit)
+    public void SetSpeed(Speed speed)
     {
         lock (m_realTime)
         {
-            if (m_isSpeedLimited == enableSpeedLimit)
+            if (m_speed == speed)
                 return;
-            m_isSpeedLimited = enableSpeedLimit;
-            if (!m_isSpeedLimited)
-                return;
+            m_speed = speed;
             
             // Reset the timing variables when re-enabling 100% emulated peed.
             m_tStateCountAtStart = m_ticksSinceCpuStart();
@@ -60,12 +60,24 @@ public class ClockSync
 
     public void SyncWithRealTime()
     {
-        if (!m_isSpeedLimited)
-            return;
-        
         lock (m_realTime)
         {
             var emulatedUptimeSecs = (m_ticksSinceCpuStart() - m_tStateCountAtStart) / m_emulatedTicksPerSecond;
+
+            switch (m_speed)
+            {
+
+                case Speed.Actual:
+                    // No change required.
+                    break;
+                case Speed.Fast:
+                    emulatedUptimeSecs *= 0.66;
+                    break;
+                case Speed.Maximum:
+                    // Don't delay.
+                    return;
+            }
+
             var targetRealElapsedTicks = Stopwatch.Frequency * emulatedUptimeSecs;
 
             while (m_realTime.ElapsedTicks < targetRealElapsedTicks)

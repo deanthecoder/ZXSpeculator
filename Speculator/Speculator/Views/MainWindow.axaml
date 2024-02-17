@@ -142,6 +142,12 @@
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal"
                             IsEnabled="{Binding !Speccy.TheDebugger.IsStepping}">
+                    <StackPanel.Styles>
+                        <Style Selector="TextBlock">
+                            <Setter Property="FontWeight" Value="Normal"/>
+                        </Style>
+                    </StackPanel.Styles>
+                    
                     <ToggleButton IsChecked="{Binding Settings.IsSoundEnabled}"
                                   ToolTip.Tip="Toggle Sound">
                         <avalonia:MaterialIcon Width="24" Height="24"
@@ -157,26 +163,31 @@
                         </avalonia:MaterialIcon>
                     </ToggleButton>
                     
-                    <ToggleButton Command="{Binding ToggleFullThrottle}"
-                                  IsChecked="{Binding IsFullThrottle, Mode=OneWay}">
+                    <Button Command="{Binding RotateEmulationSpeed}"
+                            Theme="{DynamicResource MaterialFlatButton}"
+                            Foreground="White"
+                            Tag="{Binding EmulationSpeed}">
                         <ToolTip.Tip>
                             <StackPanel>
-                                <TextBlock Text="Toggle 'Full Speed'" HorizontalAlignment="Center"/>
+                                <TextBlock Text="Emulation Speed" HorizontalAlignment="Center"/>
                                 <TextBlock Text="{Binding Display.EmulationSpeed, StringFormat={}(Current: x{0:N2})}" HorizontalAlignment="Center"/>
                             </StackPanel>
                         </ToolTip.Tip>
                         <avalonia:MaterialIcon Width="24" Height="24"
-                                               Tag="{Binding IsChecked, RelativeSource={RelativeSource AncestorType=ToggleButton}}">
+                                               Tag="{Binding Tag, RelativeSource={RelativeSource AncestorType=Button}}">
                             <avalonia:MaterialIcon.Styles>
-                                <Style Selector="avalonia|MaterialIcon[Tag=True]">
-                                    <Setter Property="Kind" Value="RunFast" />
-                                </Style>
-                                <Style Selector="avalonia|MaterialIcon[Tag=False]">
+                                <Style Selector="avalonia|MaterialIcon[Tag=Actual]">
                                     <Setter Property="Kind" Value="Walk" />
+                                </Style>
+                                <Style Selector="avalonia|MaterialIcon[Tag=Fast]">
+                                    <Setter Property="Kind" Value="Run" />
+                                </Style>
+                                <Style Selector="avalonia|MaterialIcon[Tag=Maximum]">
+                                    <Setter Property="Kind" Value="RunFast" />
                                 </Style>
                             </avalonia:MaterialIcon.Styles>
                         </avalonia:MaterialIcon>
-                    </ToggleButton>
+                    </Button>
 
                     <Button Command="{Binding OpenDialogCommand, ElementName=Host}"
                             Theme="{DynamicResource MaterialFlatButton}"

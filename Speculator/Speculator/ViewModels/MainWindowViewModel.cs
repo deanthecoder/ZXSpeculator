@@ -24,12 +24,18 @@ namespace Speculator.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase, IDisposable
 {
+    private ClockSync.Speed m_emulationSpeed;
     public ZxSpectrum Speccy { get; }
     public ZxDisplay Display { get; }
-    public bool IsFullThrottle { get; private set; }
     public Settings Settings => Settings.Instance;
     public MruFiles Mru { get; }
     public RomSelectorViewModel RomSelectorDetails { get; }
+
+    public ClockSync.Speed EmulationSpeed
+    {
+        get => m_emulationSpeed;
+        private set => SetField(ref m_emulationSpeed, value);
+    }
 
     public MainWindowViewModel()
     {
@@ -134,11 +140,22 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     public void SetCrtMode(bool b) =>
         Settings.IsCrt = b;
     
-    public void ToggleFullThrottle()
+    public void RotateEmulationSpeed()
     {
-        IsFullThrottle = !IsFullThrottle;
-        OnPropertyChanged(nameof(IsFullThrottle));
-        Speccy.TheCpu.SetFullThrottle(IsFullThrottle);
+        switch (EmulationSpeed)
+        {
+            case ClockSync.Speed.Actual:
+                EmulationSpeed = ClockSync.Speed.Fast;
+                break;
+            case ClockSync.Speed.Fast:
+                EmulationSpeed = ClockSync.Speed.Maximum;
+                break;
+            case ClockSync.Speed.Maximum:
+                EmulationSpeed = ClockSync.Speed.Actual;
+                break;
+        }
+
+        Speccy.TheCpu.SetSpeed(EmulationSpeed);
     }
 
     public void ToggleAmbientBlur() =>
