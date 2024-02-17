@@ -41,4 +41,10 @@ public class SoundBuffer
         public int Compare((bool level, long tStateLength, long tStateStart) x, (bool level, long tStateLength, long tStateStart) y) =>
             x.tStateStart.CompareTo(y.tStateStart);
     }
+
+    /// <summary>
+    /// Reserve memory to store 'count' more bytes.
+    /// </summary>
+    public void ReserveExtra(int count) =>
+        Levels.EnsureCapacity(Levels.Count + count);
 }

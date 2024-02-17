@@ -70,6 +70,7 @@ public class TapeBlock
         m_soundBuffer.Add(false, 735);
 
         // Create tape tones.
+        m_soundBuffer.ReserveExtra(m_blockBytes.Length * 8);
         foreach (var blockByte in m_blockBytes)
         {
             for (var mask = 0x80; mask > 0; mask >>= 1)
