@@ -26,8 +26,8 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
     private readonly ZxDisplay m_theDisplay;
     private readonly TapeLoader m_tapeLoader;
     private readonly List<KeyCode> m_realKeysPressed = new List<KeyCode>();
-    private readonly Dictionary<KeyCode[], KeyCode[]> m_pcToSpectrumKeyMap;
-    private readonly Dictionary<KeyCode[], KeyCode[]> m_pcToSpectrumKeyMapWithJoystick;
+    private readonly List<(KeyCode[] Pc, KeyCode[] Speccy)> m_pcToSpectrumKeyMap;
+    private readonly List<(KeyCode[] Pc, KeyCode[] Speccy)> m_pcToSpectrumKeyMapWithJoystick;
     private readonly SimpleGlobalHook m_keyboardHook;
     private bool m_emulateCursorJoystick;
     private bool m_handleKeyEvents = true;
@@ -67,48 +67,44 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
         m_tapeLoader = tapeLoader;
 
         // Map PC key to a sequence of emulated Speccy keys.
-        m_pcToSpectrumKeyMap = new Dictionary<KeyCode[], KeyCode[]>
-        {
-            [K(KeyCode.VcBackspace)] = K(KeyCode.VcLeftShift,  KeyCode.Vc0),
-            [K(KeyCode.VcComma)] = K(KeyCode.VcRightShift, KeyCode.VcN),
-            [K(KeyCode.VcComma, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.VcR),
-            [K(KeyCode.VcPeriod)] = K(KeyCode.VcRightShift, KeyCode.VcM),
-            [K(KeyCode.VcPeriod, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.VcT),
-            [K(KeyCode.VcEquals)] = K(KeyCode.VcRightShift, KeyCode.VcL),
-            [K(KeyCode.VcEquals, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.VcK),
-            [K(KeyCode.VcMinus)] = K(KeyCode.VcRightShift, KeyCode.VcJ),
-            [K(KeyCode.VcMinus, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.Vc0),
-            [K(KeyCode.VcSlash)] = K(KeyCode.VcRightShift, KeyCode.VcV),
-            [K(KeyCode.VcSlash, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.VcC),
-            [K(KeyCode.VcQuote)] = K(KeyCode.VcRightShift,  KeyCode.Vc7),
-            [K(KeyCode.VcQuote, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.VcP),
-            [K(KeyCode.VcSemicolon)] = K(KeyCode.VcRightShift, KeyCode.VcO),
-            [K(KeyCode.VcSemicolon, KeyCode.VcLeftShift)] = K(KeyCode.VcRightShift, KeyCode.VcZ),
-            [K(KeyCode.VcLeftAlt)] = K(KeyCode.VcLeftShift, KeyCode.VcRightShift),
-            
-            // Note: Left shift will act like CAPS SHIFT to allow access to the Speccy's
-            // special keys (cursors, GRAPHICS, etc).
-            // Right-shift maps PC keys to Speccy equivalent. (E.g. Round brackets)
-            [K(KeyCode.Vc7, KeyCode.VcRightShift)] = K(KeyCode.VcRightShift, KeyCode.Vc6),
-            [K(KeyCode.Vc8, KeyCode.VcRightShift)] = K(KeyCode.VcRightShift, KeyCode.VcB),
-            [K(KeyCode.Vc9, KeyCode.VcRightShift)] = K(KeyCode.VcRightShift, KeyCode.Vc8),
-            [K(KeyCode.Vc0, KeyCode.VcRightShift)] = K(KeyCode.VcRightShift, KeyCode.Vc9)
-        };
+        m_pcToSpectrumKeyMap = new List<(KeyCode[], KeyCode[])>();
+        m_pcToSpectrumKeyMap.Add((K(KeyCode.VcBackspace), K(KeyCode.VcLeftShift,  KeyCode.Vc0)));
+        m_pcToSpectrumKeyMap.Add((K(KeyCode.VcComma), K(KeyCode.VcRightShift, KeyCode.VcN)));
+        m_pcToSpectrumKeyMap.Add((K(KeyCode.VcComma, KeyCode.VcLeftShift), K(KeyCode.VcRightShift, KeyCode.VcR)));
+        m_pcToSpectrumKeyMap.Add((K(KeyCode.VcPeriod), K(KeyCode.VcRightShift, KeyCode.VcM)));
+        m_pcToSpectrumKeyMap.Add((K(KeyCode.VcPeriod, KeyCode.VcLeftShift), K(KeyCode.VcRightShift, KeyCode.VcT)));
+        m_pcToSpectrumKeyMap.Add((K(KeyCode.VcEquals), K(KeyCode.VcRightShift, KeyCode.VcL)));
+        m_pcToSpectrumKeyMap.Add((K(KeyCode.VcEquals, KeyCode.VcLeftShift), K(KeyCode.VcRightShift, KeyCode.VcK)));
+        m_pcToSpectrumKeyMap.Add((K(KeyCode.VcMinus), K(KeyCode.VcRightShift, KeyCode.VcJ)));
+        m_pcToSpectrumKeyMap.Add((K(KeyCode.VcMinus, KeyCode.VcLeftShift), K(KeyCode.VcRightShift, KeyCode.Vc0)));
+        m_pcToSpectrumKeyMap.Add((K(KeyCode.VcSlash), K(KeyCode.VcRightShift, KeyCode.VcV)));
+        m_pcToSpectrumKeyMap.Add((K(KeyCode.VcSlash, KeyCode.VcLeftShift), K(KeyCode.VcRightShift, KeyCode.VcC)));
+        m_pcToSpectrumKeyMap.Add((K(KeyCode.VcQuote), K(KeyCode.VcRightShift,  KeyCode.Vc7)));
+        m_pcToSpectrumKeyMap.Add((K(KeyCode.VcQuote, KeyCode.VcLeftShift), K(KeyCode.VcRightShift, KeyCode.VcP)));
+        m_pcToSpectrumKeyMap.Add((K(KeyCode.VcSemicolon), K(KeyCode.VcRightShift, KeyCode.VcO)));
+        m_pcToSpectrumKeyMap.Add((K(KeyCode.VcSemicolon, KeyCode.VcLeftShift), K(KeyCode.VcRightShift, KeyCode.VcZ)));
+        m_pcToSpectrumKeyMap.Add((K(KeyCode.VcLeftAlt), K(KeyCode.VcLeftShift, KeyCode.VcRightShift))); // Note: Left shift will act like CAPS SHIFT to allow access to the Speccy'))s
+        // special keys (cursors, GRAPHICS, etc).
+        // Right-shift maps PC keys to Speccy equivalent. (E.g. Round brackets)
+        m_pcToSpectrumKeyMap.Add((K(KeyCode.Vc7, KeyCode.VcRightShift), K(KeyCode.VcRightShift, KeyCode.Vc6)));
+        m_pcToSpectrumKeyMap.Add((K(KeyCode.Vc8, KeyCode.VcRightShift), K(KeyCode.VcRightShift, KeyCode.VcB)));
+        m_pcToSpectrumKeyMap.Add((K(KeyCode.Vc9, KeyCode.VcRightShift), K(KeyCode.VcRightShift, KeyCode.Vc8)));
+        m_pcToSpectrumKeyMap.Add((K(KeyCode.Vc0, KeyCode.VcRightShift), K(KeyCode.VcRightShift, KeyCode.Vc9)));
 
         // Make right-shift mirror left shift.
         m_pcToSpectrumKeyMap
-            .Where(o => o.Key.Length == 2 && o.Key[1] == KeyCode.VcLeftShift)
+            .Where(o => o.Pc.Length == 2 && o.Pc[1] == KeyCode.VcLeftShift)
             .ToList()
-            .ForEach(o => m_pcToSpectrumKeyMap.Add(K(o.Key[0], KeyCode.VcRightShift), o.Value));
+            .ForEach(o => m_pcToSpectrumKeyMap.Add((K(o.Pc[0], KeyCode.VcRightShift), o.Speccy)));
 
         // Make extended key map for Cursor Joystick support.
-        m_pcToSpectrumKeyMapWithJoystick = m_pcToSpectrumKeyMap.ToDictionary(entry => entry.Key, entry => entry.Value);
-        m_pcToSpectrumKeyMapWithJoystick[K(KeyCode.VcUp)] = K(KeyCode.Vc7);
-        m_pcToSpectrumKeyMapWithJoystick[K(KeyCode.VcDown)] = K(KeyCode.Vc6);
-        m_pcToSpectrumKeyMapWithJoystick[K(KeyCode.VcLeft)] = K(KeyCode.Vc5);
-        m_pcToSpectrumKeyMapWithJoystick[K(KeyCode.VcRight)] = K(KeyCode.Vc8);
-        m_pcToSpectrumKeyMapWithJoystick[K(KeyCode.VcBackQuote)] = K(KeyCode.Vc0);
-        m_pcToSpectrumKeyMapWithJoystick[K(KeyCode.VcBackslash)] = K(KeyCode.Vc0);
+        m_pcToSpectrumKeyMapWithJoystick = m_pcToSpectrumKeyMap.ToList();
+        m_pcToSpectrumKeyMapWithJoystick.Add((K(KeyCode.VcUp), K(KeyCode.Vc7)));
+        m_pcToSpectrumKeyMapWithJoystick.Add((K(KeyCode.VcDown), K(KeyCode.Vc6)));
+        m_pcToSpectrumKeyMapWithJoystick.Add((K(KeyCode.VcLeft), K(KeyCode.Vc5)));
+        m_pcToSpectrumKeyMapWithJoystick.Add((K(KeyCode.VcRight), K(KeyCode.Vc8)));
+        m_pcToSpectrumKeyMapWithJoystick.Add((K(KeyCode.VcBackQuote), K(KeyCode.Vc0)));
+        m_pcToSpectrumKeyMapWithJoystick.Add((K(KeyCode.VcBackslash), K(KeyCode.Vc0)));
         
         m_keyboardHook = new SimpleGlobalHook();
         m_keyboardHook.KeyPressed += (_, args) => SetKeyDown(args.Data.KeyCode);
@@ -281,11 +277,16 @@ public class ZxPortHandler : ViewModelBase, IPortHandler, IDisposable
         {
             var didRemap = false;
 
-            var combosToRemap = keyMap.Where(o => o.Key.Length == comboLength && AreAllKeysPressed(o.Key));
-            foreach (var (keyCodes, replacements) in combosToRemap)
+            for (var i = 0; i < keyMap.Count; i++)
             {
-                for (var i = 0; i < keyCodes.Length; i++)
-                    zxPressed.Remove(keyCodes[i]);
+                if (keyMap[i].Pc.Length != comboLength)
+                    continue;
+                if (!AreAllKeysPressed(keyMap[i].Pc))
+                    continue;
+                
+                var (keyCodes, replacements) = keyMap[i];
+                for (var j = 0; j < keyCodes.Length; j++)
+                    zxPressed.Remove(keyCodes[j]);
                 zxPressed.AddRange(replacements);
                 didRemap = true;
             }
