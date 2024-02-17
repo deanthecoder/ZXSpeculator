@@ -13,7 +13,7 @@ using Avalonia.Platform.Storage;
 
 namespace CSharp.Core.Extensions;
 
-public static class IStorageItemExtensions
+public static class StorageItemExtensions
 {
     public static FileInfo ToFileInfo(this IStorageFile storageFile) =>
         storageFile != null ? new FileInfo(storageFile.Path.LocalPath) : null;

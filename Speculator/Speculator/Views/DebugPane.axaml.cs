@@ -42,7 +42,8 @@ public partial class DebugPane : UserControl
 
         m_scrollAction = new ActionConsolidator(() => ScrollToEnd(listBox));
         var items = (ObservableCollection<string>)listBox.ItemsSource;
-        items.CollectionChanged += (_, _) => m_scrollAction.Invoke();
+        if (items != null)
+            items.CollectionChanged += (_, _) => m_scrollAction.Invoke();
     }
     
     private static void ScrollToEnd(SelectingItemsControl listBox)

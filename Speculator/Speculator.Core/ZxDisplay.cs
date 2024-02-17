@@ -9,12 +9,13 @@
 //
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
-using System.Numerics;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using CSharp.Core.ViewModels;
+using OpenTK.Mathematics;
 using Vector = Avalonia.Vector;
+using Vector3 = System.Numerics.Vector3;
 
 namespace Speculator.Core;
 
@@ -34,6 +35,7 @@ public class ZxDisplay : ViewModelBase
     private Vector3 m_scanlineMultiplier;
     private float m_phosphorShrink;
     private float m_brightness;
+    private readonly Vector3 m_crtSaturation = new Vector3(1.1f, 1.0f, 1.1f);
     private int m_flashFrameCount;
     private bool m_isFlashing;
     private DateTime m_lastFlashTime = DateTime.Now;
@@ -42,7 +44,7 @@ public class ZxDisplay : ViewModelBase
     /// <summary>
     /// 'Grain' overlay applied to the CRT screen.
     /// </summary>
-    private readonly float[][] m_grain;
+    private readonly Vector3[][] m_grain;
 
     /// <summary>
     /// 320x240 Buffer of pixels, each byte a palette index.
@@ -78,7 +80,7 @@ public class ZxDisplay : ViewModelBase
         new Vector3(0xFF, 0xFF, 0x00), // Bright Yellow
         new Vector3(0xFF, 0xFF, 0xFF)  // Bright White
     };
-
+    
     public byte BorderAttr { get; set; }
 
     public bool IsCrt
@@ -93,20 +95,20 @@ public class ZxDisplay : ViewModelBase
             {
                 m_scanlineMultiplier = new Vector3(0.7f);
                 m_phosphorShrink = 0.5f;
-                m_brightness = 3.0f / (1.0f + 2.0f * m_phosphorShrink);
             }
             else
             {
                 m_scanlineMultiplier = Vector3.One;
                 m_phosphorShrink = 1.0f;
-                m_brightness = 1.0f;
             }
+
+            m_brightness = 3.0f / (1.0f + 2.0f * m_phosphorShrink);
 
             var random = new Random(0);
             for (var i = 0; i < m_screenBuffer.Length; i++)
             {
                 for (var j = 0; j < m_screenBuffer[0].Length; j++)
-                    m_grain[i][j] = m_isCrt ? (float)((random.NextDouble() - 0.5) * 255.0 * 0.025) : 0.0f;
+                    m_grain[i][j] = m_isCrt ? new Vector3((float)(random.NextDouble() * 12.0)) : Vector3.Zero;
             }
         }
     }
@@ -124,9 +126,9 @@ public class ZxDisplay : ViewModelBase
 
     public ZxDisplay()
     {
-        m_grain = new float[m_screenBuffer.Length][];
+        m_grain = new Vector3[m_screenBuffer.Length][];
         for (var i = 0; i < m_screenBuffer.Length; i++)
-            m_grain[i] = new float[m_screenBuffer[0].Length];
+            m_grain[i] = new Vector3[m_screenBuffer[0].Length];
     }
 
     private static (byte, byte) GetColorIndices(byte attr, bool invert = false)
@@ -281,32 +283,26 @@ public class ZxDisplay : ViewModelBase
             for (var y = 0; y < h; y++)
             {
                 var row = m_screenBuffer[y];
-                var uv = new Vector2(0.0f, (y - h * 0.5f) / h);
+                var uvY = (double)y / h;
 
                 for (var x = 0; x < w; x++)
                 {
-                    float vignette;
+                    var origColor = Colors[row[x]];
+
                     if (IsCrt)
                     {
-                        uv.X = (x - w * 0.5f) / w;
+                        var uvX = (double)x / w;
+                        var vignette = (float)MathHelper.Lerp(0.7, 1.0, Math.Sqrt(64.0 * uvX * uvY * (1.0 - uvX) * (1.0 - uvY)));
                         
-                        vignette = Vector2.Dot(uv, uv);
-                        vignette *= vignette * vignette;
-                        vignette = 1.0f - vignette * 2.0f;
+                        origColor += m_grain[y][x];
+                        origColor *= m_brightness * vignette * m_crtSaturation;
                     }
-                    else
-                    {
-                        vignette = 1.0f;
-                    }
-
-                    var origColor = Colors[row[x]];
-                    var grain = IsCrt ? new Vector3(m_grain[y][x]) : Vector3.Zero;
+                    
                     var xx = x * 3;
                     var yy = y * 4;
-                    var f = new Vector3(vignette * m_brightness);
-                    FrameBuffer.SetPixelV4(ptr, framerBufferStride, xx, yy, origColor * phosphorR + grain, f, m_scanlineMultiplier);
-                    FrameBuffer.SetPixelV4(ptr, framerBufferStride, xx + 1, yy, origColor * phosphorG + grain, f, m_scanlineMultiplier);
-                    FrameBuffer.SetPixelV4(ptr, framerBufferStride, xx + 2, yy, origColor * phosphorB + grain, f, m_scanlineMultiplier);
+                    FrameBuffer.SetPixelV4(ptr, framerBufferStride, xx, yy, origColor * phosphorR, m_scanlineMultiplier);
+                    FrameBuffer.SetPixelV4(ptr, framerBufferStride, xx + 1, yy, origColor * phosphorG, m_scanlineMultiplier);
+                    FrameBuffer.SetPixelV4(ptr, framerBufferStride, xx + 2, yy, origColor * phosphorB, m_scanlineMultiplier);
                 }
             }
         }

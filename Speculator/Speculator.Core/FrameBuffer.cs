@@ -30,9 +30,9 @@ public static class FrameBuffer
     /// <summary>
     /// Set a vertical strip of 4 pixels the same RGB color.
     /// </summary>
-    public static void SetPixelV4(Span<byte> framePtr, int stride, int x, int y, Vector3 rgb, Vector3 f, Vector3 scanline)
+    public static void SetPixelV4(Span<byte> framePtr, int stride, int x, int y, Vector3 rgb, Vector3 scanline)
     {
-        var clampedRgb = Vector3.Clamp(rgb * f, Vector3.Zero, V255);
+        var clampedRgb = Vector3.Clamp(rgb, Vector3.Zero, V255);
 
         // First 3 vertical pixels.
         var offset = y * stride + x * 4;
