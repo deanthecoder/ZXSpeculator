@@ -83,7 +83,7 @@ public class CpuHistory : ViewModelBase
         m_ticksToNextSample += TicksPerSample;
         
         // Sample CPU state.
-        using var snapshot = new MemoryStream();
+        using var snapshot = new MemoryStream(49179);
         m_zxFileIo.WriteSnaToStream(snapshot);
         m_snapshots.Add(TheCpu.TStatesSinceCpuStart, snapshot.GetBuffer());
         
