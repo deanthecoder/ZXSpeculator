@@ -6,6 +6,7 @@
         xmlns:views="clr-namespace:Speculator.Views"
         xmlns:dialogHostAvalonia="clr-namespace:DialogHostAvalonia;assembly=DialogHost.Avalonia"
         xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+        xmlns:converters="clr-namespace:Speculator.Converters"
         mc:Ignorable="d"
         d:DesignWidth="600"
         d:DesignHeight="650"
@@ -20,6 +21,10 @@
     <Design.DataContext>
         <vm:MainWindowViewModel />
     </Design.DataContext>
+
+    <Window.Resources>
+        <converters:RomFileToNameConverter x:Key="RomFileToNameConverter" />
+    </Window.Resources>
     
     <Window.Styles>
         <Style Selector="Button">
@@ -51,14 +56,14 @@
                                   InputGesture="{OnPlatform 'ctrl+o', macOS='⌘+o'}" />
                         <MenuItem Header="Open _Recent">
                             <MenuItem Header="Empty" IsVisible="{Binding Mru.IsEmpty}" IsEnabled="False"/>
-                            <MenuItem Header="{Binding Mru.Item1}" ToolTip.Tip="{Binding Mru.Item1.FullName}" IsVisible="{Binding Mru.Item1.IsUsed}" Command="{Binding Mru.Open}" CommandParameter="1"/>
-                            <MenuItem Header="{Binding Mru.Item2}" ToolTip.Tip="{Binding Mru.Item2.FullName}" IsVisible="{Binding Mru.Item2.IsUsed}" Command="{Binding Mru.Open}" CommandParameter="2"/>
-                            <MenuItem Header="{Binding Mru.Item3}" ToolTip.Tip="{Binding Mru.Item3.FullName}" IsVisible="{Binding Mru.Item3.IsUsed}" Command="{Binding Mru.Open}" CommandParameter="3"/>
-                            <MenuItem Header="{Binding Mru.Item4}" ToolTip.Tip="{Binding Mru.Item4.FullName}" IsVisible="{Binding Mru.Item4.IsUsed}" Command="{Binding Mru.Open}" CommandParameter="4"/>
-                            <MenuItem Header="{Binding Mru.Item5}" ToolTip.Tip="{Binding Mru.Item5.FullName}" IsVisible="{Binding Mru.Item5.IsUsed}" Command="{Binding Mru.Open}" CommandParameter="5"/>
-                            <MenuItem Header="{Binding Mru.Item6}" ToolTip.Tip="{Binding Mru.Item6.FullName}" IsVisible="{Binding Mru.Item6.IsUsed}" Command="{Binding Mru.Open}" CommandParameter="6"/>
-                            <MenuItem Header="{Binding Mru.Item7}" ToolTip.Tip="{Binding Mru.Item7.FullName}" IsVisible="{Binding Mru.Item7.IsUsed}" Command="{Binding Mru.Open}" CommandParameter="7"/>
-                            <MenuItem Header="{Binding Mru.Item8}" ToolTip.Tip="{Binding Mru.Item8.FullName}" IsVisible="{Binding Mru.Item8.IsUsed}" Command="{Binding Mru.Open}" CommandParameter="8"/>
+                            <MenuItem Header="{Binding Mru.Item1, Converter={StaticResource RomFileToNameConverter}}" ToolTip.Tip="{Binding Mru.Item1.FullName}" IsVisible="{Binding Mru.Item1.IsUsed}" Command="{Binding Mru.Open}" CommandParameter="1"/>
+                            <MenuItem Header="{Binding Mru.Item2, Converter={StaticResource RomFileToNameConverter}}" ToolTip.Tip="{Binding Mru.Item2.FullName}" IsVisible="{Binding Mru.Item2.IsUsed}" Command="{Binding Mru.Open}" CommandParameter="2"/>
+                            <MenuItem Header="{Binding Mru.Item3, Converter={StaticResource RomFileToNameConverter}}" ToolTip.Tip="{Binding Mru.Item3.FullName}" IsVisible="{Binding Mru.Item3.IsUsed}" Command="{Binding Mru.Open}" CommandParameter="3"/>
+                            <MenuItem Header="{Binding Mru.Item4, Converter={StaticResource RomFileToNameConverter}}" ToolTip.Tip="{Binding Mru.Item4.FullName}" IsVisible="{Binding Mru.Item4.IsUsed}" Command="{Binding Mru.Open}" CommandParameter="4"/>
+                            <MenuItem Header="{Binding Mru.Item5, Converter={StaticResource RomFileToNameConverter}}" ToolTip.Tip="{Binding Mru.Item5.FullName}" IsVisible="{Binding Mru.Item5.IsUsed}" Command="{Binding Mru.Open}" CommandParameter="5"/>
+                            <MenuItem Header="{Binding Mru.Item6, Converter={StaticResource RomFileToNameConverter}}" ToolTip.Tip="{Binding Mru.Item6.FullName}" IsVisible="{Binding Mru.Item6.IsUsed}" Command="{Binding Mru.Open}" CommandParameter="6"/>
+                            <MenuItem Header="{Binding Mru.Item7, Converter={StaticResource RomFileToNameConverter}}" ToolTip.Tip="{Binding Mru.Item7.FullName}" IsVisible="{Binding Mru.Item7.IsUsed}" Command="{Binding Mru.Open}" CommandParameter="7"/>
+                            <MenuItem Header="{Binding Mru.Item8, Converter={StaticResource RomFileToNameConverter}}" ToolTip.Tip="{Binding Mru.Item8.FullName}" IsVisible="{Binding Mru.Item8.IsUsed}" Command="{Binding Mru.Open}" CommandParameter="8"/>
                             <Separator/>
                             <MenuItem Header="Clear" Command="{Binding Mru.Clear}"/>
                         </MenuItem>
