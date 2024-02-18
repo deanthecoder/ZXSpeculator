@@ -75,7 +75,7 @@ There's a [YouTube playlist](https://www.youtube.com/playlist?list=PLPA1ndSnAZTw
 ![](img/BoulderDash.png)
 ![](img/Tapper.png)
 
-## Experiments
+## Experiments - Raytracer
 As my other hobby is writing GLSL shaders on [ShaderToy](https://www.shadertoy.com/user/dean_the_coder) (See [here](https://github.com/deanthecoder/GLSLShaderShrinker) for my GLSL Shader Shrinker application), I thought it'd be interesting to try a 'cross over' project.
 
 I've taken inspiration from the [Human Shader](https://humanshader.com/) project and recreated the algorithm using ZX Spectrum BASIC, using this emulator.
@@ -88,6 +88,13 @@ First iteration: Solid blocks:
 ![](Experiments/HumanShader/Pass1_Rough.png)
 I've included a `.sna` snapshot of the code [here](Experiments/HumanShader/HumanShader.sna).
 ![](Experiments/HumanShader/Code.png)
+
+# Experiments - Conway's Game Of Life
+I realized I had never written a [Conway's Game Of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life), so decided to make one using the emulator.
+
+Performance isn't great - It's something that would definitely benefit with some optimization and perhaps a rewrite using Z80 machine code.
+![](Experiments/GameOfLife/GameOfLife.png)
+I've included a `.sna` snapshot of the code [here](Experiments/GameOfLife/Conway.sna).
 
 ## Contribution and Improvements
 ZX Speculator is an ongoing project and contributions are welcome. Whether it's improving emulation accuracy, testing on different platforms, or enhancing existing features, your input is valuable (although I can't always promise a fast response, as this is a side project).
