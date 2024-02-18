@@ -9,9 +9,12 @@
 //
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
+using System.Collections;
 using Avalonia;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using CSharp.Core;
+using CSharp.Core.Extensions;
 using CSharp.Core.ViewModels;
 using OpenTK.Mathematics;
 using Vector = Avalonia.Vector;
@@ -40,6 +43,14 @@ public class ZxDisplay : ViewModelBase
     private bool m_isFlashing;
     private DateTime m_lastFlashTime = DateTime.Now;
     private double m_emulationSpeed;
+    private bool m_isPaused;
+    private readonly Random m_random = new Random(0);
+    private readonly BitArray m_pauseBitmap = new BitArray(new byte[] { 0x1F, 0x1E, 0x21, 0x1E, 0xFF, 0x87, 0x47, 0x88, 0xC7, 0x1F, 0x12, 0x12, 0x12, 0x10, 0x84, 0x84, 0x84, 0x04, 0x04, 0x21, 0x21, 0x21, 0x1E, 0x5F, 0x48, 0x48, 0x88, 0xC7, 0xF7, 0xF1, 0x13, 0x02, 0x12, 0x7C, 0xFC, 0x84, 0x80, 0x04, 0x01, 0x21, 0x21, 0x21, 0x41, 0x40, 0x48, 0x48, 0x48, 0x10, 0x10, 0xE2, 0xE1, 0xF1, 0x07, 0x84, 0x78, 0x78, 0xFC});
+
+    /// <summary>
+    /// A timer active when the machine is paused, allowing the pause animation to occur.
+    /// </summary>
+    private PeriodicAction m_updateTimer;
 
     /// <summary>
     /// 'Grain' overlay applied to the CRT screen.
@@ -104,12 +115,39 @@ public class ZxDisplay : ViewModelBase
 
             m_brightness = 3.0f / (1.0f + 2.0f * m_phosphorShrink);
 
-            var random = new Random(0);
             for (var i = 0; i < m_screenBuffer.Length; i++)
             {
                 for (var j = 0; j < m_screenBuffer[0].Length; j++)
-                    m_grain[i][j] = m_isCrt ? new Vector3((float)(random.NextDouble() * 12.0)) : Vector3.Zero;
+                    m_grain[i][j] = m_isCrt ? new Vector3((float)(m_random.NextDouble() * 12.0)) : Vector3.Zero;
             }
+
+            m_didPixelsChange = true;
+        }
+    }
+
+    public bool IsPaused
+    {
+        get => m_isPaused;
+        set
+        {
+            if (m_isPaused == value)
+                return;
+            m_isPaused = value;
+
+            if (m_isPaused)
+            {
+                // Keep updating the UI whilst paused.
+                m_updateTimer = PeriodicAction.Start(TimeSpan.FromSeconds(1.0 / 30.0), UpdateScreen);
+
+                EmulationSpeed = 0.0;
+            }
+            else
+            {
+                m_updateTimer?.Dispose();
+                m_updateTimer = null;
+            }
+
+            m_didPixelsChange = true;
         }
     }
 
@@ -162,8 +200,16 @@ public class ZxDisplay : ViewModelBase
             
             // Also update the EmulationSpeed.
             var now = DateTime.Now;
-            var elapsedSecs = (now - m_lastFlashTime).TotalSeconds;
-            EmulationSpeed = Math.Round(FramesPerFlash / (50.0 * elapsedSecs) / 0.25) * 0.25;
+            if (IsPaused)
+            {
+                EmulationSpeed = 0.0;
+            }
+            else
+            {
+                var elapsedSecs = (now - m_lastFlashTime).TotalSeconds;
+                EmulationSpeed = Math.Round(FramesPerFlash / (50.0 * elapsedSecs) / 0.25) * 0.25;
+            }
+
             m_lastFlashTime = now;
         }
 
@@ -266,48 +312,102 @@ public class ZxDisplay : ViewModelBase
         return bitmap;
     }
 
+    /// <summary>
+    /// Render the Speccy screen memory into a bitmap for display.
+    /// </summary>
     private unsafe void UpdateScreen()
     {
-        using (var frameBuffer = Bitmap.Lock())
+        lock (Bitmap)
         {
-            var framerBufferStride = frameBuffer.RowBytes;
-            var w = m_screenBuffer[0].Length;
-            var h = m_screenBuffer.Length;
-            var ptr = new Span<byte>((byte*)frameBuffer.Address, frameBuffer.RowBytes * frameBuffer.Size.Height);
-
-            var phosphorR = new Vector3(1.0f, m_phosphorShrink, m_phosphorShrink);
-            var phosphorG = new Vector3(m_phosphorShrink, 1.0f, m_phosphorShrink);
-            var phosphorB = new Vector3(m_phosphorShrink, m_phosphorShrink, 1.0f);
-
-            // Software pixel shader.
-            for (var y = 0; y < h; y++)
+            using (var frameBuffer = Bitmap.Lock())
             {
-                var row = m_screenBuffer[y];
-                var uvY = (double)y / h;
+                var framerBufferStride = frameBuffer.RowBytes;
+                var w = m_screenBuffer[0].Length;
+                var h = m_screenBuffer.Length;
+                var ptr = new Span<byte>((byte*)frameBuffer.Address, frameBuffer.RowBytes * frameBuffer.Size.Height);
 
-                for (var x = 0; x < w; x++)
+                var phosphorR = new Vector3(1.0f, m_phosphorShrink, m_phosphorShrink);
+                var phosphorG = new Vector3(m_phosphorShrink, 1.0f, m_phosphorShrink);
+                var phosphorB = new Vector3(m_phosphorShrink, m_phosphorShrink, 1.0f);
+
+                // Software pixel shader.
+                var iTime = DateTime.Now.TimeOfDay.TotalSeconds;
+                var dy = 0;
+                if (IsPaused)
                 {
-                    var origColor = Colors[row[x]];
+                    // Vertical screen wobble.
+                    dy = (int)(m_random.NextDouble() * 1.5);
+                }
 
-                    if (IsCrt)
+                for (var y = 0; y < h; y++)
+                {
+                    var row = m_screenBuffer[y];
+                    var uvY = (double)y / h;
+
+                    var dx = 0;
+                    var distFromPulse = 0.0;
+                    if (IsPaused)
                     {
-                        var uvX = (double)x / w;
-                        var vignette = (float)MathHelper.Lerp(0.7, 1.0, Math.Sqrt(64.0 * uvX * uvY * (1.0 - uvX) * (1.0 - uvY)));
-                        
-                        origColor += m_grain[y][x];
-                        origColor *= m_brightness * vignette * m_crtSaturation;
+                        // White pulse moving down the screen.
+                        var pulseY = ((iTime % 8.0) / 8.0) * h * 2.5;
+                        var pulseHeight = 20.0;
+                        distFromPulse = (Math.Abs(y - pulseY) / pulseHeight).Clamp(0.0, 1.0);
+                        dx = (int)(-12.0 * m_random.NextDouble() * Math.Cos(distFromPulse * Math.PI / 2.0));
+                        dx = (int)(dx + (m_random.NextDouble() * 2.2 - 1.1));
                     }
-                    
-                    var xx = x * 3;
-                    var yy = y * 4;
-                    FrameBuffer.SetPixelV4(ptr, framerBufferStride, xx, yy, origColor * phosphorR, m_scanlineMultiplier);
-                    FrameBuffer.SetPixelV4(ptr, framerBufferStride, xx + 1, yy, origColor * phosphorG, m_scanlineMultiplier);
-                    FrameBuffer.SetPixelV4(ptr, framerBufferStride, xx + 2, yy, origColor * phosphorB, m_scanlineMultiplier);
+
+                    for (var x = 0; x < w; x++)
+                    {
+                        var origColor = Colors[row[x]];
+
+                        if (IsCrt)
+                        {
+                            var uvX = (double)x / w;
+                            var vignette = (float)MathHelper.Lerp(0.7, 1.0, Math.Sqrt(64.0 * uvX * uvY * (1.0 - uvX) * (1.0 - uvY)));
+
+                            if (IsPaused)
+                            {
+                                // Screen displacement.
+                                var lx = Math.Max(0, x + dx) % w;
+                                var ly = Math.Max(0, y + dy) % h;
+                                origColor = Colors[m_screenBuffer[ly][lx]];
+
+                                // Desaturate color.
+                                var lumin = Vector3.Dot(origColor, new Vector3(0.2f, 0.7f, 0.1f));
+                                origColor = Vector3.Lerp(origColor, new Vector3(lumin), 0.9f);
+
+                                // Add noise.
+                                origColor += new Vector3((float)((m_random.NextDouble() - 0.5) * 50.0));
+
+                                // Add extra noise to the white pulse.
+                                if (m_random.NextDouble() * (1.0 - distFromPulse) > 0.4)
+                                    origColor += new Vector3((float)(92.0 * m_random.NextDouble()));
+
+                                // PAUSE.
+                                var px = x - 20;
+                                var py = ly - 20;
+                                if (px >= 0 && px < 38 && py >= 0 && py < 12)
+                                {
+                                    if (m_pauseBitmap[py * 38 + px])
+                                        origColor += new Vector3(200);
+                                }
+                            }
+
+                            origColor += m_grain[y][x];
+                            origColor *= m_brightness * vignette * m_crtSaturation;
+                        }
+
+                        var xx = x * 3;
+                        var yy = y * 4;
+                        FrameBuffer.SetPixelV4(ptr, framerBufferStride, xx, yy, origColor * phosphorR, m_scanlineMultiplier);
+                        FrameBuffer.SetPixelV4(ptr, framerBufferStride, xx + 1, yy, origColor * phosphorG, m_scanlineMultiplier);
+                        FrameBuffer.SetPixelV4(ptr, framerBufferStride, xx + 2, yy, origColor * phosphorB, m_scanlineMultiplier);
+                    }
                 }
             }
-        }
 
-        Refreshed?.Invoke(this, EventArgs.Empty);
+            Refreshed?.Invoke(this, EventArgs.Empty);
+        }
     }
 
     /// <summary>

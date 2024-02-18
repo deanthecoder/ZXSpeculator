@@ -9,6 +9,7 @@
 //
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
+using CSharp.Core.ViewModels;
 using Speculator.Core.Tape;
 
 namespace Speculator.Core;
@@ -16,11 +17,12 @@ namespace Speculator.Core;
 /// <summary>
 /// The main emulation entry point object.
 /// </summary>
-public class ZxSpectrum : IDisposable
+public class ZxSpectrum : ViewModelBase, IDisposable
 {
     private SoundHandler m_soundHandler;
     private readonly ZxFileIo m_zxFileIo;
-    
+    private ClockSync.Speed m_emulationSpeed;
+
     private ZxDisplay TheDisplay { get; }
     public CPU TheCpu { get; }
     public ZxPortHandler PortHandler { get; }
@@ -28,6 +30,18 @@ public class ZxSpectrum : IDisposable
     public TapeLoader TheTapeLoader { get; } = new TapeLoader();
     public Debugger.Debugger TheDebugger { get; }
     public CpuHistory CpuHistory { get; }
+
+    public ClockSync.Speed EmulationSpeed
+    {
+        get => m_emulationSpeed;
+        set
+        {
+            if (!SetField(ref m_emulationSpeed, value))
+                return;
+            TheCpu.SetSpeed(value);
+            TheDisplay.IsPaused = value == ClockSync.Speed.Pause;
+        }
+    }
 
     public ZxSpectrum(ZxDisplay display)
     {
@@ -49,10 +63,29 @@ public class ZxSpectrum : IDisposable
         CpuHistory = new CpuHistory(TheCpu, m_zxFileIo);
     }
 
-    public void PowerOnAsync() => TheCpu.PowerOnAsync();
-    public void LoadSystemRom(FileInfo systemRom) => m_zxFileIo.LoadSystemRom(systemRom);
-    public void LoadRom(FileInfo romFile) => m_zxFileIo.LoadFile(romFile);
-    public void SaveRom(FileInfo romFile) => m_zxFileIo.SaveFile(romFile);
+    public void PowerOnAsync() =>
+        TheCpu.PowerOnAsync();
+
+    public void LoadSystemRom(FileInfo systemRom)
+    {
+        EmulationSpeed = ClockSync.Speed.Actual;
+        m_zxFileIo.LoadSystemRom(systemRom);
+    }
+
+    public void LoadRom(FileInfo romFile)
+    {
+        EmulationSpeed = ClockSync.Speed.Actual;
+        m_zxFileIo.LoadFile(romFile);
+    }
+
+    public void SaveRom(FileInfo romFile) =>
+        m_zxFileIo.SaveFile(romFile);
+
+    public void ResetAsync()
+    {
+        EmulationSpeed = ClockSync.Speed.Actual;
+        TheCpu.ResetAsync();
+    }
 
     public void Dispose()
     {

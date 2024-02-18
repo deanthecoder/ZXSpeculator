@@ -24,18 +24,11 @@ namespace Speculator.ViewModels;
 
 public class MainWindowViewModel : ViewModelBase, IDisposable
 {
-    private ClockSync.Speed m_emulationSpeed;
     public ZxSpectrum Speccy { get; }
     public ZxDisplay Display { get; }
     public Settings Settings => Settings.Instance;
     public MruFiles Mru { get; }
     public RomSelectorViewModel RomSelectorDetails { get; }
-
-    public ClockSync.Speed EmulationSpeed
-    {
-        get => m_emulationSpeed;
-        private set => SetField(ref m_emulationSpeed, value);
-    }
 
     public MainWindowViewModel()
     {
@@ -47,6 +40,8 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
             if (!Speccy.TheTapeLoader.IsLoading)
                 Dispatcher.UIThread.InvokeAsync(LoadGameRom);
         };
+        
+        Speccy.CpuHistory.Activated += (_, _) => Speccy.EmulationSpeed = ClockSync.Speed.Actual;
         
         Mru = new MruFiles().InitFromString(Settings.MruFiles);
         Mru.OpenRequested += (_, file) => Speccy.LoadRom(file);
@@ -125,11 +120,12 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
             confirmed =>
             {
                 if (confirmed)
-                    Speccy.TheCpu.ResetAsync();
+                    Speccy.ResetAsync();
             },
             MaterialIconKind.Power);
     
-    public void QuickRollback() => Speccy.CpuHistory.RollbackByTime(5);
+    public void QuickRollback() =>
+        Speccy.CpuHistory.RollbackByTime(5);
 
     public void SetCursorJoystick(bool b) =>
         Settings.EmulateCursorJoystick = b;
@@ -142,20 +138,21 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     
     public void RotateEmulationSpeed()
     {
-        switch (EmulationSpeed)
+        switch (Speccy.EmulationSpeed)
         {
             case ClockSync.Speed.Actual:
-                EmulationSpeed = ClockSync.Speed.Fast;
+                Speccy.EmulationSpeed = ClockSync.Speed.Fast;
                 break;
             case ClockSync.Speed.Fast:
-                EmulationSpeed = ClockSync.Speed.Maximum;
+                Speccy.EmulationSpeed = ClockSync.Speed.Maximum;
                 break;
             case ClockSync.Speed.Maximum:
-                EmulationSpeed = ClockSync.Speed.Actual;
+                Speccy.EmulationSpeed = ClockSync.Speed.Pause;
+                break;
+            case ClockSync.Speed.Pause:
+                Speccy.EmulationSpeed = ClockSync.Speed.Actual;
                 break;
         }
-
-        Speccy.TheCpu.SetSpeed(EmulationSpeed);
     }
 
     public void ToggleAmbientBlur() =>

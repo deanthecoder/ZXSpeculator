@@ -166,7 +166,7 @@
                     <Button Command="{Binding RotateEmulationSpeed}"
                             Theme="{DynamicResource MaterialFlatButton}"
                             Foreground="White"
-                            Tag="{Binding EmulationSpeed}">
+                            Tag="{Binding Speccy.EmulationSpeed}">
                         <ToolTip.Tip>
                             <StackPanel>
                                 <TextBlock Text="Emulation Speed" HorizontalAlignment="Center"/>
@@ -184,6 +184,9 @@
                                 </Style>
                                 <Style Selector="avalonia|MaterialIcon[Tag=Maximum]">
                                     <Setter Property="Kind" Value="RunFast" />
+                                </Style>
+                                <Style Selector="avalonia|MaterialIcon[Tag=Pause]">
+                                    <Setter Property="Kind" Value="Pause" />
                                 </Style>
                             </avalonia:MaterialIcon.Styles>
                         </avalonia:MaterialIcon>

@@ -28,6 +28,8 @@ public class CpuHistory : ViewModelBase
     private long m_ticksToNextSample;
     private int m_indexToRestore;
 
+    public event EventHandler Activated;
+
     public CPU TheCpu { get; }
     public int LastSampleIndex => m_snapshots.Count - 1;
     public bool CanRestore => LastSampleIndex >= 0 && IndexToRestore < LastSampleIndex;
@@ -107,6 +109,8 @@ public class CpuHistory : ViewModelBase
         // Delete all snapshots from this point.
         while (m_snapshots.Count > IndexToRestore)
             m_snapshots.RemoveAt(m_snapshots.Count - 1);
+
+        Activated?.Invoke(this, EventArgs.Empty);
     }
 
     public void RollbackByTime(int goBackSecs)

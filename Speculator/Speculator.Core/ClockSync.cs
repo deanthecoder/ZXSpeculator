@@ -25,7 +25,7 @@ public class ClockSync
     /// </summary>
     private long m_tStateCountAtStart;
     
-    public enum Speed { Actual, Fast, Maximum }
+    public enum Speed { Actual, Fast, Maximum, Pause }
 
     public ClockSync(double emulatedCpuMHz, Func<long> ticksSinceCpuStart)
     {
@@ -76,10 +76,13 @@ public class ClockSync
                 case Speed.Maximum:
                     // Don't delay.
                     return;
+                case Speed.Pause:
+                    // Not quite paused, but veeeery slow.
+                    Thread.Sleep(50);
+                    return;
             }
 
             var targetRealElapsedTicks = Stopwatch.Frequency * emulatedUptimeSecs;
-
             while (m_realTime.ElapsedTicks < targetRealElapsedTicks)
             {
                 // Absolutely nothing.

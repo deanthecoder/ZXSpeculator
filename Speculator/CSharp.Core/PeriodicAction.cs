@@ -43,7 +43,7 @@ public class PeriodicAction : IDisposable
         {
             try
             {
-                while (true)
+                while (!m_tokenSource.IsCancellationRequested)
                 {
                     m_action();
                     Thread.Sleep((int)m_period.TotalMilliseconds);
@@ -59,8 +59,12 @@ public class PeriodicAction : IDisposable
 
     public void Stop()
     {
+        if (m_task == null)
+            return;
+        
         m_tokenSource.Cancel();
-        m_task?.Dispose();
+        m_task.Wait();
+        m_task.Dispose();
         m_task = null;
     }
     

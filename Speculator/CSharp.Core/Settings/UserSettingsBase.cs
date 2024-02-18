@@ -15,6 +15,7 @@ using System.Runtime.CompilerServices;
 using CSharp.Core.Extensions;
 using CSharp.Core.JsonConverters;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace CSharp.Core.Settings;
 
@@ -72,7 +73,8 @@ public abstract class UserSettingsBase : INotifyPropertyChanged, IDisposable
         {
             Converters = new JsonConverter[]
             {
-                new FileInfoConverter()
+                new FileInfoConverter(),
+                new StringEnumConverter()
             }
         };
 }

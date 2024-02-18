@@ -70,7 +70,6 @@ public class MruFiles : ViewModelBase
     
     private void RaisePropertyChanges()
     {
-
         GetType()
             .GetProperties(BindingFlags.Instance | BindingFlags.Public)
             .Where(o => o.PropertyType == typeof(SingleItem))
