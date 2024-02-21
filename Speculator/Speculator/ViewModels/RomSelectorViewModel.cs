@@ -36,8 +36,8 @@ public class RomSelectorViewModel : ViewModelBase
     public RomSelectorViewModel(ZxSpectrum speccy)
     {
         RomFiles = Assembly.GetExecutingAssembly().GetDirectory().EnumerateFiles("ROMs/*.rom").ToArray();
-        RomFile = RomFiles.FirstOrDefault(o => o.FullName == Settings.Instance.RomFile?.FullName) ??
-                  RomFiles.FirstOrDefault(o => o.LeafName() == "Standard Spectrum 48K BASIC") ??
+        RomFile = RomFiles.FirstOrDefault(o => o.Name == Settings.Instance.RomFile?.Name) ??
+                  RomFiles.FirstOrDefault(o => o.Name == "Standard Spectrum 48K BASIC.rom") ??
                   RomFiles.FirstOrDefault();
 
         UseSpeccyColors = Settings.Instance.UseSpeccyColors;
