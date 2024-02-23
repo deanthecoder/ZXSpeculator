@@ -19,6 +19,7 @@ using CSharp.Core.UI;
 using CSharp.Core.ViewModels;
 using Material.Icons;
 using Speculator.Core;
+using Speculator.Extensions;
 
 namespace Speculator.ViewModels;
 
@@ -167,6 +168,25 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
             return;
         Settings.DisplayCrtHelp = false;
         DialogService.Instance.ShowMessage("CRT Mode Enabled", "CRT Mode is best viewed with a maximized window.", MaterialIconKind.TelevisionClassic);
+    }
+
+    public void SaveScreenshot()
+    {
+        var keyBlocker = Speccy.PortHandler.CreateKeyBlocker();
+        var command = new FileSaveCommand("Save Screenshot", "PNG Files", new[] { "*.png" });
+        command.FileSelected += (_, info) =>
+        {
+            try
+            {
+                Display.SaveAs(info);
+            }
+            finally
+            {
+                keyBlocker.Dispose();
+            }
+        };
+        command.Cancelled += (_, _) => keyBlocker.Dispose();
+        command.Execute(null);
     }
     
     public void Dispose()

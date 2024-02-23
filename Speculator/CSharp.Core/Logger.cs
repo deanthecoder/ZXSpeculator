@@ -54,4 +54,7 @@ public class Logger
         Console.WriteLine(message);
         Logged?.Invoke(this, (Severity.Error, message));
     }
+    
+    public void Exception(string message, Exception exception) =>
+        Error($"{message} ({exception.Message})");
 }

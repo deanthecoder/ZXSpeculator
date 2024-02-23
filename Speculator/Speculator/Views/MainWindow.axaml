@@ -132,6 +132,7 @@
                                   IsVisible="{Binding !Speccy.TheDebugger.IsVisible}" />
                         <MenuItem Header="Hide Debugger" Command="{Binding Speccy.TheDebugger.Hide}"
                                   IsVisible="{Binding Speccy.TheDebugger.IsVisible}" />
+                        <MenuItem Header="Save Screenshot..." Command="{Binding SaveScreenshot}" />
                     </MenuItem>
 
                     <MenuItem Header="Help">
