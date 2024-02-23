@@ -15,6 +15,7 @@ using CSharp.Core.Extensions;
 using Speculator.Core.Tape;
 using Speculator.Core.Utils;
 // ReSharper disable MustUseReturnValue
+// ReSharper disable InconsistentlySynchronizedField
 
 namespace Speculator.Core;
 
@@ -45,6 +46,7 @@ public class ZxFileIo
     public void LoadSystemRom(FileInfo systemRom)
     {
         m_cpu.MainMemory.LoadRom(systemRom);
+        m_cpu.ClockSync.Reset();
         RomLoaded?.Invoke(this, RomType.System);
     }
 

@@ -18,6 +18,7 @@ public class ClockSync
     private readonly Stopwatch m_realTime;
     private readonly double m_emulatedTicksPerSecond;
     private readonly Func<long> m_ticksSinceCpuStart;
+    private readonly Func<long> m_resetCpuTicks;
     private Speed m_speed = Speed.Actual;
 
     /// <summary>
@@ -27,11 +28,12 @@ public class ClockSync
     
     public enum Speed { Actual, Fast, Maximum, Pause }
 
-    public ClockSync(double emulatedCpuMHz, Func<long> ticksSinceCpuStart)
+    public ClockSync(double emulatedCpuMHz, Func<long> ticksSinceCpuStart, Func<long> resetCpuTicks)
     {
         m_realTime = Stopwatch.StartNew();
         m_emulatedTicksPerSecond = emulatedCpuMHz;
         m_ticksSinceCpuStart = ticksSinceCpuStart;
+        m_resetCpuTicks = resetCpuTicks;
     }
 
     /// <summary>
@@ -66,7 +68,6 @@ public class ClockSync
 
             switch (m_speed)
             {
-
                 case Speed.Actual:
                     // No change required.
                     break;
@@ -96,7 +97,8 @@ public class ClockSync
         lock (m_realTime)
         {
             m_realTime.Restart();
-            m_tStateCountAtStart = m_ticksSinceCpuStart();
+            m_tStateCountAtStart = 0;
+            m_resetCpuTicks();
         }
     }
 

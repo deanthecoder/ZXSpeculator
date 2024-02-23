@@ -67,7 +67,7 @@ public partial class CPU : ViewModelBase
         TheRegisters = new Registers();
         TheAlu = new Alu(TheRegisters);
         ThePortHandler = portHandler;
-        ClockSync = new ClockSync(TStatesPerSecond, () => TStatesSinceCpuStart);
+        ClockSync = new ClockSync(TStatesPerSecond, () => TStatesSinceCpuStart, () => TStatesSinceCpuStart = 0);
     }
 
     public void SetTStatesSinceCpuStart(long tStates)
