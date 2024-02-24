@@ -86,15 +86,17 @@ Earlier version, with a basic dither:
 ![](Experiments/HumanShader/Pass2_BasicDither.png)
 First iteration: Solid blocks:
 ![](Experiments/HumanShader/Pass1_Rough.png)
-I've included a `.sna` snapshot of the code [here](Experiments/HumanShader/HumanShader.sna).
+I've included a `.sna` snapshot of the code [here](Experiments/HumanShader/HumanShader.sna) (Requires the JGH ROM).
 ![](Experiments/HumanShader/Code.png)
 
 # Experiments - Conway's Game Of Life
 I realized I had never written a [Conway's Game Of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life), so decided to make one using the emulator.
 
-Performance isn't great - It's something that would definitely benefit with some optimization and perhaps a rewrite using Z80 machine code.
+Performance in this BASIC version isn't great... (See [here](Experiments/GameOfLife/Conway.sna) - Requires the JGH ROM)
 ![](Experiments/GameOfLife/GameOfLife.png)
-I've included a `.sna` snapshot of the code [here](Experiments/GameOfLife/Conway.sna).
+
+...so I rewrote it in C, compiled into Z80 machine code ([here](Experiments/GameOfLife/Conway.tap)).  Muuuch faster!
+![](Experiments/GameOfLife/GameOfLifeC.png)
 
 ## Contribution and Improvements
 ZX Speculator is an ongoing project and contributions are welcome. Whether it's improving emulation accuracy, testing on different platforms, or enhancing existing features, your input is valuable (although I can't always promise a fast response, as this is a side project).
@@ -110,5 +112,6 @@ ZX Speculator is an ongoing project and contributions are welcome. Whether it's 
 - [Z80 Instruction Exerciser (zexall, zexdoc)](https://mdfs.net/Software/Z80/Exerciser/Spectrum/)
 - [JSMoo Z80 tests](https://github.com/raddad772/jsmoo/tree/main/misc/tests/GeneratedTests/z80)
 - [JGH Spectrum 48K ROM](http://mdfs.net/Software/Spectrum/Harston) by J.G.Harston.
+- [z88dk C to z80 compiler](https://z88dk.org/site/)
 ---
 Feel free to follow me on Twitter for more updates: [@deanthecoder](https://twitter.com/deanthecoder)

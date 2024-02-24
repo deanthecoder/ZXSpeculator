@@ -401,3 +401,5 @@ FodyWeavers.xsd
 *.z80
 **/ZX Speculator.app/
 *.dmg
+**/.vscode/**
+Experiments/GameOfLife/Conway
