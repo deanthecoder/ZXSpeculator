@@ -190,7 +190,7 @@ public class ZxFileIo
         }
     }
     
-    private static List<byte> ReadBytes(FileStream stream, int byteCount)
+    private static List<byte> ReadBytes(Stream stream, int byteCount)
     {
         var data = new List<byte>(byteCount);
         for (var i = 0; i < byteCount; i++)
