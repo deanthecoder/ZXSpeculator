@@ -48,7 +48,7 @@ public class SoundHandler : ViewModelBase, IDisposable
     }
 
     public void SetEnabled(bool value) =>
-        m_soundDevice.SetEnabled(value);
+        m_soundDevice?.SetEnabled(value);
 
     public void Start()
     {

@@ -9,10 +9,14 @@
 //
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
+using System.Reflection;
+using CSharp.Core.Extensions;
+
 namespace CSharp.Core;
 
 public class Logger
 {
+    private readonly FileInfo m_filePath = Assembly.GetEntryAssembly().GetAppSettingsPath().GetFile("log.txt");
     public enum Severity
     {
         Info,
@@ -22,7 +26,37 @@ public class Logger
     
     public static Logger Instance { get; } = new Logger();
 
-    public event EventHandler<(Severity, string Message)> Logged; 
+    public event EventHandler<(Severity, string Message)> Logged;
+
+    private Logger()
+    {
+        try
+        {
+            if (m_filePath.Exists)
+                m_filePath.TryDelete();
+        }
+        catch (Exception)
+        {
+            // Do nothing.
+        }
+
+        Logged += (_, info) =>
+        {
+            try
+            {
+                using var fileStream = m_filePath.Open(FileMode.Append);
+                using var streamWriter = new StreamWriter(fileStream);
+                streamWriter.WriteLine($"[{DateTime.Now:G}] {info.Item1}: {info.Message}");
+            }
+            catch (Exception e)
+            {
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+                Console.Write("Error:");
+                Console.ResetColor();
+                Console.WriteLine($" Can't write to log file. ({e.Message})");
+            }
+        };
+    }
 
     public void Info(Func<string> message) => Info(message());
     public void Warn(Func<string> message) => Warn(message());

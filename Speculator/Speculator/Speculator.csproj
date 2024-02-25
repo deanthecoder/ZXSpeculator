@@ -38,6 +38,9 @@
 
 
     <ItemGroup>
+      <None Update="3rdParty\oalinst.exe">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
       <None Update="ROMs\Standard Spectrum 48K BASIC.rom">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>

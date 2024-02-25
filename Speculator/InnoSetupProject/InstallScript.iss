@@ -22,6 +22,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 [Files]
 Source: "bin\Release\net7.0\publish\win-x64\*.*"; DestDir: "{app}"; Excludes: "*.pdb"; Flags: ignoreversion
 Source: "bin\Release\net7.0\publish\win-x64\ROMs\*.*"; DestDir: "{app}\ROMs"; Flags: ignoreversion
+Source: "bin\Release\net7.0\publish\win-x64\3rdParty\*.*"; DestDir: "{app}\3rdParty"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
@@ -29,3 +30,4 @@ Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: 
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\3rdParty\oalinst.exe"; Description: "Installing OpenAL"; Parameters:"/s"
