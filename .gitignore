@@ -403,3 +403,4 @@ FodyWeavers.xsd
 *.dmg
 **/.vscode/**
 Experiments/GameOfLife/Conway
+Experiments/FireFX/fire

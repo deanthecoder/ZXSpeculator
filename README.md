@@ -98,6 +98,10 @@ Performance in this BASIC version isn't great... (See [here](Experiments/GameOfL
 ...so I rewrote it in C, compiled into Z80 machine code ([here](Experiments/GameOfLife/Conway.tap)).  Muuuch faster!
 ![](Experiments/GameOfLife/GameOfLifeC.png)
 
+# Experiments - Retro Fire
+C compiled into Z80 machine code ([here](Experiments/FireFX/fire.tap)). Too slow to call 'real time', but not bad for the Speccy.
+![](Experiments/FireFX/Fire.png)
+
 ## Contribution and Improvements
 ZX Speculator is an ongoing project and contributions are welcome. Whether it's improving emulation accuracy, testing on different platforms, or enhancing existing features, your input is valuable (although I can't always promise a fast response, as this is a side project).
 
