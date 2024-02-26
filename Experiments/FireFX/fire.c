@@ -22,69 +22,49 @@ void main()
     // Prep.
     in_GetKeyReset();
     uint8_t grid[384] = { 0 };
-    uint8_t colLUT[256];
-    uint8_t backLUT[256];
     srand(0);
 
     // Build color look up tables.
+    uint8_t colLUT[256];
     for (int b = 0; b < 256; ++b)
     {
         if (b > 90)
-        {
-            colLUT[b] = WHITE;
-            backLUT[b] = WHITE;
-        }
+            colLUT[b] = INK_WHITE + PAPER_WHITE;
         else if (b > 80)
-        {
-            colLUT[b] = YELLOW;
-            backLUT[b] = WHITE;
-        }
+            colLUT[b] = INK_YELLOW + PAPER_WHITE;
         else if (b > 70)
-        {
-            colLUT[b] = WHITE;
-            backLUT[b] = YELLOW;
-        }
+            colLUT[b] = INK_WHITE + PAPER_YELLOW;
         else if (b > 60)
-        {
-            colLUT[b] = YELLOW;
-            backLUT[b] = YELLOW;
-        }
+            colLUT[b] = INK_YELLOW + PAPER_YELLOW;
         else if (b > 50)
-        {
-            colLUT[b] = RED;
-            backLUT[b] = YELLOW;
-        }
+            colLUT[b] = INK_RED + PAPER_YELLOW;
         else if (b > 40)
-        {
-            colLUT[b] = YELLOW;
-            backLUT[b] = RED;
-        }
+            colLUT[b] = INK_YELLOW + PAPER_RED;
         else if (b > 30)
-        {
-            colLUT[b] = RED;
-            backLUT[b] = RED;
-        }
+            colLUT[b] = INK_RED + PAPER_RED;
         else if (b > 20)
-        {
-            colLUT[b] = RED;
-            backLUT[b] = BLACK;
-        }
+            colLUT[b] = INK_RED + PAPER_BLACK;
         else
-        {
-            colLUT[b] = BLACK;
-            backLUT[b] = BLACK;
-        }
+            colLUT[b] = INK_BLACK + PAPER_BLACK;
+    }
+
+    // Prime the screen with dots.
+    for (uint8_t y = 0; y < 10; ++y)
+    {
+        for (uint8_t x = 0; x < 32; ++x)
+            c_plot(x << 1, 27 + (y << 1));
     }
 
     // Loop.
+    int i;
     while (!in_GetKey())
     {
         // Seed the base line.
-        for (uint8_t i = 0; i < 64; ++i)
-            grid[320 + i] = rand() % 256;
+        for (i = 320; i < 384; ++i)
+            grid[i] = rand() % 256;
 
         // Apply the algorithm.
-        for (int i = 0; i < 320; ++i)
+        for (i = 0; i < 320; ++i)
         {
             int sum = grid[i + 31];
             sum += grid[i + 32];
@@ -95,17 +75,7 @@ void main()
         }
 
         // Update the screen.
-        int o = 0;
-        for (uint8_t y = 0; y < 10; ++y)
-        {
-            for (uint8_t x = 0; x < 32; ++x, ++o)
-            {
-                const uint8_t b = grid[o];
-                textcolor(colLUT[b]);
-                textbackground(backLUT[b]);
-
-                c_plot(x << 1, 27 + (y << 1));
-            }
-        }
+        for (i = 0; i < 320; ++i)
+            attrMem[416 + i] = colLUT[grid[i]];
     }
 }
