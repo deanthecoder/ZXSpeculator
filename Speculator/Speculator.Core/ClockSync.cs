@@ -25,7 +25,7 @@ public class ClockSync
     /// Number of T states when this stopwatch was started.
     /// </summary>
     private long m_tStateCountAtStart;
-    
+
     public enum Speed { Actual, Fast, Maximum, Pause }
 
     public ClockSync(double emulatedCpuMHz, Func<long> ticksSinceCpuStart, Func<long> resetCpuTicks)
@@ -84,11 +84,9 @@ public class ClockSync
             }
 
             var targetRealElapsedTicks = Stopwatch.Frequency * emulatedUptimeSecs;
+            var spinWait = new SpinWait();
             while (m_realTime.ElapsedTicks < targetRealElapsedTicks)
-            {
-                // Absolutely nothing.
-                Thread.Sleep(0);
-            }
+                spinWait.SpinOnce();
         }
     }
 
