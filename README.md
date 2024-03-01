@@ -86,7 +86,7 @@ Earlier version, with a basic dither:
 ![](Experiments/HumanShader/Pass2_BasicDither.png)
 First iteration: Solid blocks:
 ![](Experiments/HumanShader/Pass1_Rough.png)
-I've included a `.sna` snapshot of the code [here](Experiments/HumanShader/HumanShader.sna) (Requires the JGH ROM).
+I've included a `.sna` snapshot of the code [here](Experiments/HumanShader/HumanShader.sna).
 ![](Experiments/HumanShader/Code.png)
 
 # Experiments - Conway's Game Of Life
@@ -101,6 +101,14 @@ Performance in this BASIC version isn't great... (See [here](Experiments/GameOfL
 # Experiments - Retro Fire
 C compiled into Z80 machine code ([here](Experiments/FireFX/fire.tap)). Too slow to call 'real time', but not bad for the Speccy.
 ![](Experiments/FireFX/Fire.png)
+
+# Experiments - The Matrix
+C compiled into Z80 machine code ([here](Experiments/TheMatrix/matrix.tap)). This one runs in real time, which surprised me.
+
+I first populate the entire screen with characters (black on black), then build up a 768 element array of color values with a repeated sequence ranging from green to bright green, white to bright white.
+
+This array is then used to set the colors on the screen, and a `memmove` command is used to scroll the buffer by one byte. This keeps the framerate up as it's only the color attributes that change - Not the characters on the screen.
+![](Experiments/TheMatrix/TheMatrix.png)
 
 ## Contribution and Improvements
 ZX Speculator is an ongoing project and contributions are welcome. Whether it's improving emulation accuracy, testing on different platforms, or enhancing existing features, your input is valuable (although I can't always promise a fast response, as this is a side project).
