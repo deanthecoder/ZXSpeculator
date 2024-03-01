@@ -110,6 +110,12 @@ I first populate the entire screen with characters (black on black), then build 
 This array is then used to set the colors on the screen, and a `memmove` command is used to scroll the buffer by one byte. This keeps the framerate up as it's only the color attributes that change - Not the characters on the screen.
 ![](Experiments/TheMatrix/TheMatrix.png)
 
+# Experiments - 10PRINT
+C compiled into Z80 machine code ([here](Experiments/10print/10print.tap)).
+
+The screen is filled with forward and backslashes (Drawn with a small gap in my case), then I randomly fill areas of the screen.  Quite relaxing to watch!
+![](Experiments/10print/10print.png)
+
 ## Contribution and Improvements
 ZX Speculator is an ongoing project and contributions are welcome. Whether it's improving emulation accuracy, testing on different platforms, or enhancing existing features, your input is valuable (although I can't always promise a fast response, as this is a side project).
 
