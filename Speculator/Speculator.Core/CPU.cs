@@ -121,7 +121,7 @@ public partial class CPU : ViewModelBase
         m_shutdownRequested = false;
         m_resetRequested = false;
         IsHalted = false;
-        TStatesSinceCpuStart = 0;
+        ClockSync.Reset();
         
         m_soundHandler?.Start();
 
