@@ -116,6 +116,14 @@ C compiled into Z80 machine code ([here](Experiments/10print/10print.tap)).
 The screen is filled with forward and backslashes (Drawn with a small gap in my case), then I randomly fill areas of the screen.  Quite relaxing to watch!
 ![](Experiments/10print/10print.png)
 
+# Experiments - Sandy Situation
+C compiled into Z80 machine code ([here](Experiments/Sand/sand.tap)).
+
+Iterating over a fixed number of grains, advancing each depending on what is below them. I did try a different approach of iterating through all cells in an x/y grid which worked well, but wasn't anywhere near as performant.
+
+I'm making use of the [z88dk](https://z88dk.org/site/)'s 'chunky' pixel blitting routines too.
+![](Experiments/Sand/Sand.png)
+
 ## Contribution and Improvements
 ZX Speculator is an ongoing project and contributions are welcome. Whether it's improving emulation accuracy, testing on different platforms, or enhancing existing features, your input is valuable (although I can't always promise a fast response, as this is a side project).
 
