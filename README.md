@@ -124,6 +124,13 @@ Iterating over a fixed number of grains, advancing each depending on what is bel
 I'm making use of the [z88dk](https://z88dk.org/site/)'s 'chunky' pixel blitting routines too.
 ![](Experiments/Sand/Sand.png)
 
+# Experiments - Twister
+Pushing my graphical skills on the ZX Spectrum, resulting in the creation of a classic 'twister' effect. The code is written in C and compiled into Z80 machine code ([here](Experiments/Twister/twister.tap)) - Needed to keep the performance up.
+
+The twister effect, a staple of early computer graphics and demoscene productions, seemed like the perfect challenge - I've always wanted to make one of these but never got round to it. Helped with details from [8bitshack](https://8bitshack.org/post/twister/).
+It takes a while to complete the precaching, but I like the result.
+![](Experiments/Twister/Twister.png)
+
 ## Contribution and Improvements
 ZX Speculator is an ongoing project and contributions are welcome. Whether it's improving emulation accuracy, testing on different platforms, or enhancing existing features, your input is valuable (although I can't always promise a fast response, as this is a side project).
 
