@@ -4,7 +4,7 @@
 [Setup]
 AppId={{996B4B28-314A-451F-ED15-8777E28DBDE4}
 AppName={#MyAppName}
-AppVersion=1.3
+AppVersion=1.4
 AppPublisher=Dean Edis
 AppPublisherURL=https://github.com/deanthecoder/ZXSpeculator
 DefaultDirName={commonpf}\ZXSpeculator
