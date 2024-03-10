@@ -131,6 +131,13 @@ The twister effect, a staple of early computer graphics and demoscene production
 It takes a while to complete the precaching, but I like the result.
 ![](Experiments/Twister/Twister.png)
 
+# Experiments - Breakout
+Two balls fighting for dominance! I saw an effect similar to this on Twitter and thought it was a great idea.
+A little more of a 'demo-style' with this one - I've added a DTC logo (which I'll developed more in the future).
+
+The code is written in C and compiled into Z80 machine code ([here](Experiments/BreakOut/breakout.tap)).
+![](Experiments/BreakOut/Breakout.png)
+
 ## Contribution and Improvements
 ZX Speculator is an ongoing project and contributions are welcome. Whether it's improving emulation accuracy, testing on different platforms, or enhancing existing features, your input is valuable (although I can't always promise a fast response, as this is a side project).
 
