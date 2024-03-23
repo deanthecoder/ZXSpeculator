@@ -118,7 +118,7 @@ public class ZxDisplay : ViewModelBase
             for (var i = 0; i < m_screenBuffer.Length; i++)
             {
                 for (var j = 0; j < m_screenBuffer[0].Length; j++)
-                    m_grain[i][j] = m_isCrt ? new Vector3((float)(m_random.NextDouble() * 12.0)) : Vector3.Zero;
+                    m_grain[i][j] = m_isCrt ? new Vector3((float)(m_random.NextDouble() * 10.0)) : Vector3.Zero;
             }
 
             m_didPixelsChange = true;
