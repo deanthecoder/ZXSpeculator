@@ -5,13 +5,23 @@ static uint8_t ticks = 0;
 
 void plot_shade(uint8_t x, uint8_t y, uint8_t density255)
 {
+    if (!density255)
+        return;
+
     // Plot this pixel based on the density.
     if (density255 == 255 || (uint8_t)rand() < density255)
         plot(x, y);
 }
 
+/// @brief Plot a chunky pixel with a certain shade.
+/// @param x Range 0 to 64
+/// @param y Range 0 to 48
+/// @param density255 
 void c_plot_shade(uint8_t x, uint8_t y, uint8_t density255)
 {
+    if (!density255)
+        return;
+
     x <<= 2;
     y <<= 2;
 
@@ -19,7 +29,7 @@ void c_plot_shade(uint8_t x, uint8_t y, uint8_t density255)
     {
         const uint8_t py = y + i;
         for (uint8_t j = 0; j < 4; ++j)
-            plot_shade(x + i, py, density255);
+            plot_shade(x + j, py, density255);
     }
 }
 
@@ -95,4 +105,17 @@ void drawLogo(uint8_t x, uint8_t y)
     }
 
     ++ticks;
+}
+
+void draw_footer(const char* s)
+{
+    gotoxy(64 - strlen(s), 23);
+    printf(s);
+}
+
+void in_waitForKey() {
+    while (!in_GetKey())
+        ;
+    while (in_GetKey())
+        ;
 }
