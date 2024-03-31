@@ -138,6 +138,14 @@ A little more of a 'demo-style' with this one - I've added a DTC logo (which I'l
 The code is written in C and compiled into Z80 machine code ([here](Experiments/BreakOut/breakout.tap)).
 ![](Experiments/BreakOut/Breakout.png)
 
+# Experiments - One Small Step
+This is based on a GLSL [shader](https://www.shadertoy.com/view/tt3yRH) I wrote a while ago. I built a library of GLSL-like functions in C to recreate the original code, then ran it over many hours.
+
+The final quality was achieved with a Floyd-Steinberg dithering algorithm. A random dither is much easier to implement, but the result was way too noisy.
+
+The executable is [here](Experiments/OneSmallStep/OneSmallStep.tap).
+![](Experiments/OneSmallStep/OneSmallStep.png)
+
 ## Contribution and Improvements
 ZX Speculator is an ongoing project and contributions are welcome. Whether it's improving emulation accuracy, testing on different platforms, or enhancing existing features, your input is valuable (although I can't always promise a fast response, as this is a side project).
 

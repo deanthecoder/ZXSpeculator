@@ -1,5 +1,5 @@
-// zcc +zx -lndos -create-app -lmz -o OneSmallStep ../utils.c ../glsl.c OneSmallStep.c
-// zcc +zx -lndos -lmz -o OneSmallStep.bin ../utils.c ../glsl.c OneSmallStep.c
+// zcc +zx -lndos -create-app -lmz -DAMALLOC -o OneSmallStep ../utils.c ../glsl.c OneSmallStep.c
+// zcc +zx -lndos -lmz -DAMALLOC -o OneSmallStep.bin ../utils.c ../glsl.c OneSmallStep.c
 #include "../utils.h"
 #include "../glsl.h"
 
@@ -36,7 +36,7 @@ static float box(vec3_t p, vec3_t b) {
 }
 
 static float map(vec3_t p) {
-    // return v3_length(p) - 1.6f;
+    //return v3_length(p) - 1.6f;
 	float r, k, t, h,
 	      bmp = (n31(p) + n31(*v3_mulf(&p, 2.12f)) * .5 + n31(*v3_mulf(&p, 4.42f)) * .25 + n31(*v3_mulf(&p, 8.54f)) * .125 + n31(*v3_mulf(&p, 63.52f)) * .0156) * .5 * (.5 + 2. * exp(-spow(v2_length(v2_sub(vec2(p.x, p.z), vec2(.5, 2.2))), 2.) * .26)),
 	      a = p.y - .27 - bmp,
@@ -115,7 +115,7 @@ static float mainImage(vec2_t fc) {
     return c;
 }
 
-void main()
+int main()
 {
     srand(0);
     zx_border(INK_BLUE);
@@ -126,37 +126,56 @@ void main()
     // Footer.
     draw_footer("One Small Step (@DeanTheCoder)");
 
+    // Init Floyd-Steinberg errors.
+    float* err1 = (float*)malloc(sizeof(float) * 257);
+    float* err2 = (float*)malloc(sizeof(float) * 257);
+    for (uint16_t i = 0; i < 256; ++i)
+    {
+        err1[i] = 0.0f;
+        err2[i] = 0.0f;
+    }
+
     // Loop.
     in_GetKeyReset();
-    for (uint16_t y = 0; y < 192 - 8; y += 4)
+    gotoxy(0, 0);
+    for (uint16_t y = 0; y < 192 - 8; ++y)
     {
-        for (uint16_t x = 0; x < 256; x += 4)
+        // Calculate a line of pixels.
+        for (uint16_t x = 0; x < 256; ++x)
+            err1[x] += clamp(mainImage(*vec2(x, 191 - y)), 0.0f, 1.0f) + 0.01f;
+
+        // Apply dithering.
+        for (uint16_t x = 1; x < 255; ++x)
         {
-            float c = clamp(mainImage(*vec2(x, 191 - y)), 0.0f, 2.0f);
+            float oldPixel = err1[x];
+            float newPixel = floor(oldPixel + 0.5f);
+            err1[x] = newPixel;
+            float pixelError = oldPixel - newPixel;
+            
+            err1[x + 1] += pixelError * 0.4375f;
+            err2[x - 1] += pixelError * 0.1875f;
+            err2[x] += pixelError * 0.3125f;
+            err2[x + 1] += pixelError * 0.0625f;
 
-            // Set the color.
-            uint8_t ink, bright = 1 << 6;
-            switch ((uint8_t)(floor(c * 0.99f)))
-            {
-            case 0:
-                ink = INK_WHITE;
-                break;
+            if (newPixel >= 0.5)
+                plot(x, y);
+        }
 
-            case 1:
-                ink = INK_WHITE + bright;
-                c *= 0.4;
-                break;
+        // Cycle the errors up a row.
+        float* p = err1;
+        err1 = err2;
+        err2 = p;
+        memset(err2, 0, sizeof(float) * 256);
 
-            default:
-                ink = INK_WHITE + PAPER_RED;
-                break;
-            }
-
-            // Plot the pixels.
-            c_plot_shade((x >> 2), (y >> 2), min(c * 255.0f, 255.0f));
-            attrMem[((y >> 3) << 5) + (x >> 3)] = ink;
+        for (uint16_t i = 0; i < 256; ++i)
+        {
+            if (err1[i] < 0.01f)
+                err1[i] = 0.0f;
         }
     }
 
     in_waitForKey();
+    free(err1);
+    free(err2);
+    return 0;
 }
