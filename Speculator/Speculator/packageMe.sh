@@ -2,7 +2,7 @@
 
 # Define common variables
 APP_NAME="ZX Speculator"
-APP_VERSION="1.4.0"
+APP_VERSION="1.5.0"
 APP_VERSION_SHORT="1.4"
 EXECUTABLE_NAME="Speculator"
 IDENTIFIER="com.deanedis.zxspeculator"
