@@ -55,11 +55,11 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 
         if (args.Length > 0)
         {
-            string file = args[args.Length - 1];
-            if (file.EndsWith(".bin", StringComparison.OrdinalIgnoreCase))
+            var file = args[args.Length - 1];
+            var info = new FileInfo(file);
+            if (ZxFileIo.IsInstantLoadSupported(info))
             {
-                Console.WriteLine("Loading ROM file: " + file);
-                var info = new FileInfo(file);
+                Console.WriteLine("Loading: " + file);
                 OneShotDispatcherTimer.CreateAndStart(TimeSpan.FromSeconds(3), () => LoadGameRomDirect(info));
             }
         }
