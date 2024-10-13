@@ -31,7 +31,7 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
     public MruFiles Mru { get; }
     public RomSelectorViewModel RomSelectorDetails { get; }
 
-    public MainWindowViewModel()
+    public MainWindowViewModel(string[] args)
     {
         Display = new ZxDisplay();
         Speccy = new ZxSpectrum(Display);
@@ -52,6 +52,17 @@ public class MainWindowViewModel : ViewModelBase, IDisposable
 
         Settings.PropertyChanged += (_, _) => OnSettingsChanged(true);
         OnSettingsChanged(false);
+
+        if (args.Length > 0)
+        {
+            var file = args[args.Length - 1];
+            var info = new FileInfo(file);
+            if (ZxFileIo.IsInstantLoadSupported(info))
+            {
+                Console.WriteLine("Loading: " + file);
+                OneShotDispatcherTimer.CreateAndStart(TimeSpan.FromSeconds(3), () => LoadGameRomDirect(info));
+            }
+        }
 
         OneShotDispatcherTimer.CreateAndStart(TimeSpan.FromSeconds(3), ShowCrtMessage);
         return;

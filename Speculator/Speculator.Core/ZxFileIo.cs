@@ -93,6 +93,19 @@ public class ZxFileIo
                 return;
         }
     }
+    public static bool IsInstantLoadSupported(FileInfo fileInfo)
+    {
+        switch (fileInfo.Extension.ToLower())
+        {
+            case ".bin":
+            case ".sna":
+            case ".scr":
+            case ".z80":
+                return true;
+            default:
+                return false;
+        }
+    }
 
     private void LoadZ80(FileInfo file)
     {

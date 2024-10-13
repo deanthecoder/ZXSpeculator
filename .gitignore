@@ -409,3 +409,5 @@ Experiments/Sand/sand
 Experiments/Twister/twister
 Experiments/BreakOut/breakout
 *.bin
+
+**/.DS_Store
