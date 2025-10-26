@@ -4,7 +4,7 @@ ZX Speculator is a cross-platform ZX Spectrum 48K emulator written in C#.
 ![Main UI](img/MainUI.png?raw=true "Main UI")
 
 ## Features
-- **Cross Platfom**: Built using [Avalonia](https://avaloniaui.net/), ensuring compatibility across various platforms.
+- **Cross Platform**: Built using [Avalonia](https://avaloniaui.net/), ensuring compatibility across various platforms.
 - **Key Mapping**: Most keys on a modern PC keyboard are automatically mapped to the Spectrum, making it much easier to type in code.
 - **File Format Support**: Compatible with .z80, .bin, .scr, .tap, and .sna files.
 - **Archive Support**: Load files directly from `.zip` archives.
