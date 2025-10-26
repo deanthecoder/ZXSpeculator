@@ -18,7 +18,7 @@ public partial class Z80Instructions
         var placeholder = new Instruction(InstructionID.NOP, "#", "00");
         
         // Note: Order is important - Only append.
-        Instructions = new()
+        m_instructions = new[]
         {
             new(InstructionID.ADC_A_A, "ADC A,A", "8F", 4),
             new(InstructionID.ADC_A_B, "ADC A,B", "88", 4),
@@ -840,5 +840,6 @@ public partial class Z80Instructions
             new(InstructionID.IN_addr_C, "IN (C)", "ED 70", 12), // Undocumented.
             new(InstructionID.OUT_addr_C_0, "OUT (C),0", "ED 71", 12), // Undocumented.
         };
+        m_opcodeToInstructionLUT ??= InitPrimaryInstructionLookup();
     }
 }

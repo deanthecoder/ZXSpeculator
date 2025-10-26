@@ -10,6 +10,7 @@
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace Speculator.Core;
 
@@ -65,43 +66,70 @@ public class Instruction
     /// </summary>
     public Func<Memory, Registers, Alu, ushort, int> Run { get; internal init; }
 
-    private byte?[] m_opcodeBytes;
-    
+    // Optimized matching cache.
+    private byte[] m_fixedPrefix;
+    private (byte Offset, byte Value)[] m_fixedOtherBytes;
+    private int m_totalOpcodeLength;
+
     public bool StartsWithOpcodeBytes(Memory mainMemory, ushort addr)
     {
-        m_opcodeBytes ??= InitOpcodeBytesLookup();
+        EnsureOpcodePattern();
 
-        // Now try to match all bytes.
-        foreach (var opcodeByte in m_opcodeBytes)
+        // Fast path: compare against the raw memory span to avoid method-call overhead.
+        var span = mainMemory.Data.AsSpan(addr);
+        if (span.Length < m_totalOpcodeLength)
+            return false;
+
+        // Compare contiguous fixed prefix using vectorized SequenceEqual.
+        if (m_fixedPrefix.Length != 0 && !span[..m_fixedPrefix.Length].SequenceEqual(m_fixedPrefix))
+            return false;
+
+        // Compare any remaining fixed bytes beyond the first variable.
+        var other = m_fixedOtherBytes!;
+        for (var i = 0; i < other.Length; i++)
         {
-            if (opcodeByte != null && mainMemory.Peek(addr) != opcodeByte)
+            var p = other[i];
+            if (span[p.Offset] != p.Value)
                 return false;
-            addr++;
         }
 
         return true;
     }
-    
-    private byte?[] InitOpcodeBytesLookup()
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void EnsureOpcodePattern()
     {
-        // Retrieve opcode byte sequence.
-        var opcodes = HexTemplate.Split(new[] { ' ' });
-        Debug.Assert(opcodes.Length >= 1, "Opcode must consist of at least one byte.");
+        if (m_fixedPrefix != null)
+            return;
 
-        var opcodeBytes = new byte?[opcodes.Length];
+        // Build fixed prefix and any scattered fixed bytes after the first variable (n/d).
+        var tokens = HexTemplate.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        Debug.Assert(tokens.Length >= 1, "Opcode must consist of at least one byte.");
+        m_totalOpcodeLength = tokens.Length;
 
-        var i = 0;
-        foreach (var opcode in opcodes)
+        var prefix = new List<byte>(tokens.Length);
+        var others = new List<(byte Offset, byte Value)>();
+
+        var seenVariable = false;
+        for (byte i = 0; i < tokens.Length; i++)
         {
-            if (opcode.IndexOfAny(new[] { 'n', 'd' }) < 0)
-                opcodeBytes[i] = Convert.ToByte(opcode, 16);
-            else
-                opcodeBytes[i] = null;
+            var tok = tokens[i];
+            var isVar = tok.IndexOfAny(new[] { 'n', 'd' }) >= 0;
+            if (!isVar)
+            {
+                var val = Convert.ToByte(tok, 16);
+                if (!seenVariable)
+                    prefix.Add(val);
+                else
+                    others.Add((i, val));
+            }
 
-            i++;
+            if (isVar)
+                seenVariable = true;
         }
 
-        return opcodeBytes;
+        m_fixedPrefix = prefix.ToArray();
+        m_fixedOtherBytes = others.ToArray();
     }
 
     public override string ToString() => $"{MnemonicTemplate} ({HexTemplate})";

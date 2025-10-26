@@ -18,7 +18,7 @@ public partial class Z80Instructions
     private IEnumerable<Instruction> GetFdCbInstructions()
     {
         // Handled explicitly?
-        foreach (var instr in Instructions.Where(o => o.HexTemplate.Replace(" ", string.Empty).StartsWith("FDCB")))
+        foreach (var instr in m_instructions.Where(o => o.HexTemplate.Replace(" ", string.Empty).StartsWith("FDCB")))
             yield return instr;
 
         // Handled using Instruction callback method.

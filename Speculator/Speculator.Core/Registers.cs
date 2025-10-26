@@ -10,13 +10,12 @@
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
 using CSharp.Core.Extensions;
-using CSharp.Core.ViewModels;
 
 // ReSharper disable InconsistentNaming
 
 namespace Speculator.Core;
 
-public class Registers : ViewModelBase
+public class Registers
 {
     private readonly StorageRegisters[] m_storageRegisters = new StorageRegisters[2];
 
@@ -24,7 +23,7 @@ public class Registers : ViewModelBase
 
     public ushort PC { get; set; }
 
-    public class StorageRegisters : ViewModelBase
+    public class StorageRegisters
     {
         internal StorageRegisters()
         {

@@ -10,6 +10,8 @@
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
 using System.Numerics;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace Speculator.Core;
 
@@ -30,26 +32,35 @@ public static class FrameBuffer
     /// <summary>
     /// Set a vertical strip of 4 pixels the same RGB color.
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void SetPixelV4(Span<byte> framePtr, int stride, int x, int y, Vector3 rgb, Vector3 scanline)
     {
-        var clampedRgb = Vector3.Clamp(rgb, Vector3.Zero, V255);
+        // Clamp and pack to a 32-bit BGRA.
+        var clamped = Vector3.Clamp(rgb, Vector3.Zero, V255);
+        var r = (byte)clamped.X;
+        var g = (byte)clamped.Y;
+        var b = (byte)clamped.Z;
 
-        // First 3 vertical pixels.
+        // Pack as [A B G R] little-endian in one 32-bit write (alpha forced to 0xFF).
+        var pixel = (uint)(r | (g << 8) | (b << 16) | (0xFFu << 24));
         var offset = y * stride + x * 4;
+
+        // First 3 vertical pixels share the same RGB.
         for (var i = 0; i < 3; i++)
         {
-            framePtr[offset] = (byte)clampedRgb.X;
-            framePtr[offset + 1] = (byte)clampedRgb.Y;
-            framePtr[offset + 2] = (byte)clampedRgb.Z;
-            framePtr[offset + 3] = 0xFF;
+            // Unaligned-friendly 32-bit write.
+            MemoryMarshal.Write(framePtr.Slice(offset, 4), ref pixel);
             offset += stride;
         }
 
         // Adjust color for scanline effect and set the 4th pixel.
-        clampedRgb *= scanline;
-        framePtr[offset] = (byte)clampedRgb.X;
-        framePtr[offset + 1] = (byte)clampedRgb.Y;
-        framePtr[offset + 2] = (byte)clampedRgb.Z;
-        framePtr[offset + 3] = 0xFF;
+        clamped *= scanline;
+        
+        // Re-clamp after multiplication to stay within [0,255].
+        var r4 = (byte)Math.Clamp(clamped.X, 0.0f, 255.0f);
+        var g4 = (byte)Math.Clamp(clamped.Y, 0.0f, 255.0f);
+        var b4 = (byte)Math.Clamp(clamped.Z, 0.0f, 255.0f);
+        var pixel4 = (uint)(r4 | (g4 << 8) | (b4 << 16) | (0xFFu << 24));
+        MemoryMarshal.Write(framePtr.Slice(offset, 4), ref pixel4);
     }
 }

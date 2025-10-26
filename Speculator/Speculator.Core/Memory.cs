@@ -10,6 +10,7 @@
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text;
 using CSharp.Core;
 using CSharp.Core.Extensions;
@@ -27,6 +28,7 @@ public class Memory
 
     public byte[] Data { get; } = new byte[0x10000];
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte Poke(ushort addr, byte value)
     {
         if (IsRomArea(addr))
@@ -41,6 +43,7 @@ public class Memory
         Poke((ushort)(addr + 1), (byte)(v >> 8));
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte Peek(ushort addr) => Data[addr];
     
     public ushort PeekWord(ushort addr) =>

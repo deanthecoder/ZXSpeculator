@@ -9,6 +9,7 @@
 //
 // THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND.
 
+using System.Text;
 using CSharp.Core;
 
 namespace Speculator.Core.Tape;
@@ -122,7 +123,7 @@ public class TapeBlock
     {
         if (m_blockBytes.Length == 19)
         {
-            var blockName = System.Text.Encoding.ASCII.GetString(m_blockBytes, 2, 10).TrimEnd();
+            var blockName = Encoding.ASCII.GetString(m_blockBytes, 2, 10).TrimEnd();
             var dataLength = m_blockBytes[12] + (m_blockBytes[13] << 8);
             switch (m_blockBytes[1])
             {

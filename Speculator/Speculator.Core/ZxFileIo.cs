@@ -14,6 +14,7 @@ using CSharp.Core;
 using CSharp.Core.Extensions;
 using Speculator.Core.Tape;
 using Speculator.Core.Utils;
+
 // ReSharper disable MustUseReturnValue
 // ReSharper disable InconsistentlySynchronizedField
 
